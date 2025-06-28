@@ -1,0 +1,40 @@
+> rest-express@1.0.0 dev
+Seeding database with initial data...ex.ts
+Database already seeded, skipping...
+2:35:04 PM [express] serving on port 5000
+Error: The following dependencies are imported but could not be resolved:
+
+  @/components/ui/toaster (imported by /home/runner/workspace/client/src/App.tsx)
+  @/components/ui/sonner (imported by /home/runner/workspace/client/src/App.tsx)
+  @/components/ui/tooltip (imported by /home/runner/workspace/client/src/App.tsx)
+  @/lib/api (imported by /home/runner/workspace/client/src/pages/LoginPage.tsx)
+  @/components/AdminLayout (imported by /home/runner/workspace/client/src/pages/AdminUsers.tsx)
+  @/components/Header (imported by /home/runner/workspace/client/src/pages/OwnerDashboard.tsx)
+  @/components/ui/button (imported by /home/runner/workspace/client/src/pages/OwnerDashboard.tsx)
+  @/components/ui/input (imported by /home/runner/workspace/client/src/pages/StaffProperties.tsx)
+  @/components/Footer (imported by /home/runner/workspace/client/src/pages/OwnerDashboard.tsx)
+  @/hooks/use-toast (imported by /home/runner/workspace/client/src/pages/OwnerDashboard.tsx)
+  @/components/Hero (imported by /home/runner/workspace/client/src/pages/Index.tsx)
+  @/components/ui/form (imported by /home/runner/workspace/client/src/pages/LoginPage.tsx)
+  @/components/StaffLayout (imported by /home/runner/workspace/client/src/pages/StaffBookings.tsx)
+  @/components/PropertyForm (imported by /home/runner/workspace/client/src/pages/OwnerDashboard.tsx)
+  @/contexts/PropertiesContext (imported by /home/runner/workspace/client/src/pages/OwnerDashboard.tsx)
+  @/components/ui/card (imported by /home/runner/workspace/client/src/pages/OwnerDashboard.tsx)
+  @/components/FeaturedProperties (imported by /home/runner/workspace/client/src/pages/Index.tsx)
+  @/contexts/BookingsContext (imported by /home/runner/workspace/client/src/pages/AdminDashboard.tsx)
+  @/components/ui/accordion (imported by /home/runner/workspace/client/src/pages/BecomeHostPage.tsx)
+  @/components/ContactForm (imported by /home/runner/workspace/client/src/pages/ContactPage.tsx)
+  @/components/UserEditModal (imported by /home/runner/workspace/client/src/pages/AdminUsers.tsx)
+  @/components/ui/table (imported by /home/runner/workspace/client/src/pages/AdminUsers.tsx)
+  @/components/PropertyCard (imported by /home/runner/workspace/client/src/pages/PropertyPage.tsx)
+  @/components/PropertyDetails (imported by /home/runner/workspace/client/src/pages/PropertyPage.tsx)
+  @/components/PropertyMap (imported by /home/runner/workspace/client/src/pages/PropertiesPage.tsx)
+  @/components/ui/checkbox (imported by /home/runner/workspace/client/src/pages/AdminProperties.tsx)
+  @/components/ui/dialog (imported by /home/runner/workspace/client/src/pages/AdminUsers.tsx)
+  @/components/ui/tabs (imported by /home/runner/workspace/client/src/pages/AdminProperties.tsx)
+  @/components/ui/badge (imported by /home/runner/workspace/client/src/pages/OwnerDashboard.tsx)
+
+Are they installed?
+    at <anonymous> (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:50668:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:50173:26)
