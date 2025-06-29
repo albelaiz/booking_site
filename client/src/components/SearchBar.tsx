@@ -72,7 +72,7 @@ const SearchBar = () => {
             Location
           </label>
           <Select value={location} onValueChange={setLocation}>
-            <SelectTrigger className="w-full border-0 p-0 h-auto bg-transparent focus:ring-0 shadow-none">
+            <SelectTrigger className="w-full text-gray-900 focus:outline-none">
               <SelectValue placeholder="Select a location" />
             </SelectTrigger>
             <SelectContent className="bg-white border shadow-lg">

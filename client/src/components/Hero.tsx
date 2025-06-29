@@ -52,17 +52,17 @@ const Hero: React.FC = () => {
             <div className="bg-white/15 backdrop-blur-sm rounded-lg py-5 px-3 border border-white/20 shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-white/20">
               <Sun className="h-6 w-6 mx-auto mb-4 text-moroccan-gold" />
               <div className="text-3xl font-serif font-medium text-moroccan-gold mb-1">150+</div>
-              <div className="text-sm opacity-80">Properties Across Morocco</div>
+              <div className="text-sm opacity-80 text-moroccan-gold">Properties Across Morocco</div>
             </div>
             <div className="bg-white/15 backdrop-blur-sm rounded-lg py-5 px-3 border border-white/20 shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-white/20">
               <Umbrella className="h-6 w-6 mx-auto mb-4 text-moroccan-gold" />
               <div className="text-3xl font-serif font-medium text-moroccan-gold mb-1">4.9</div>
-              <div className="text-sm opacity-80">Guest Satisfaction</div>
+              <div className="text-sm opacity-80 text-moroccan-gold">Guest Satisfaction</div>
             </div>
             <div className="bg-white/15 backdrop-blur-sm rounded-lg py-5 px-3 border border-white/20 shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-white/20">
               <Waves className="h-6 w-6 mx-auto mb-4 text-moroccan-gold" />
               <div className="text-3xl font-serif font-medium text-moroccan-gold mb-1">5000+</div>
-              <div className="text-sm opacity-80">Happy Travelers</div>
+              <div className="text-sm opacity-80 text-moroccan-gold">Happy Travelers</div>
             </div>
           </div>
         </div>
