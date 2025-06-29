@@ -1,52 +1,87 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { messagesApi } from "../lib/api";
 
 interface Message {
-  id: string;
+  id: number;
   name: string;
   email: string;
   subject: string;
   message: string;
   status: 'new' | 'read' | 'replied';
   createdAt: string;
+  updatedAt: string;
 }
 
 interface MessagesContextType {
   messages: Message[];
-  addMessage: (message: Omit<Message, 'id' | 'status' | 'createdAt'>) => void;
-  updateMessageStatus: (id: string, status: Message['status']) => void;
-  deleteMessage: (id: string) => void;
+  addMessage: (message: Omit<Message, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateMessageStatus: (id: number, status: Message['status']) => Promise<void>;
+  deleteMessage: (id: number) => Promise<void>;
+  refreshMessages: () => Promise<void>;
+  loading: boolean;
 }
 
 const MessagesContext = createContext<MessagesContextType | undefined>(undefined);
 
 export const MessagesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const addMessage = (messageData: Omit<Message, 'id' | 'status' | 'createdAt'>) => {
-    const newMessage: Message = {
-      ...messageData,
-      id: Date.now().toString(),
-      status: 'new',
-      createdAt: new Date().toISOString(),
-    };
-    setMessages(prev => [newMessage, ...prev]);
+  const fetchMessages = async () => {
+    try {
+      const data = await messagesApi.getAll();
+      setMessages(data);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateMessageStatus = (id: string, status: Message['status']) => {
-    setMessages(prev => 
-      prev.map(msg => 
-        msg.id === id ? { ...msg, status } : msg
-      )
-    );
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+
+  const addMessage = async (messageData: Omit<Message, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      await messagesApi.create(messageData);
+      await fetchMessages(); // Refresh to get the latest messages
+    } catch (error) {
+      console.error('Error creating message:', error);
+      throw error;
+    }
   };
 
-  const deleteMessage = (id: string) => {
-    setMessages(prev => prev.filter(msg => msg.id !== id));
+  const updateMessageStatus = async (id: number, status: Message['status']) => {
+    try {
+      await messagesApi.update(id.toString(), { status });
+      await fetchMessages(); // Refresh to get the latest messages
+    } catch (error) {
+      console.error('Error updating message:', error);
+      throw error;
+    }
+  };
+
+  const deleteMessage = async (id: number) => {
+    try {
+      await messagesApi.delete(id.toString());
+      await fetchMessages(); // Refresh to get the latest messages
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      throw error;
+    }
   };
 
   return (
-    <MessagesContext.Provider value={{ messages, addMessage, updateMessageStatus, deleteMessage }}>
+    <MessagesContext.Provider value={{ 
+      messages, 
+      addMessage, 
+      updateMessageStatus, 
+      deleteMessage, 
+      refreshMessages: fetchMessages,
+      loading 
+    }}>
       {children}
     </MessagesContext.Provider>
   );

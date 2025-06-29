@@ -32,6 +32,7 @@ const LoginPage = () => {
   
   // Get the intended destination from state (for redirects after login)
   const from = location.state?.from?.pathname || '/dashboard';
+  const isFromBecomeHost = from === '/owner-dashboard' || location.state?.from?.pathname === '/become-host';
 
   // Define the form with React Hook Form and Zod validation
   const form = useForm<LoginFormValues>({
@@ -106,7 +107,13 @@ const LoginPage = () => {
           </div>
         </div>
         
-        <h1 className="text-2xl font-bold text-center mb-6">Login to Your Account</h1>
+        <h1 className="text-2xl font-bold text-center mb-2">Login to Your Account</h1>
+        {isFromBecomeHost && (
+          <p className="text-center text-moroccan-blue mb-6 text-sm">
+            🏠 Login to start hosting and earn extra income with your property
+          </p>
+        )}
+        {!isFromBecomeHost && <div className="mb-4"></div>}
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

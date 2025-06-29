@@ -34,10 +34,96 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
     if (error) setError(''); // Clear error when user starts typing
   };
 
+  const validatePassword = (password: string) => {
+    const errors = [];
+    
+    if (password.length < 8) {
+      errors.push("Password must be at least 8 characters long");
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+      errors.push("Password must contain at least one uppercase letter");
+    }
+    
+    if (!/[a-z]/.test(password)) {
+      errors.push("Password must contain at least one lowercase letter");
+    }
+    
+    if (!/[0-9]/.test(password)) {
+      errors.push("Password must contain at least one number");
+    }
+    
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      errors.push("Password must contain at least one special character (!@#$%^&*)");
+    }
+    
+    return errors;
+  };
+
+  const validateForm = () => {
+    if (!isLogin) {
+      // Registration validation
+      if (!formData.name.trim()) {
+        setError('Name is required');
+        return false;
+      }
+      
+      if (formData.name.trim().length < 2) {
+        setError('Name must be at least 2 characters long');
+        return false;
+      }
+      
+      if (!formData.username.trim()) {
+        setError('Username is required');
+        return false;
+      }
+      
+      if (formData.username.trim().length < 3) {
+        setError('Username must be at least 3 characters long');
+        return false;
+      }
+      
+      if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        setError('Please enter a valid email address');
+        return false;
+      }
+      
+      const passwordErrors = validatePassword(formData.password);
+      if (passwordErrors.length > 0) {
+        setError(passwordErrors[0]); // Show first error
+        return false;
+      }
+      
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return false;
+      }
+    } else {
+      // Login validation
+      if (!formData.username.trim() && !formData.email.trim()) {
+        setError('Username or email is required');
+        return false;
+      }
+      
+      if (!formData.password) {
+        setError('Password is required');
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Validate form before sending to server
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
 
     try {
       if (isLogin) {
@@ -58,23 +144,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
           setError('Login failed. Please check your credentials.');
         }
       } else {
-        // Registration with real API
-        if (formData.password !== formData.confirmPassword) {
-          setError('Passwords do not match');
-          return;
-        }
-
-        if (formData.password.length < 8) {
-          setError('Password must be at least 8 characters long');
-          return;
-        }
-
+        // Registration with real API and enhanced validation
         const response = await authApi.register({
-          username: formData.username,
-          email: formData.email,
+          username: formData.username.trim(),
+          email: formData.email.trim() || undefined,
           password: formData.password,
-          name: formData.name,
-          phone: formData.phone
+          name: formData.name.trim(),
+          phone: formData.phone.trim() || undefined
         });
 
         console.log('Registration response:', response);
@@ -89,12 +165,20 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
           
           onSuccess();
         } else {
-          setError('Registration failed. Please try again.');
+          setError(response.error || 'Registration failed. Please try again.');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Authentication error:', error);
-      setError(error instanceof Error ? error.message : 'Authentication failed. Please try again.');
+      
+      // Handle different types of errors
+      if (error.message) {
+        setError(error.message);
+      } else if (typeof error === 'string') {
+        setError(error);
+      } else {
+        setError('Authentication failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -221,7 +305,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
               </button>
             </div>
             {!isLogin && (
-              <p className="text-xs text-gray-500">Password must be at least 8 characters long</p>
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500">Password requirements:</p>
+                <ul className="text-xs text-gray-500 ml-2 space-y-0.5">
+                  <li className={formData.password.length >= 8 ? "text-green-600" : ""}>
+                    ✓ At least 8 characters long
+                  </li>
+                  <li className={/[A-Z]/.test(formData.password) ? "text-green-600" : ""}>
+                    ✓ One uppercase letter (A-Z)
+                  </li>
+                  <li className={/[a-z]/.test(formData.password) ? "text-green-600" : ""}>
+                    ✓ One lowercase letter (a-z)
+                  </li>
+                  <li className={/[0-9]/.test(formData.password) ? "text-green-600" : ""}>
+                    ✓ One number (0-9)
+                  </li>
+                  <li className={/[^A-Za-z0-9]/.test(formData.password) ? "text-green-600" : ""}>
+                    ✓ One special character (!@#$%^&*)
+                  </li>
+                </ul>
+              </div>
             )}
           </div>
 

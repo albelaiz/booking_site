@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
@@ -70,10 +71,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
           </div>
         ) : (
           <Button 
-            onClick={onDashboardClick} 
+            asChild
             className="w-full bg-moroccan-gold hover:bg-moroccan-gold/90 text-white"
           >
-            Become a host
+            <Link to="/become-host" onClick={onLinkClick}>Become a host</Link>
           </Button>
         )}
       </div>

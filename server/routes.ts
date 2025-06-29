@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertPropertySchema, insertBookingSchema } from "@shared/schema";
+import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -31,7 +31,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Return user data (excluding password)
       const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword });
+      res.json({ success: true, user: userWithoutPassword });
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -40,6 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/register", async (req, res) => {
     try {
+      // Validate the request data against the schema
       const userData = insertUserSchema.parse(req.body);
       
       // Check if user already exists
@@ -55,12 +56,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // If validation passes, create the user
       const user = await storage.createUser(userData);
       const { password: _, ...userWithoutPassword } = user;
-      res.status(201).json({ user: userWithoutPassword });
+      res.status(201).json({ success: true, user: userWithoutPassword });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid user data", details: error.errors });
+        // Return specific validation errors
+        const validationErrors = error.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message
+        }));
+        
+        // Return the first validation error for better UX
+        const firstError = validationErrors[0];
+        return res.status(400).json({ 
+          error: firstError.message,
+          field: firstError.field,
+          details: validationErrors 
+        });
       }
       console.error("Registration error:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -378,6 +392,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(booking);
     } catch (error) {
       console.error("Update booking error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Message routes
+  app.get("/api/messages", async (req, res) => {
+    try {
+      const messages = await storage.getAllMessages();
+      res.json(messages);
+    } catch (error) {
+      console.error("Get messages error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/messages/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid message ID" });
+      }
+
+      const message = await storage.getMessage(id);
+      if (!message) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      res.json(message);
+    } catch (error) {
+      console.error("Get message error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/messages", async (req, res) => {
+    try {
+      const messageData = insertMessageSchema.parse(req.body);
+      const message = await storage.createMessage(messageData);
+      res.status(201).json(message);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid message data", details: error.errors });
+      }
+      console.error("Create message error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/messages/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid message ID" });
+      }
+
+      const updateData = req.body;
+      const message = await storage.updateMessage(id, updateData);
+      
+      if (!message) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      res.json(message);
+    } catch (error) {
+      console.error("Update message error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/messages/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid message ID" });
+      }
+
+      const deleted = await storage.deleteMessage(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Delete message error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

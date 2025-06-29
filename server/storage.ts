@@ -1,7 +1,7 @@
 import { db } from "./db";
-import { users, properties, bookings } from "@shared/schema";
-import { eq, and } from "drizzle-orm";
-import type { User, Property, Booking } from "@shared/schema";
+import { users, properties, bookings, messages } from "@shared/schema";
+import { eq, and, desc } from "drizzle-orm";
+import type { User, Property, Booking, Message } from "@shared/schema";
 
 export interface IStorage {
   // User methods
@@ -29,6 +29,13 @@ export interface IStorage {
   getBookingsByProperty(propertyId: number): Promise<Booking[]>;
   createBooking(booking: any): Promise<Booking>;
   updateBooking(id: number, booking: any): Promise<Booking | undefined>;
+  
+  // Message methods
+  getMessage(id: number): Promise<Message | undefined>;
+  getAllMessages(): Promise<Message[]>;
+  createMessage(message: any): Promise<Message>;
+  updateMessage(id: number, message: any): Promise<Message | undefined>;
+  deleteMessage(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -271,6 +278,71 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error updating booking:', error);
       return undefined;
+    }
+  }
+
+  // Message methods
+  async getMessage(id: number): Promise<Message | undefined> {
+    try {
+      const result = await db.select().from(messages).where(eq(messages.id, id)).limit(1);
+      return result[0] || undefined;
+    } catch (error) {
+      console.error('Error fetching message:', error);
+      return undefined;
+    }
+  }
+
+  async getAllMessages(): Promise<Message[]> {
+    try {
+      return await db.select().from(messages).orderBy(messages.createdAt);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      return [];
+    }
+  }
+
+  async createMessage(insertMessage: any): Promise<Message> {
+    try {
+      const result = await db.insert(messages).values({
+        ...insertMessage,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }).returning();
+      
+      if (!result[0]) {
+        throw new Error('Failed to create message');
+      }
+      return result[0];
+    } catch (error) {
+      console.error('Error creating message:', error);
+      throw error;
+    }
+  }
+
+  async updateMessage(id: number, messageUpdate: any): Promise<Message | undefined> {
+    try {
+      const result = await db.update(messages)
+        .set({
+          ...messageUpdate,
+          updatedAt: new Date(),
+        })
+        .where(eq(messages.id, id))
+        .returning();
+      
+      return result[0] || undefined;
+    } catch (error) {
+      console.error('Error updating message:', error);
+      return undefined;
+    }
+  }
+
+  async deleteMessage(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(messages).where(eq(messages.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      return false;
     }
   }
 }

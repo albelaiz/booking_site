@@ -69,7 +69,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/owner-dashboard" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
+                <Link to="/become-host" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
                   <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
                   List Your Property
                 </Link>

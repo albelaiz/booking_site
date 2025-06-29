@@ -53,6 +53,17 @@ export const bookings = pgTable("bookings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("new"), // new, read, replied
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   properties: many(properties),
@@ -78,6 +89,16 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  password: z.string()
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number")
+    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+  username: z.string().min(3, "Username must be at least 3 characters long"),
+  name: z.string().min(2, "Name must be at least 2 characters long"),
+  email: z.string().email("Please enter a valid email address").optional(),
 });
 
 export const insertPropertySchema = createInsertSchema(properties).omit({
@@ -92,6 +113,12 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   updatedAt: true,
 });
 
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -99,14 +126,5 @@ export type InsertProperty = z.infer<typeof insertPropertySchema>;
 export type Property = typeof properties.$inferSelect;
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
-
-
-export interface Message {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: 'new' | 'read' | 'replied';
-  createdAt: string;
-}
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type Message = typeof messages.$inferSelect;

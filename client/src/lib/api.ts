@@ -345,7 +345,8 @@ export const authApi = {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        // Use the error message from the backend validation
+        throw new Error(data.error || data.message || 'Registration failed');
       }
       return data;
     } catch (error) {
@@ -395,6 +396,78 @@ export const authApi = {
           status: newUser.status
         }
       };
+    }
+  },
+};
+
+// Messages API
+export const messagesApi = {
+  getAll: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/messages`);
+      if (!response.ok) throw new Error('Failed to fetch messages');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available, using fallback data');
+      return [];
+    }
+  },
+
+  getById: async (id: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/messages/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch message');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Message not found');
+    }
+  },
+
+  create: async (message: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+      });
+      if (!response.ok) throw new Error('Failed to create message');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Failed to send message - server not available');
+    }
+  },
+
+  update: async (id: string, message: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/messages/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+      });
+      if (!response.ok) throw new Error('Failed to update message');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Failed to update message - server not available');
+    }
+  },
+
+  delete: async (id: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/messages/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete message');
+      return response.ok;
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Failed to delete message - server not available');
     }
   },
 };

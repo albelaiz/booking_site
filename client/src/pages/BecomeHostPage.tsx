@@ -1,10 +1,12 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { DollarSign, Users, Award, Handshake } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
+import { useAuth } from '../hooks/useAuth';
+import AuthModal from '../components/AuthModal';
 import {
   Accordion,
   AccordionContent,
@@ -13,6 +15,49 @@ import {
 } from "../components/ui/accordion";
 
 const BecomeHostPage = () => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const handleGetStarted = () => {
+    if (isLoggedIn) {
+      // If user is logged in, check their role
+      const userRole = localStorage.getItem('userRole');
+      if (userRole === 'owner' || userRole === 'admin') {
+        navigate('/owner-dashboard');
+      } else {
+        // If user is guest/customer, upgrade them to owner and redirect
+        localStorage.setItem('userRole', 'owner');
+        alert('Welcome to hosting! You can now create and manage property listings. Redirecting to your owner dashboard.');
+        navigate('/owner-dashboard');
+      }
+    } else {
+      // If not logged in, show auth modal for signup/login
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    
+    // After successful auth, upgrade user to owner role if they're not already
+    const userRole = localStorage.getItem('userRole');
+    if (userRole === 'user') {
+      // Upgrade user to owner role since they're registering to become a host
+      localStorage.setItem('userRole', 'owner');
+    }
+    
+    // Redirect to owner dashboard
+    navigate('/owner-dashboard');
+  };
+
+  const handleLearnMore = () => {
+    // Scroll to FAQ section
+    const faqSection = document.getElementById('faq-section');
+    if (faqSection) {
+      faqSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -41,6 +86,7 @@ const BecomeHostPage = () => {
             <Button 
               size="lg" 
               className="bg-moroccan-gold hover:bg-moroccan-gold/90 text-black text-lg px-8 py-4 rounded-xl animate-fade-in animate-delay-300"
+              onClick={handleGetStarted}
             >
               Try Hosting
             </Button>
@@ -141,7 +187,7 @@ const BecomeHostPage = () => {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-20 bg-white">
+        <section id="faq-section" className="py-20 bg-white">
           <div className="container-custom max-w-4xl mx-auto">
             <h2 className="section-title text-center mx-auto mb-16">
               Frequently asked questions
@@ -220,13 +266,15 @@ const BecomeHostPage = () => {
               <Button 
                 size="lg" 
                 className="bg-moroccan-gold hover:bg-moroccan-gold/90 text-black text-lg px-8 py-4 rounded-xl"
+                onClick={handleGetStarted}
               >
                 Get Started Today
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="border-white text-white hover:bg-white hover:text-moroccan-blue text-lg px-8 py-4 rounded-xl"
+                className="border-white text-moroccan-blue hover:bg-white hover:text-moroccan-blue text-lg px-8 py-4 rounded-xl"
+                onClick={handleLearnMore}
               >
                 Learn More
               </Button>
@@ -239,6 +287,13 @@ const BecomeHostPage = () => {
       </main>
 
       <Footer />
+      
+      {/* Auth Modal for Signup/Login */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };

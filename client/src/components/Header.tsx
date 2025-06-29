@@ -88,10 +88,10 @@ const Header = () => {
                 </div>
               ) : (
                 <Button 
-                  onClick={onDashboardClick} 
+                  asChild
                   className="bg-moroccan-gold hover:bg-moroccan-gold/90 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors"
                 >
-                  Become a host
+                  <Link to="/become-host">Become a host</Link>
                 </Button>
               )}
             </div>

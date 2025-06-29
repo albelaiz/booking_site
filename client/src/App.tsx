@@ -19,6 +19,7 @@ import AdminBookings from "./pages/AdminBookings";
 import AdminUsers from "./pages/AdminUsers";
 import AdminSettings from "./pages/AdminSettings";
 import AdminSystem from "./pages/AdminSystem";
+import AdminMessages from "./pages/AdminMessages";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffProperties from "./pages/StaffProperties";
 import StaffBookings from "./pages/StaffBookings";
@@ -104,6 +105,11 @@ const App = () => (
                 <Route path="/admin/system" element={
                   <AuthCheck requiredRole="admin">
                     <AdminSystem />
+                  </AuthCheck>
+                } />
+                <Route path="/admin/messages" element={
+                  <AuthCheck requiredRole="admin">
+                    <AdminMessages />
                   </AuthCheck>
                 } />
 
