@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { users, properties, bookings } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import type { User, Property, Booking } from "@shared/schema";
 
 export interface IStorage {
@@ -15,7 +15,9 @@ export interface IStorage {
   
   // Property methods
   getProperty(id: number): Promise<Property | undefined>;
+  getApprovedProperty(id: number): Promise<Property | undefined>;
   getAllProperties(): Promise<Property[]>;
+  getApprovedProperties(): Promise<Property[]>;
   getPropertiesByOwner(ownerId: number): Promise<Property[]>;
   createProperty(property: any): Promise<Property>;
   updateProperty(id: number, property: any): Promise<Property | undefined>;
@@ -125,11 +127,32 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getApprovedProperty(id: number): Promise<Property | undefined> {
+    try {
+      const result = await db.select().from(properties)
+        .where(and(eq(properties.id, id), eq(properties.status, "approved")))
+        .limit(1);
+      return result[0] || undefined;
+    } catch (error) {
+      console.error('Error fetching approved property:', error);
+      return undefined;
+    }
+  }
+
   async getAllProperties(): Promise<Property[]> {
     try {
       return await db.select().from(properties);
     } catch (error) {
       console.error('Error fetching properties:', error);
+      return [];
+    }
+  }
+
+  async getApprovedProperties(): Promise<Property[]> {
+    try {
+      return await db.select().from(properties).where(eq(properties.status, "approved"));
+    } catch (error) {
+      console.error('Error fetching approved properties:', error);
       return [];
     }
   }

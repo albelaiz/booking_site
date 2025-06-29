@@ -202,6 +202,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Property routes
+  // Public route - only returns approved properties
+  app.get("/api/properties/public", async (req, res) => {
+    try {
+      const properties = await storage.getApprovedProperties();
+      res.json(properties);
+    } catch (error) {
+      console.error("Get public properties error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Public route - only returns approved property by ID
+  app.get("/api/properties/public/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid property ID" });
+      }
+
+      const property = await storage.getApprovedProperty(id);
+      if (!property) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+
+      res.json(property);
+    } catch (error) {
+      console.error("Get public property error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Admin route - returns all properties (for admin dashboard)
   app.get("/api/properties", async (req, res) => {
     try {
       const properties = await storage.getAllProperties();

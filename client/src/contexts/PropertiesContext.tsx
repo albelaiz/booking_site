@@ -33,9 +33,16 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [propertiesList, setPropertiesList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Check if user is admin/staff to determine which API to use
+  const userRole = localStorage.getItem('userRole') || '';
+  const isAdminUser = userRole === 'admin' || userRole === 'staff';
+
   const fetchProperties = async () => {
     try {
-      const data = await propertiesApi.getAll();
+      // Use admin API for admin/staff users, public API for everyone else
+      const data = isAdminUser 
+        ? await propertiesApi.getAllAdmin() 
+        : await propertiesApi.getAll();
       setPropertiesList(data);
     } catch (error) {
       console.error('Error fetching properties:', error);

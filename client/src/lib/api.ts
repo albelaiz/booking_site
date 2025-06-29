@@ -12,9 +12,10 @@ const isServerAvailable = async () => {
 
 // Properties API
 export const propertiesApi = {
+  // Public API - only returns approved properties
   getAll: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/properties`);
+      const response = await fetch(`${API_BASE_URL}/properties/public`);
       if (!response.ok) throw new Error('Failed to fetch properties');
       return response.json();
     } catch (error) {
@@ -25,6 +26,29 @@ export const propertiesApi = {
   },
 
   getById: async (id: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/properties/public/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch property');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Property not found');
+    }
+  },
+
+  // Admin API - returns all properties regardless of status
+  getAllAdmin: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/properties`);
+      if (!response.ok) throw new Error('Failed to fetch properties');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available, using fallback data');
+      return [];
+    }
+  },
+
+  getByIdAdmin: async (id: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/properties/${id}`);
       if (!response.ok) throw new Error('Failed to fetch property');
