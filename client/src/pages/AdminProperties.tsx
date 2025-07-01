@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import PropertyForm from '../components/PropertyForm';
 import { useProperties } from '../contexts/PropertiesContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Checkbox } from '../components/ui/checkbox';
-import { Card, CardContent } from '../components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription, CardTitle } from '../components/ui/card';
 import { useToast } from '../hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Check, X, Eye, Plus, Edit } from 'lucide-react';
+import { Check, X, Eye, Plus, Edit, Star, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Property } from '../data/properties';
 
@@ -141,6 +141,91 @@ const AdminProperties = () => {
             Add New Property
           </Button>
         </div>
+
+        {/* Featured Properties Management Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-yellow-500" />
+                Featured Properties Management
+              </span>
+              <div className="text-sm text-gray-500">
+                {properties.filter(p => p.featured && p.status === 'approved').length} of {properties.filter(p => p.status === 'approved').length} approved properties featured
+              </div>
+            </CardTitle>
+            <CardDescription>
+              Select which approved properties should be featured on the home page. Featured properties get prime visibility to visitors.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-2">Featured Properties Guidelines</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• Only approved properties can be featured</li>
+                  <li>• Featured properties appear on the home page</li>
+                  <li>• Recommended: 6-8 featured properties for optimal display</li>
+                  <li>• Choose properties with high-quality images and complete information</li>
+                </ul>
+              </div>
+              
+              {approvedProperties.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {approvedProperties.map(property => (
+                    <Card key={property.id} className={`cursor-pointer transition-all ${property.featured ? 'ring-2 ring-yellow-400 bg-yellow-50' : 'hover:shadow-md'}`}>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-sm">{property.title}</h4>
+                            <p className="text-xs text-gray-500">{property.location}</p>
+                            <p className="text-xs text-gray-600 mt-1">${property.price}/{property.priceUnit}</p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {property.featured && (
+                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                            )}
+                            <Button
+                              size="sm"
+                              variant={property.featured ? "default" : "outline"}
+                              className={property.featured ? "bg-yellow-500 hover:bg-yellow-600 text-white" : ""}
+                              onClick={() => {
+                                updateProperty(property.id, { featured: !property.featured });
+                                toast({
+                                  title: property.featured ? "Property unfeatured" : "Property featured",
+                                  description: property.featured 
+                                    ? "Property removed from featured section" 
+                                    : "Property added to featured section",
+                                });
+                              }}
+                            >
+                              {property.featured ? "Unfeature" : "Feature"}
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-1 text-xs">
+                          <span className="px-2 py-1 bg-gray-100 rounded">{property.bedrooms} bed</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded">{property.bathrooms} bath</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded">{property.capacity} guests</span>
+                          {property.rating && (
+                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded">⭐ {property.rating}</span>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Building className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                  <p>No approved properties available to feature</p>
+                  <p className="text-sm">Properties must be approved before they can be featured</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Properties organized by tabs */}
         <Tabs defaultValue="pending">

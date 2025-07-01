@@ -36,10 +36,10 @@ const Hero: React.FC = () => {
       <div className="container-custom relative z-10 text-white">
         <div className="max-w-2xl">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-medium mb-6 leading-tight animate-fade-up">
-            Discover <span className="text-moroccan-gold">Morocco's Hidden Gems</span> - From Martil to the Atlas Mountains
+            Discover the <span className="text-moroccan-gold">Mediterranean Pearl</span> of Northern Morocco
           </h1>
           <p className="text-lg md:text-xl opacity-90 mb-10 animate-fade-up animate-delay-100">
-            Book unique accommodations across Morocco - beachfront villas in Martil, riads in Marrakech, mountain retreats in Chefchaouen, and desert camps in Sahara
+            Experience luxury coastal living with stunning beachfront accommodations in Martil, Tetouan's cultural charm, Cabo Negro's pristine shores, and M'diq's seaside elegance
           </p>
           
           {/* Enhanced Search Bar Container with beach-themed styling */}

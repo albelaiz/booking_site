@@ -17,6 +17,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminProperties from "./pages/AdminProperties";
 import AdminBookings from "./pages/AdminBookings";
 import AdminUsers from "./pages/AdminUsers";
+import AdminAuditLogs from "./pages/AdminAuditLogs";
+import AdminActivityHistory from "./pages/AdminActivityHistory";
 import AdminSettings from "./pages/AdminSettings";
 import AdminSystem from "./pages/AdminSystem";
 import AdminMessages from "./pages/AdminMessages";
@@ -34,6 +36,7 @@ import SitemapPage from "./pages/SitemapPage";
 import HelpCenterPage from "./pages/HelpCenterPage";
 import CancellationOptionsPage from "./pages/CancellationOptionsPage";
 import SafetyInformationPage from "./pages/SafetyInformationPage";
+import EnhancedAuthDemo from "./pages/EnhancedAuthDemo";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +64,7 @@ const App = () => (
                 <Route path="/help-center" element={<HelpCenterPage />} />
                 <Route path="/cancellation-options" element={<CancellationOptionsPage />} />
                 <Route path="/safety-information" element={<SafetyInformationPage />} />
+                <Route path="/enhanced-auth-demo" element={<EnhancedAuthDemo />} />
 
                 {/* Protected user dashboard route - allow any authenticated user */}
                 <Route path="/dashboard" element={
@@ -95,6 +99,16 @@ const App = () => (
                 <Route path="/admin/users" element={
                   <AuthCheck requiredRole="admin">
                     <AdminUsers />
+                  </AuthCheck>
+                } />
+                <Route path="/admin/audit-logs" element={
+                  <AuthCheck requiredRole="admin">
+                    <AdminAuditLogs />
+                  </AuthCheck>
+                } />
+                <Route path="/admin/activity" element={
+                  <AuthCheck requiredRole="admin">
+                    <AdminActivityHistory />
                   </AuthCheck>
                 } />
                 <Route path="/admin/settings" element={

@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
-import { User, Search, Filter, Edit, Trash2, Check, Plus } from 'lucide-react';
+import { User, Search, Filter, Edit, Trash2, Plus } from 'lucide-react';
 import { useToast } from "../hooks/use-toast";
 import AdminLayout from '../components/AdminLayout';
 import { Button } from '../components/ui/button';
 import UserEditModal from '../components/UserEditModal';
 import { usersApi } from '../lib/api';
+import { auditHelpers } from '../lib/auditLog';
 import {
   Table,
   TableBody,
@@ -112,7 +112,15 @@ const AdminUsers = () => {
   const confirmDeleteUser = async () => {
     if (selectedUser) {
       try {
+        // Get current admin user info
+        const currentUserId = 1; // In a real app, get this from auth context
+        const userToDelete = { ...selectedUser };
+        
         await usersApi.delete(selectedUser.id);
+        
+        // Create audit log for user deletion
+        await auditHelpers.userDeleted(currentUserId, userToDelete);
+        
         await loadUsers(); // Reload users from API
         setIsConfirmDialogOpen(false);
         setSelectedUser(null);
@@ -172,16 +180,28 @@ const AdminUsers = () => {
 
   const handleSaveUser = async (userData: UserData) => {
     try {
+      // Get current admin user info
+      const currentUserId = 1; // In a real app, get this from auth context
+      
       if (selectedUser) {
         // Edit existing user
+        const oldUserData = { ...selectedUser };
         await usersApi.update(selectedUser.id, userData);
+        
+        // Create audit log for user update
+        await auditHelpers.userUpdated(currentUserId, parseInt(selectedUser.id), oldUserData, userData);
+        
         toast({
           title: "User Updated",
           description: "The user information has been successfully updated.",
         });
       } else {
         // Add new user
-        await usersApi.create(userData);
+        const newUser = await usersApi.create(userData);
+        
+        // Create audit log for user creation
+        await auditHelpers.userCreated(currentUserId, { ...userData, id: newUser.id || Date.now() });
+        
         toast({
           title: "User Added",
           description: "New user has been successfully added.",

@@ -329,10 +329,11 @@ export const authApi = {
 
   register: async (userData: {
     username: string;
-    email: string;
+    email?: string;
     password: string;
     name: string;
     phone?: string;
+    role?: string;
   }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -468,6 +469,77 @@ export const messagesApi = {
     } catch (error) {
       console.warn('API not available');
       throw new Error('Failed to delete message - server not available');
+    }
+  },
+};
+
+// Audit Logs API
+export const auditLogsApi = {
+  getAll: async (filters?: {
+    page?: number;
+    limit?: number;
+    userId?: number;
+    action?: string;
+    entity?: string;
+    severity?: string;
+    startDate?: string;
+    endDate?: string;
+  }) => {
+    try {
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            params.append(key, value.toString());
+          }
+        });
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/audit-logs?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch audit logs');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Failed to fetch audit logs - server not available');
+    }
+  },
+
+  getRecent: async (limit = 20) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/audit-logs/recent?limit=${limit}`);
+      if (!response.ok) throw new Error('Failed to fetch recent audit logs');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Failed to fetch recent audit logs - server not available');
+    }
+  },
+
+  getByUser: async (userId: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/audit-logs/user/${userId}`);
+      if (!response.ok) throw new Error('Failed to fetch user audit logs');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Failed to fetch user audit logs - server not available');
+    }
+  },
+
+  create: async (auditLog: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/audit-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(auditLog),
+      });
+      if (!response.ok) throw new Error('Failed to create audit log');
+      return response.json();
+    } catch (error) {
+      console.warn('API not available');
+      throw new Error('Failed to create audit log - server not available');
     }
   },
 };

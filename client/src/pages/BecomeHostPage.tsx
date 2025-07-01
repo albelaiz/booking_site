@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../hooks/useAuth';
-import AuthModal from '../components/AuthModal';
+import EnhancedAuthModal from '../components/EnhancedAuthModal';
 import {
   Accordion,
   AccordionContent,
@@ -288,11 +288,13 @@ const BecomeHostPage = () => {
 
       <Footer />
       
-      {/* Auth Modal for Signup/Login */}
-      <AuthModal 
+      {/* Enhanced Auth Modal for Signup/Login */}
+      <EnhancedAuthModal 
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
         onSuccess={handleAuthSuccess}
+        defaultMode="signup"
+        suggestedRole="owner"
       />
     </div>
   );

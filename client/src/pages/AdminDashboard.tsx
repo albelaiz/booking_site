@@ -1,7 +1,7 @@
 import AdminLayout from '../components/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { Building, Calendar, DollarSign, Eye, Mail } from 'lucide-react';
+import { Building, Calendar, DollarSign, Eye, Mail, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useProperties } from '../contexts/PropertiesContext';
 import { useBookings } from '../contexts/BookingsContext';
@@ -150,13 +150,18 @@ const AdminDashboard = () => {
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
-                Contact Messages
+                Messages
               </span>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" asChild>
                   <Link to="/admin/messages">
-                    <Eye className="mr-1 h-4 w-4" />
-                    View All Messages
+                    <Mail className="mr-1 h-4 w-4" />
+                    Manage Messages
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link to="/admin/messages?filter=new">
+                    Review New ({newMessages})
                   </Link>
                 </Button>
               </div>
@@ -232,6 +237,71 @@ const AdminDashboard = () => {
                 </Button>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* System Activity Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                System Activity
+              </span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/admin/activity">
+                    <Activity className="mr-1 h-4 w-4" />
+                    View Activity History
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link to="/admin/audit-logs">
+                    Audit Logs
+                  </Link>
+                </Button>
+              </div>
+            </CardTitle>
+            <CardDescription>
+              Monitor system activities, user actions, and security events
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h4 className="font-medium text-green-900 mb-1">Recent Activities</h4>
+                <p className="text-2xl font-bold text-green-700">
+                  {properties.filter(p => p.updatedAt && new Date(p.updatedAt).getTime() > Date.now() - 24 * 60 * 60 * 1000).length}
+                </p>
+                <p className="text-sm text-green-600">Last 24 hours</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-1">Featured Properties</h4>
+                <p className="text-2xl font-bold text-blue-700">
+                  {properties.filter(p => p.featured && p.status === 'approved').length}
+                </p>
+                <p className="text-sm text-blue-600">Currently featured</p>
+              </div>
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <h4 className="font-medium text-purple-900 mb-1">System Health</h4>
+                <p className="text-2xl font-bold text-purple-700">Good</p>
+                <p className="text-sm text-purple-600">All systems operational</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button asChild>
+                <Link to="/admin/activity">
+                  <Activity className="mr-1 h-4 w-4" />
+                  Activity Dashboard
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/admin/properties">
+                  Manage Featured Properties
+                </Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

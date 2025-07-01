@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { List, X } from "lucide-react";
 import AuthModal from "./AuthModal";
@@ -49,13 +48,24 @@ const Header = () => {
     handleAuthSuccess();
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <>
-      <header className={`${isScrolled ? "bg-white shadow-sm" : "bg-transparent"} sticky top-0 z-50 transition-all duration-300`}>
-        <div className="container-custom mx-auto px-4 bg-slate-200">
-          <div className="flex items-center justify-between h-20">
+      <header className={`${isScrolled ? "bg-white shadow-sm" : "bg-transparent"} sticky top-0 z-50 transition-all duration-300 w-full`}>
+        <div className="w-full bg-slate-200">
+          <div className="container-custom flex items-center justify-between h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
+            <Link 
+              to="/" 
+              className="flex items-center space-x-2 cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={scrollToTop}
+            >
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-moroccan-blue flex items-center justify-center rounded-md shadow-md">
                   <span className="text-white font-serif text-xl font-bold">B</span>
@@ -68,7 +78,7 @@ const Header = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-8 xl:space-x-14 2xl:space-x-20">
               <Navigation />
               
               {isLoggedIn ? (
@@ -112,7 +122,6 @@ const Header = () => {
               </span>
             </button>
           </div>
-
           {/* Mobile Navigation */}
           <MobileMenu 
             isOpen={isMobileMenuOpen}
@@ -127,7 +136,6 @@ const Header = () => {
           />
         </div>
       </header>
-
       {/* Authentication Modal */}
       <AuthModal 
         isOpen={showAuthModal} 

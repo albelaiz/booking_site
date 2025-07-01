@@ -1,27 +1,75 @@
-
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { LoadingSpinner, EmptyState } from './EnhancedComponents';
-import { useProperties } from '../contexts/PropertiesContext';
-import { Home, Star, MapPin, Users, Wifi, Car, Waves, Coffee, CheckCircle } from 'lucide-react';
+import { CheckCircle, Star, MapPin, Users, Wifi, Car, Waves, Coffee } from 'lucide-react';
 
-const FeaturedProperties: React.FC = () => {
-  const { properties, loading } = useProperties();
-  const navigate = useNavigate();
-  
-  // Filter for featured properties that are approved
-  const featuredProperties = properties.filter(property => 
-    property.featured && property.status === 'approved'
+interface LoadingSpinnerProps {
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+}
+
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', className = '' }) => {
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-8 h-8',
+    lg: 'w-12 h-12'
+  };
+
+  return (
+    <div className={`spinner ${sizeClasses[size]} ${className}`}></div>
   );
-  
-  const handleBookNow = (propertyId: number) => {
-    navigate(`/property/${propertyId}?action=book`);
-  };
+};
 
-  const handleViewDetails = (propertyId: number) => {
-    navigate(`/property/${propertyId}`);
-  };
+interface SuccessMessageProps {
+  title: string;
+  message: string;
+  onClose?: () => void;
+}
 
+export const SuccessMessage: React.FC<SuccessMessageProps> = ({ title, message, onClose }) => {
+  return (
+    <div className="toast-success p-4 rounded-lg flex items-start space-x-3 mb-4">
+      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+      <div className="flex-1">
+        <h4 className="font-medium text-green-800">{title}</h4>
+        <p className="text-sm text-green-700 mt-1">{message}</p>
+      </div>
+      {onClose && (
+        <button 
+          onClick={onClose}
+          className="text-green-600 hover:text-green-800 ml-auto"
+        >
+          ×
+        </button>
+      )}
+    </div>
+  );
+};
+
+interface PropertyCardEnhancedProps {
+  property: {
+    id: number;
+    title: string;
+    description: string;
+    price: string;
+    priceUnit: string;
+    images: string[];
+    location: string;
+    bedrooms: number;
+    bathrooms: number;
+    capacity: number;
+    amenities: string[];
+    rating: string;
+    reviewCount: number;
+    featured: boolean;
+  };
+  onBookNow?: (propertyId: number) => void;
+  onViewDetails?: (propertyId: number) => void;
+}
+
+export const PropertyCardEnhanced: React.FC<PropertyCardEnhancedProps> = ({ 
+  property, 
+  onBookNow, 
+  onViewDetails 
+}) => {
   const getAmenityIcon = (amenity: string) => {
     const iconMap: Record<string, React.ReactNode> = {
       'WiFi': <Wifi className="w-4 h-4" />,
@@ -32,7 +80,7 @@ const FeaturedProperties: React.FC = () => {
     return iconMap[amenity] || <CheckCircle className="w-4 h-4" />;
   };
 
-  const PropertyCard = ({ property }: { property: any }) => (
+  return (
     <div className="property-card interactive-card bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
       {/* Featured Badge */}
       {property.featured && (
@@ -44,7 +92,7 @@ const FeaturedProperties: React.FC = () => {
       {/* Image */}
       <div className="aspect-ratio-container h-48">
         <img 
-          src={property.images?.[0] || '/placeholder.svg'} 
+          src={property.images[0] || '/placeholder.svg'} 
           alt={property.title}
           className="w-full h-full object-cover"
         />
@@ -55,15 +103,11 @@ const FeaturedProperties: React.FC = () => {
         {/* Title and Rating */}
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{property.title}</h3>
-          {(property.reviewCount > 0 || property.reviews > 0) && (
+          {property.reviewCount > 0 && (
             <div className="flex items-center space-x-1 ml-2">
               <Star className="w-4 h-4 text-yellow-500 fill-current" />
-              <span className="text-sm font-medium">
-                {parseFloat(property.rating || '0').toFixed(1)}
-              </span>
-              <span className="text-sm text-gray-500">
-                ({property.reviewCount || property.reviews || 0})
-              </span>
+              <span className="text-sm font-medium">{parseFloat(property.rating).toFixed(1)}</span>
+              <span className="text-sm text-gray-500">({property.reviewCount})</span>
             </div>
           )}
         </div>
@@ -89,13 +133,13 @@ const FeaturedProperties: React.FC = () => {
 
         {/* Amenities */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {property.amenities?.slice(0, 4).map((amenity: string, index: number) => (
+          {property.amenities.slice(0, 4).map((amenity, index) => (
             <div key={index} className="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded-md text-xs">
               {getAmenityIcon(amenity)}
               <span>{amenity}</span>
             </div>
           ))}
-          {property.amenities?.length > 4 && (
+          {property.amenities.length > 4 && (
             <span className="text-xs text-gray-500">+{property.amenities.length - 4} more</span>
           )}
         </div>
@@ -108,13 +152,13 @@ const FeaturedProperties: React.FC = () => {
           </div>
           <div className="flex space-x-2">
             <button 
-              onClick={() => handleViewDetails(property.id)}
+              onClick={() => onViewDetails?.(property.id)}
               className="btn-outline text-sm px-4 py-2"
             >
               View Details
             </button>
             <button 
-              onClick={() => handleBookNow(property.id)}
+              onClick={() => onBookNow?.(property.id)}
               className="btn-primary text-sm px-4 py-2"
             >
               Book Now
@@ -124,54 +168,38 @@ const FeaturedProperties: React.FC = () => {
       </div>
     </div>
   );
-  
-  if (loading) {
-    return (
-      <section className="py-16 bg-moroccan-white">
-        <div className="container-custom">
-          <div className="text-center">
-            <LoadingSpinner size="lg" className="mx-auto mb-4" />
-            <p className="text-gray-600">Loading featured properties...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-  
+};
+
+interface EmptyStateProps {
+  icon?: React.ReactNode;
+  title: string;
+  message: string;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+}
+
+export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, message, action }) => {
   return (
-    <section className="py-16 bg-moroccan-white">
-      <div className="container-custom">
-        <h2 className="section-title text-center mx-auto">Featured Properties</h2>
-        <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
-          Discover our handpicked selection of the most stunning properties in Morocco, each offering a unique experience of luxury and comfort.
-        </p>
-        
-        {featuredProperties.length > 0 ? (
-          <div className="property-grid">
-            {featuredProperties.map(property => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            icon={<Home className="w-16 h-16" />}
-            title="No Featured Properties"
-            message="We're currently updating our featured property selection. Check back soon for amazing deals!"
-            action={{
-              label: "Browse All Properties",
-              onClick: () => navigate('/properties')
-            }}
-          />
-        )}
-        
-        <div className="text-center mt-12">
-          <Link to="/properties" className="btn-outline">
-            View All Properties
-          </Link>
-        </div>
+    <div className="error-state">
+      <div className="error-icon">
+        {icon || <MapPin className="w-16 h-16" />}
       </div>
-    </section>
+      <h3 className="error-title">{title}</h3>
+      <p className="error-message">{message}</p>
+      {action && (
+        <button onClick={action.onClick} className="btn-primary">
+          {action.label}
+        </button>
+      )}
+    </div>
   );
 };
 
-export default FeaturedProperties;
+export default {
+  LoadingSpinner,
+  SuccessMessage,
+  PropertyCardEnhanced,
+  EmptyState
+};

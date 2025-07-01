@@ -40,6 +40,7 @@ export const properties = pgTable("properties", {
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
   propertyId: integer("property_id").references(() => properties.id).notNull(),
+  userId: integer("user_id").references(() => users.id), // null for guest bookings
   guestName: text("guest_name").notNull(),
   guestEmail: text("guest_email").notNull(),
   guestPhone: text("guest_phone"),
@@ -64,9 +65,26 @@ export const messages = pgTable("messages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(), // Who performed the action
+  action: text("action").notNull(), // Type of action performed
+  entity: text("entity").notNull(), // What entity was affected (user, property, booking, etc.)
+  entityId: integer("entity_id"), // ID of the affected entity
+  oldValues: text("old_values"), // JSON string of old values (for updates)
+  newValues: text("new_values"), // JSON string of new values (for updates/creates)
+  ipAddress: text("ip_address"), // IP address of the user
+  userAgent: text("user_agent"), // Browser/device information
+  severity: text("severity").notNull().default("info"), // info, warning, error, critical
+  description: text("description"), // Human-readable description of the action
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   properties: many(properties),
+  bookings: many(bookings),
+  auditLogs: many(auditLogs),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -81,6 +99,17 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
   property: one(properties, {
     fields: [bookings.propertyId],
     references: [properties.id],
+  }),
+  user: one(users, {
+    fields: [bookings.userId],
+    references: [users.id],
+  }),
+}));
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [auditLogs.userId],
+    references: [users.id],
   }),
 }));
 
@@ -119,6 +148,11 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   updatedAt: true,
 });
 
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -128,3 +162,5 @@ export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Message = typeof messages.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;

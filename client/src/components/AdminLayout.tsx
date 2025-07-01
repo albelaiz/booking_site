@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Building, Settings, Cog, Database, LogOut } from 'lucide-react';
+import { Building, Settings, Database, LogOut, History } from 'lucide-react';
 import { Button } from "./ui/button";
 
 interface AdminLayoutProps {
@@ -45,6 +45,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       name: 'Users', 
       path: '/admin/users', 
       icon: Building 
+    },
+    { 
+      name: 'Audit Logs', 
+      path: '/admin/audit-logs', 
+      icon: History 
+    },
+    { 
+      name: 'Activity History', 
+      path: '/admin/activity', 
+      icon: History 
     }
   ];
 

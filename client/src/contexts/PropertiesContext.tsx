@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Property } from '../data/properties';
 import { propertiesApi } from "../lib/api";
+import { auditLogger } from '../lib/auditLogger';
 
 interface PropertiesContextType {
   properties: Property[];
@@ -64,8 +65,17 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const addProperty = async (newProperty: Omit<Property, 'id'>) => {
     try {
+      const userId = parseInt(localStorage.getItem('userId') || '1');
+      
       // First try to save to the API
       const savedProperty = await propertiesApi.create(newProperty);
+      
+      // Log the audit action
+      await auditLogger.logPropertyAction(
+        'property_created',
+        savedProperty,
+        userId
+      );
       
       // If successful, refresh the properties list to get all properties from the database
       await fetchProperties();
@@ -88,8 +98,38 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const updateProperty = async (id: string, updatedFields: Partial<Property>) => {
     try {
+      // Get current property for audit logging
+      const currentProperty = propertiesList.find(p => p.id === id);
+      const userId = parseInt(localStorage.getItem('userId') || '1');
+      
       // Try to update via API first
       await propertiesApi.update(id, updatedFields);
+      
+      // Log the audit action
+      if (currentProperty) {
+        const updatedProperty = { ...currentProperty, ...updatedFields };
+        
+        // Determine specific action based on what changed
+        let action = 'property_updated';
+        if (updatedFields.status && updatedFields.status !== currentProperty.status) {
+          if (updatedFields.status === 'approved') {
+            action = 'property_approved';
+          } else if (updatedFields.status === 'rejected') {
+            action = 'property_rejected';
+          } else {
+            action = 'property_status_changed';
+          }
+        } else if (updatedFields.featured !== undefined && updatedFields.featured !== currentProperty.featured) {
+          action = updatedFields.featured ? 'property_featured' : 'property_unfeatured';
+        }
+        
+        await auditLogger.logPropertyAction(
+          action,
+          updatedProperty,
+          userId,
+          currentProperty
+        );
+      }
       
       // If successful, refresh the properties list
       await fetchProperties();
@@ -107,8 +147,21 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const deleteProperty = async (id: string) => {
     try {
+      // Get current property for audit logging
+      const currentProperty = propertiesList.find(p => p.id === id);
+      const userId = parseInt(localStorage.getItem('userId') || '1');
+      
       // Try to delete via API first
       await propertiesApi.delete(id);
+      
+      // Log the audit action
+      if (currentProperty) {
+        await auditLogger.logPropertyAction(
+          'property_deleted',
+          currentProperty,
+          userId
+        );
+      }
       
       // If successful, refresh the properties list
       await fetchProperties();
