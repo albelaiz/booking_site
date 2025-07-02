@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
 
@@ -7,33 +6,43 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-moroccan-dark text-white pt-16 pb-8">
-      <div className="container-custom">
+    <footer className="bg-gray-900 text-white pt-16 pb-8 relative overflow-hidden">
+      {/* Beautiful Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-blob animation-delay-2000"></div>
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563eb' fill-opacity='0.3'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}></div>
+      </div>
+      
+      <div className="container-custom relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand Information */}
           <div className="col-span-1 lg:col-span-1">
             <Link to="/" className="flex items-center space-x-3 mb-5">
-              <div className="bg-moroccan-blue text-white p-2.5 rounded-lg shadow-md">
+              <div className="bg-blue-600 text-white p-2.5 rounded-lg shadow-md">
                 <span className="font-serif text-lg">B</span>
               </div>
               <div className="font-serif text-xl text-white">
-                <span className="text-sky-900">Bay</span>
-                <span className="text-moroccan-gold">Haven</span>
+                <span className="text-white">Bay</span>
+                <span className="text-blue-400">Haven</span>
               </div>
             </Link>
-            <p className="text-sm mb-6 leading-relaxed text-[rgb(107_114_128)] font-bold">
+            <p className="text-sm mb-6 leading-relaxed text-gray-400 font-normal">
               Discover beautiful vacation properties in BayHaven, Morocco. Experience the perfect blend of Moroccan hospitality and modern luxury on the Mediterranean coast.
             </p>
             <div className="flex space-x-5">
-              <a href="#" className="text-gray-500 hover:text-moroccan-gold transition duration-200">
+              <a href="#" className="text-gray-400 hover:text-blue-400 transition duration-200">
                 <Facebook className="h-5 w-5" />
                 <span className="sr-only">Facebook</span>
               </a>
-              <a href="#" className="text-gray-500 hover:text-moroccan-gold transition duration-200">
+              <a href="#" className="text-gray-400 hover:text-blue-400 transition duration-200">
                 <Instagram className="h-5 w-5" />
                 <span className="sr-only">Instagram</span>
               </a>
-              <a href="#" className="text-gray-500 hover:text-moroccan-gold transition duration-200">
+              <a href="#" className="text-gray-400 hover:text-blue-400 transition duration-200">
                 <Twitter className="h-5 w-5" />
                 <span className="sr-only">Twitter</span>
               </a>
@@ -42,35 +51,35 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-serif mb-6 text-moroccan-gold">Explore</h3>
+            <h3 className="text-lg font-serif mb-6 text-blue-400">Explore</h3>
             <ul className="space-y-4">
               <li>
-                <Link to="/" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/about" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/properties" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/properties" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   Properties
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/contact" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   Contact
                 </Link>
               </li>
               <li>
-                <Link to="/become-host" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/become-host" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   List Your Property
                 </Link>
               </li>
@@ -79,29 +88,29 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-serif mb-6 text-moroccan-gold">Support</h3>
+            <h3 className="text-lg font-serif mb-6 text-blue-400">Support</h3>
             <ul className="space-y-4">
               <li>
-                <Link to="/help-center" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/help-center" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link to="/cancellation-options" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/cancellation-options" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   Cancellation Options
                 </Link>
               </li>
               <li>
-                <Link to="/safety-information" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/safety-information" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   Safety Information
                 </Link>
               </li>
               <li>
-                <Link to="/privacy-policy" className="text-gray-500 hover:text-moroccan-gold transition duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                <Link to="/privacy-policy" className="text-gray-400 hover:text-blue-400 transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></span>
                   Privacy Policy
                 </Link>
               </li>
@@ -110,31 +119,31 @@ const Footer = () => {
 
           {/* Contact Information */}
           <div>
-            <h3 className="text-lg font-serif mb-6 text-moroccan-gold">Contact Us</h3>
-            <address className="not-italic text-gray-500 space-y-4">
+            <h3 className="text-lg font-serif mb-6 text-blue-400">Contact Us</h3>
+            <address className="not-italic text-gray-400 space-y-4">
               <p className="flex items-start">
-                <MapPin className="h-5 w-5 mr-3 text-moroccan-gold mt-0.5" />
+                <MapPin className="h-5 w-5 mr-3 text-blue-400 mt-0.5" />
                 <span>Boulevard Mohammed V<br />BayHaven, Morocco</span>
               </p>
               <p className="flex items-center">
-                <Mail className="h-5 w-5 mr-3 text-moroccan-gold" />
-                <a href="mailto:info@bayhaven.com" className="hover:text-moroccan-gold transition-colors">info@bayhaven.com</a>
+                <Mail className="h-5 w-5 mr-3 text-blue-400" />
+                <a href="mailto:info@bayhaven.com" className="hover:text-blue-400 transition-colors">info@bayhaven.com</a>
               </p>
               <p className="flex items-center">
-                <Phone className="h-5 w-5 mr-3 text-moroccan-gold" />
-                <a href="tel:+212654698554" className="hover:text-moroccan-gold transition-colors">+212 654698554</a>
+                <Phone className="h-5 w-5 mr-3 text-blue-400" />
+                <a href="tel:+212654698554" className="hover:text-blue-400 transition-colors">+212 654698554</a>
               </p>
             </address>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400 text-sm">
+        <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400 text-sm">
           <p>&copy; {currentYear} BayHaven. All rights reserved.</p>
           <div className="mt-3 space-x-6">
-            <Link to="/privacy-policy" className="hover:text-moroccan-gold transition duration-200">
+            <Link to="/privacy-policy" className="hover:text-blue-400 transition duration-200">
               Privacy Policy
             </Link>
-            <Link to="/terms-of-service" className="hover:text-moroccan-gold transition duration-200">
+            <Link to="/terms-of-service" className="hover:text-blue-400 transition duration-200">
               Terms of Service
             </Link>
           </div>

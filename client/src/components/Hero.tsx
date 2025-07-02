@@ -1,68 +1,107 @@
 
 import React from 'react';
 import SearchBar from './SearchBar';
-import { Sun, Waves, Umbrella, Ship } from 'lucide-react';
+import { Sun, Waves, Umbrella, Ship, Star, MapPin, Calendar, Crown } from 'lucide-react';
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative h-[650px] flex items-center">
-      {/* Background Image with Overlay */}
+    <div className="relative h-[100vh] min-h-[800px] flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100">
+      {/* Beautiful Multi-layer Background */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80" 
-          alt="Martil Beach" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/30"></div>
+        {/* Main Background Image with better overlay */}
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2400&q=90" 
+            alt="Martil Beach Paradise" 
+            className="w-full h-full object-cover opacity-30"
+          />
+        </div>
         
-        {/* Beach-themed Pattern Overlay */}
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        {/* Professional Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/80 via-blue-50/60 to-blue-200/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-transparent to-white/50"></div>
+        
+        {/* Animated Background Elements */}
+        <div className="absolute top-20 right-20 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 -left-10 w-64 h-64 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-20 left-40 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-35 animate-blob animation-delay-4000"></div>
+        
+        {/* Beautiful Geometric Pattern */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%232563eb' fill-opacity='0.3'%3E%3Cpolygon points='50 0 60 40 100 50 60 60 50 100 40 60 0 50 40 40'/%3E%3C/g%3E%3C/svg%3E")`,
         }}></div>
       </div>
       
-      {/* Beach-themed Floating Elements */}
-      <div className="absolute bottom-20 left-10 text-white/20 animate-bounce">
-        <Waves size={48} />
+      {/* Minimal Floating Elements */}
+      <div className="absolute bottom-20 left-10 text-blue-500/30 animate-float">
+        <Waves size={48} className="drop-shadow-lg" />
       </div>
-      <div className="absolute top-32 right-20 text-white/20 animate-pulse">
-        <Sun size={42} />
+      <div className="absolute top-20 right-20 text-blue-400/25 animate-pulse">
+        <Sun size={40} className="drop-shadow-lg" />
       </div>
-      <div className="absolute bottom-40 right-16 text-white/10">
-        <Ship size={36} />
+      <div className="absolute bottom-32 right-16 text-blue-600/20 animate-bounce">
+        <Ship size={36} className="drop-shadow-lg" />
       </div>
       
-      {/* Hero Content */}
-      <div className="container-custom relative z-10 text-white">
-        <div className="max-w-2xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-medium mb-6 leading-tight animate-fade-up">
-            Discover the <span className="text-moroccan-gold">Mediterranean Pearl</span> of Northern Morocco
-          </h1>
-          <p className="text-lg md:text-xl opacity-90 mb-10 animate-fade-up animate-delay-100">
-            Experience luxury coastal living with stunning beachfront accommodations in Martil, Tetouan's cultural charm, Cabo Negro's pristine shores, and M'diq's seaside elegance
-          </p>
+      {/* Main Content */}
+      <div className="relative z-20 container-custom">
+        <div className="text-center text-gray-900 max-w-5xl mx-auto">
+          {/* Professional Badge */}
+          <div className="inline-flex items-center px-6 py-3 mb-8 bg-blue-50 backdrop-blur-sm rounded-full border border-blue-200 shadow-lg">
+            <Crown className="w-4 h-4 mr-2 text-blue-600" />
+            <span className="text-blue-700 font-medium text-sm tracking-wide">Premium Accommodations</span>
+          </div>
           
-          {/* Enhanced Search Bar Container with beach-themed styling */}
-          <div className="bg-white/15 backdrop-blur-md p-5 rounded-xl border border-white/30 shadow-xl animate-fade-up animate-delay-200">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-light mb-8 leading-tight">
+            <span className="block mb-4">
+              <span className="text-gray-900 font-medium">
+                Discover
+                <span className="relative inline-block ml-4">
+                  Martil
+                  <div className="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-600"></div>
+                </span>
+              </span>
+            </span>
+            <span className="block text-gray-700 font-light">
+              Morocco's Premier Destination
+            </span>
+          </h1>
+          
+          <div className="mb-12">
+            <p className="text-xl md:text-2xl text-gray-700 font-light leading-relaxed max-w-3xl mx-auto">
+              Experience unparalleled comfort in carefully selected accommodations 
+              along Morocco's stunning Mediterranean coastline.
+            </p>
+          </div>
+          
+          {/* Professional Search Section */}
+          <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl max-w-4xl mx-auto mb-16 border border-blue-100">
+            <div className="mb-6">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-2">Find Your Perfect Stay</h3>
+              <p className="text-gray-600">Discover exceptional properties tailored to your preferences</p>
+            </div>
             <SearchBar />
           </div>
           
-          {/* Enhanced Beach-themed Quick Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8 text-center animate-fade-up animate-delay-300">
-            <div className="bg-white/15 backdrop-blur-sm rounded-lg py-5 px-3 border border-white/20 shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-white/20">
-              <Sun className="h-6 w-6 mx-auto mb-4 text-moroccan-gold" />
-              <div className="text-3xl font-serif font-medium text-moroccan-gold mb-1">150+</div>
-              <div className="text-sm opacity-80 text-moroccan-gold">Properties Across Morocco</div>
+          {/* Professional Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
+              <div className="text-4xl font-light text-gray-900 mb-2">150+</div>
+              <div className="text-blue-600 font-medium mb-1">Premium Properties</div>
+              <div className="text-gray-600 text-sm">Carefully curated accommodations</div>
             </div>
-            <div className="bg-white/15 backdrop-blur-sm rounded-lg py-5 px-3 border border-white/20 shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-white/20">
-              <Umbrella className="h-6 w-6 mx-auto mb-4 text-moroccan-gold" />
-              <div className="text-3xl font-serif font-medium text-moroccan-gold mb-1">4.9</div>
-              <div className="text-sm opacity-80 text-moroccan-gold">Guest Satisfaction</div>
+            
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
+              <div className="text-4xl font-light text-gray-900 mb-2">4.9</div>
+              <div className="text-blue-600 font-medium mb-1">Guest Rating</div>
+              <div className="text-gray-600 text-sm">Exceptional guest experiences</div>
             </div>
-            <div className="bg-white/15 backdrop-blur-sm rounded-lg py-5 px-3 border border-white/20 shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-white/20">
-              <Waves className="h-6 w-6 mx-auto mb-4 text-moroccan-gold" />
-              <div className="text-3xl font-serif font-medium text-moroccan-gold mb-1">5000+</div>
-              <div className="text-sm opacity-80 text-moroccan-gold">Happy Travelers</div>
+            
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
+              <div className="text-4xl font-light text-gray-900 mb-2">5K+</div>
+              <div className="text-blue-600 font-medium mb-1">Happy Guests</div>
+              <div className="text-gray-600 text-sm">Satisfied travelers served</div>
             </div>
           </div>
         </div>

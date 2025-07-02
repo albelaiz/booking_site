@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Building, LogOut } from 'lucide-react';
+import { Building, LogOut, Star } from 'lucide-react';
 import { Button } from "./ui/button";
 
 interface StaffLayoutProps {
@@ -41,6 +41,11 @@ const StaffLayout: React.FC<StaffLayoutProps> = ({
       name: 'Bookings', 
       path: '/staff/bookings', 
       icon: Building 
+    },
+    { 
+      name: 'Testimonials', 
+      path: '/staff/testimonials', 
+      icon: Star 
     }
   ];
 

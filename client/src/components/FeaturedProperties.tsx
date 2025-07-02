@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LoadingSpinner, EmptyState } from './EnhancedComponents';
+import { LoadingSpinner } from './EnhancedComponents';
 import { useProperties } from '../contexts/PropertiesContext';
-import { Home, Star, MapPin, Users, Wifi, Car, Waves, Coffee, CheckCircle } from 'lucide-react';
+import { Star, MapPin, Users, Wifi, Car, Waves, Coffee, CheckCircle } from 'lucide-react';
 
 const FeaturedProperties: React.FC = () => {
   const { properties, loading } = useProperties();
@@ -146,29 +146,21 @@ const FeaturedProperties: React.FC = () => {
           Discover our handpicked selection of the most stunning properties in Morocco, each offering a unique experience of luxury and comfort.
         </p>
         
-        {featuredProperties.length > 0 ? (
-          <div className="property-grid">
-            {featuredProperties.map(property => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            icon={<Home className="w-16 h-16" />}
-            title="No Featured Properties"
-            message="We're currently updating our featured property selection. Check back soon for amazing deals!"
-            action={{
-              label: "Browse All Properties",
-              onClick: () => navigate('/properties')
-            }}
-          />
+        {featuredProperties.length > 0 && (
+          <>
+            <div className="property-grid">
+              {featuredProperties.map(property => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+            
+            <div className="text-center mt-12">
+              <Link to="/properties" className="btn-outline">
+                View All Properties
+              </Link>
+            </div>
+          </>
         )}
-        
-        <div className="text-center mt-12">
-          <Link to="/properties" className="btn-outline">
-            View All Properties
-          </Link>
-        </div>
       </div>
     </section>
   );

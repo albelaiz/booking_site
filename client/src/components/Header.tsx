@@ -57,35 +57,38 @@ const Header = () => {
 
   return (
     <>
-      <header className={`${isScrolled ? "bg-white shadow-sm" : "bg-transparent"} sticky top-0 z-50 transition-all duration-300 w-full`}>
-        <div className="w-full bg-slate-200">
+      <header className={`${isScrolled 
+        ? "bg-white/95 backdrop-blur-xl shadow-xl border-b border-gray-200/50" 
+        : "bg-transparent"} 
+        sticky top-0 z-50 transition-all duration-300 ease-out w-full`}>
+        <div className="w-full bg-white/90 backdrop-blur-sm">
           <div className="container-custom flex items-center justify-between h-20">
-            {/* Logo */}
+            {/* Professional Logo */}
             <Link 
               to="/" 
-              className="flex items-center space-x-2 cursor-pointer hover:opacity-90 transition-opacity"
+              className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-all duration-300 group"
               onClick={scrollToTop}
             >
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-moroccan-blue flex items-center justify-center rounded-md shadow-md">
+                <div className="w-10 h-10 bg-blue-600 flex items-center justify-center rounded-lg shadow-lg group-hover:shadow-xl transition-all duration-300">
                   <span className="text-white font-serif text-xl font-bold">B</span>
                 </div>
-                <div className="ml-2 font-serif flex items-center">
-                  <span className="text-moroccan-blue text-xl font-medium">Bay</span>
-                  <span className="text-moroccan-gold text-xl font-medium">Haven</span>
+                <div className="ml-3 font-serif flex items-center">
+                  <span className="text-gray-900 text-2xl font-semibold">Bay</span>
+                  <span className="text-blue-600 text-2xl font-semibold ml-1">Haven</span>
                 </div>
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8 xl:space-x-14 2xl:space-x-20">
+            {/* Professional Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-8">
               <Navigation />
               
               {isLoggedIn ? (
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <Button 
                     onClick={onDashboardClick} 
-                    className="bg-moroccan-gold hover:bg-moroccan-gold/90 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors"
+                    className="btn-primary"
                   >
                     Dashboard
                   </Button>
@@ -99,7 +102,7 @@ const Header = () => {
               ) : (
                 <Button 
                   asChild
-                  className="bg-moroccan-gold hover:bg-moroccan-gold/90 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors"
+                  className="btn-outline"
                 >
                   <Link to="/become-host">Become a host</Link>
                 </Button>
@@ -109,13 +112,13 @@ const Header = () => {
             {/* Mobile menu button */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-              className="lg:hidden flex items-center p-2" 
+              className="lg:hidden flex items-center p-2 text-gray-700 hover:text-gray-900 transition-colors" 
               aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
-                <X className="h-6 w-6 text-gray-700" />
+                <X className="h-6 w-6" />
               ) : (
-                <List className="h-6 w-6 text-gray-700" />
+                <List className="h-6 w-6" />
               )}
               <span className="sr-only">
                 {isMobileMenuOpen ? "Close menu" : "Open menu"}

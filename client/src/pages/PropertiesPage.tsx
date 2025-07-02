@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -48,8 +48,13 @@ const PropertiesPage = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-grow bg-gray-50 py-16">
-        <div className="container-custom">
+      <main className="flex-grow relative py-16 overflow-hidden">
+        {/* Beautiful Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-100"></div>
+        <div className="absolute inset-0 opacity-30 bg-mesh-pattern"></div>
+        <div className="absolute top-10 right-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute bottom-10 left-10 w-80 h-80 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-2000"></div>
+        <div className="container-custom relative z-10">
           {/* Search summary */}
           <div className="mb-10 animate-fade-in">
             <h1 className="text-3xl font-serif font-medium mb-3">Properties in {location || 'Martil'}</h1>

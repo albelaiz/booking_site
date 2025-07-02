@@ -1,5 +1,4 @@
 
-import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -39,29 +38,6 @@ const AboutPage = () => {
     }
   ];
 
-  // Team Members - ADD, REMOVE, OR MODIFY TEAM MEMBERS HERE
-  const teamMembers = [
-    {
-      name: "Alae Belaizi",
-      position: "Developer & CEO",
-      photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80", // Replace with actual photo URL
-      description: "Passionate about bringing authentic Moroccan hospitality to the world through technology and innovation."
-    },
-    {
-      name: "Yahya Amaiche", 
-      position: "Developer & Property Manager",
-      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80", // Replace with actual photo URL
-      description: "Expert in property management with deep knowledge of Martil's best accommodations and local culture."
-    },
-    // ADD MORE TEAM MEMBERS HERE - Copy the format above
-    // {
-    //   name: "Your Name",
-    //   position: "Your Position", 
-    //   photo: "your-photo-url",
-    //   description: "Your description"
-    // },
-  ];
-
   // Values Content
   const valuesContent = [
     {
@@ -88,38 +64,40 @@ const AboutPage = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-grow">
+      <main className="flex-grow relative">
+        {/* Much more subtle background that won't interfere with text */}
+        <div className="absolute inset-0 bg-white"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-blue-50/20"></div>
+        <div className="absolute top-20 right-20 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+        <div className="absolute bottom-20 left-20 w-80 h-80 bg-blue-50 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
         {/* Hero Section */}
-        <section className="relative h-[400px] flex items-center">
+        <section className="relative h-[400px] flex items-center bg-white">
           <div className="absolute inset-0 z-0">
             <img 
               src={heroContent.backgroundImage} 
               alt="Martil Cityscape" 
-              className="w-full h-full object-cover" 
+              className="w-full h-full object-cover opacity-20" 
             />
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-            
-            {/* Moroccan Pattern Overlay */}
-            <div className="absolute inset-0 moroccan-pattern"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-white/60"></div>
           </div>
           
-          <div className="container-custom relative z-10 text-white">
-            <h1 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+          <div className="container-custom relative z-10 text-gray-900">
+            <h1 className="text-4xl md:text-5xl font-serif font-medium mb-4 text-gray-900">
               {heroContent.title}
             </h1>
-            <p className="text-xl max-w-2xl opacity-90">
+            <p className="text-xl max-w-2xl text-gray-700">
               {heroContent.subtitle}
             </p>
           </div>
         </section>
         
         {/* Our Story */}
-        <section className="py-16">
+        <section className="py-16 bg-white relative z-10">
           <div className="container-custom">
             <div className="max-w-3xl mx-auto">
               <h2 className="section-title mb-6">{storyContent.title}</h2>
               {storyContent.paragraphs.map((paragraph, index) => (
-                <p key={index} className="text-gray-700 mb-6 leading-relaxed">
+                <p key={index} className="text-gray-700 mb-6 leading-relaxed text-lg">
                   {paragraph}
                 </p>
               ))}
@@ -128,48 +106,22 @@ const AboutPage = () => {
         </section>
         
         {/* Why Choose Us */}
-        <section className="py-16 bg-moroccan-white">
+        <section className="py-16 bg-blue-50 relative z-10">
           <div className="container-custom">
-            <h2 className="section-title text-center mx-auto">Why Choose MartilHaven</h2>
+            <h2 className="section-title text-center mx-auto">Why Choose BayHaven</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
               {whyChooseUsFeatures.map((feature, index) => (
-                <div key={index} className="bg-white p-8 rounded-lg shadow-md text-center">
-                  <div className="bg-moroccan-blue/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-8 h-8 text-moroccan-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div key={index} className="bg-white p-8 rounded-lg shadow-md text-center border border-blue-100">
+                  <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       {index === 0 && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>}
                       {index === 1 && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>}
                       {index === 2 && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>}
                     </svg>
                   </div>
-                  <h3 className="text-xl font-serif font-medium mb-4">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-        
-        {/* Meet the Team */}
-        <section className="py-16">
-          <div className="container-custom">
-            <h2 className="section-title text-center mx-auto">Meet Our Team</h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-              {teamMembers.map((member, index) => (
-                <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md">
-                  <div className="h-64 bg-gray-200">
-                    <img 
-                      src={member.photo} 
-                      alt={member.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-serif font-medium mb-1">{member.name}</h3>
-                    <p className="text-moroccan-gold mb-4">{member.position}</p>
-                    <p className="text-gray-600">{member.description}</p>
-                  </div>
+                  <h3 className="text-xl font-serif font-medium mb-4 text-gray-900">{feature.title}</h3>
+                  <p className="text-gray-600 text-base leading-relaxed">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -177,7 +129,7 @@ const AboutPage = () => {
         </section>
         
         {/* Our Values */}
-        <section className="py-16 bg-moroccan-blue text-white">
+        <section className="py-16 bg-blue-600 text-white relative z-10">
           <div className="container-custom">
             <h2 className="text-3xl font-serif font-medium mb-12 text-center">Our Values</h2>
             
@@ -185,15 +137,15 @@ const AboutPage = () => {
               {valuesContent.map((value, index) => (
                 <div key={index} className="text-center">
                   <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       {index === 0 && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>}
                       {index === 1 && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z"></path>}
                       {index === 2 && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>}
                       {index === 3 && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>}
                     </svg>
                   </div>
-                  <h3 className="text-xl font-medium mb-3">{value.title}</h3>
-                  <p className="opacity-80">{value.description}</p>
+                  <h3 className="text-xl font-medium mb-3 text-white">{value.title}</h3>
+                  <p className="text-blue-100 text-base leading-relaxed">{value.description}</p>
                 </div>
               ))}
             </div>

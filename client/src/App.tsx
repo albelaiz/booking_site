@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { BookingsProvider } from "./contexts/BookingsContext";
 import { PropertiesProvider } from "./contexts/PropertiesContext";
 import { MessagesProvider } from "./contexts/MessagesContext";
+import { TestimonialsProvider } from "./contexts/TestimonialsContext";
 import ScrollToTop from "./components/ScrollToTop";
 import AuthCheck from "./components/AuthCheck";
 import Index from "./pages/Index";
@@ -22,6 +23,7 @@ import AdminActivityHistory from "./pages/AdminActivityHistory";
 import AdminSettings from "./pages/AdminSettings";
 import AdminSystem from "./pages/AdminSystem";
 import AdminMessages from "./pages/AdminMessages";
+import AdminTestimonials from "./pages/AdminTestimonials";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffProperties from "./pages/StaffProperties";
 import StaffBookings from "./pages/StaffBookings";
@@ -42,9 +44,10 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BookingsProvider>
-      <PropertiesProvider>
-        <MessagesProvider>
+    <TestimonialsProvider>
+      <BookingsProvider>
+        <PropertiesProvider>
+          <MessagesProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
@@ -126,6 +129,11 @@ const App = () => (
                     <AdminMessages />
                   </AuthCheck>
                 } />
+                <Route path="/admin/testimonials" element={
+                  <AuthCheck requiredRole="staff">
+                    <AdminTestimonials />
+                  </AuthCheck>
+                } />
 
                 {/* Staff routes with AuthCheck */}
                 <Route path="/staff" element={
@@ -143,6 +151,11 @@ const App = () => (
                     <StaffBookings />
                   </AuthCheck>
                 } />
+                <Route path="/staff/testimonials" element={
+                  <AuthCheck requiredRole="staff">
+                    <AdminTestimonials />
+                  </AuthCheck>
+                } />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
@@ -151,6 +164,7 @@ const App = () => (
         </MessagesProvider>
       </PropertiesProvider>
     </BookingsProvider>
+    </TestimonialsProvider>
   </QueryClientProvider>
 );
 

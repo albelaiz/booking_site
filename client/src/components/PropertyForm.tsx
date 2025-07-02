@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Property } from '../data/properties';
 import { useToast } from '../hooks/use-toast';
-import { Plus, Trash2, Upload } from 'lucide-react';
+import { Trash2, Upload, Home, Star, DollarSign, Camera, Wifi, Car, Coffee, Waves, Shield, Users } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -38,10 +38,18 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedPlace, setSelectedPlace] = useState<string>('');
 
-  // Simple amenities list
+  // Enhanced amenities list with icons
   const popularAmenities = [
-    'WiFi', 'Kitchen', 'Air conditioning', 'Heating', 'TV',
-    'Pool', 'Parking', 'Garden', 'Balcony', 'Pet friendly'
+    { name: 'WiFi', icon: Wifi },
+    { name: 'Kitchen', icon: Coffee },
+    { name: 'Air conditioning', icon: Shield },
+    { name: 'Heating', icon: Home },
+    { name: 'TV', icon: Home },
+    { name: 'Pool', icon: Waves },
+    { name: 'Parking', icon: Car },
+    { name: 'Garden', icon: Home },
+    { name: 'Balcony', icon: Home },
+    { name: 'Pet friendly', icon: Home }
   ];
 
     // City and places data with proper typing
@@ -124,11 +132,11 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleAmenityToggle = (amenity: string) => {
+  const handleAmenityToggle = (amenityName: string) => {
     setSelectedAmenities(prev => 
-      prev.includes(amenity)
-        ? prev.filter(a => a !== amenity)
-        : [...prev, amenity]
+      prev.includes(amenityName)
+        ? prev.filter(a => a !== amenityName)
+        : [...prev, amenityName]
     );
   };
 
@@ -221,43 +229,56 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm">
-      <div className="p-6 border-b">
-        <h1 className="text-2xl font-medium mb-2">
-          {property ? 'Update your listing' : 'List your place'}
-        </h1>
-        <p className="text-gray-600">
-          Share some basic info about your place
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50">
+      {/* Header Section */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-3xl mx-auto px-6 py-8">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-emerald-600 rounded-2xl mb-4">
+              <Home className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {property ? 'Update your listing' : 'List your place'}
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              {property ? 'Update your property details to keep your listing fresh' : 'Share your space with travelers from around the world'}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-8">
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">About your place</CardTitle>
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Home className="h-5 w-5 text-blue-600" />
+              About your place
+            </CardTitle>
+            <p className="text-gray-600">Tell us the basics about your property</p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
                 What's your place called?
               </label>
               <Input
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 placeholder="e.g. Cozy apartment in city center"
-                className="text-base"
+                className="text-base h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-0"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                The city
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Choose your city
               </label>
               <select
                 value={selectedCity}
                 onChange={(e) => handleCityChange(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-base focus:border-blue-500 focus:ring-0 bg-white"
               >
                 <option value="">Select a city</option>
                 {Object.keys(cityPlaces).map(city => (
@@ -268,15 +289,15 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
 
             {selectedCity && (
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Choose your place
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Choose your neighborhood
                 </label>
                 <select
                   value={selectedPlace}
                   onChange={(e) => handlePlaceChange(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-base focus:border-blue-500 focus:ring-0 bg-white"
                 >
-                  <option value="">Select a place</option>
+                  <option value="">Select a neighborhood</option>
                   {cityPlaces[selectedCity]?.map((place: string) => (
                     <option key={place} value={place}>{place}</option>
                   ))}
@@ -285,48 +306,55 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
             )}
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Describe your place
               </label>
               <Textarea
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="What makes your place special?"
+                placeholder="What makes your place special? Mention the view, location highlights, unique features..."
                 rows={4}
-                className="text-base"
+                className="text-base border-2 border-gray-200 focus:border-blue-500 focus:ring-0"
               />
             </div>
 
              {/* Featured Property Toggle */}
-             <div className="flex items-center space-x-2">
+             <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
               <input
                 type="checkbox"
                 id="featured"
                 checked={formData.featured || false}
                 onChange={(e) => handleInputChange('featured', e.target.checked)}
-                className="w-4 h-4 text-moroccan-blue bg-gray-100 border-gray-300 rounded focus:ring-moroccan-blue focus:ring-2"
+                className="w-5 h-5 text-amber-600 bg-white border-2 border-amber-300 rounded focus:ring-amber-500 focus:ring-2"
               />
-              <label htmlFor="featured" className="text-sm font-medium">
-                Featured Property
-              </label>
+              <div>
+                <label htmlFor="featured" className="text-sm font-semibold text-amber-800">
+                  Featured Property
+                </label>
+                <p className="text-xs text-amber-700">Get more visibility and bookings</p>
+              </div>
             </div>
 
           </CardContent>
         </Card>
 
         {/* Property Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Property details</CardTitle>
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Users className="h-5 w-5 text-emerald-600" />
+              Property details
+            </CardTitle>
+            <p className="text-gray-600">Help guests know what to expect</p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Bedrooms</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Bedrooms</label>
                 <select
                   value={formData.bedrooms}
                   onChange={(e) => handleInputChange('bedrooms', Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-base focus:border-blue-500 focus:ring-0 bg-white"
                 >
                   {[1,2,3,4,5,6].map(num => (
                     <option key={num} value={num}>{num}</option>
@@ -335,11 +363,11 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Bathrooms</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Bathrooms</label>
                 <select
                   value={formData.bathrooms}
                   onChange={(e) => handleInputChange('bathrooms', Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-base focus:border-blue-500 focus:ring-0 bg-white"
                 >
                   {[1,2,3,4,5].map(num => (
                     <option key={num} value={num}>{num}</option>
@@ -348,11 +376,11 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Max guests</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Max guests</label>
                 <select
                   value={formData.capacity}
                   onChange={(e) => handleInputChange('capacity', Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-base focus:border-blue-500 focus:ring-0 bg-white"
                 >
                   {[1,2,3,4,5,6,7,8,9,10].map(num => (
                     <option key={num} value={num}>{num}</option>
@@ -364,61 +392,74 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
         </Card>
 
         {/* Amenities */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">What amenities do you offer?</CardTitle>
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Star className="h-5 w-5 text-amber-500" />
+              What amenities do you offer?
+            </CardTitle>
+            <p className="text-gray-600">Select all that apply to make your listing stand out</p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              {popularAmenities.map(amenity => (
-                <label key={amenity} className="flex items-center space-x-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedAmenities.includes(amenity)}
-                    onChange={() => handleAmenityToggle(amenity)}
-                    className="h-4 w-4 text-moroccan-blue focus:ring-moroccan-blue border-gray-300 rounded"
-                  />
-                  <span className="text-sm">{amenity}</span>
-                </label>
-              ))}
+            <div className="grid grid-cols-2 gap-4">
+              {popularAmenities.map(amenity => {
+                const IconComponent = amenity.icon;
+                return (
+                  <label key={amenity.name} className="flex items-center space-x-3 cursor-pointer p-3 rounded-xl border-2 border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition-all duration-200">
+                    <input
+                      type="checkbox"
+                      checked={selectedAmenities.includes(amenity.name)}
+                      onChange={() => handleAmenityToggle(amenity.name)}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <IconComponent className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-700">{amenity.name}</span>
+                  </label>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
 
         {/* Photos */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Add some photos</CardTitle>
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Camera className="h-5 w-5 text-purple-600" />
+              Add some photos
+            </CardTitle>
+            <p className="text-gray-600">Show off your space with high-quality photos</p>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <Button
                 type="button"
                 onClick={handleImageUpload}
                 variant="outline"
-                className="w-full h-32 border-dashed"
+                className="w-full h-40 border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200"
               >
                 <div className="text-center">
-                  <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                  <span>Upload photos</span>
+                  <Upload className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                  <span className="text-lg font-medium text-gray-600">Upload photos</span>
+                  <p className="text-sm text-gray-500 mt-1">Drag and drop or click to browse</p>
                 </div>
               </Button>
 
               {images.length > 0 && (
                 <div className="grid grid-cols-3 gap-4">
                   {images.map((image, index) => (
-                    <div key={index} className="relative">
+                    <div key={index} className="relative group">
                       <img
                         src={image}
                         alt={`Property ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
+                        className="w-full h-32 object-cover rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-200"
                       />
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
-                        className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md"
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 shadow-lg hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100"
                       >
-                        <Trash2 size={16} className="text-red-500" />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
@@ -429,35 +470,53 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
         </Card>
 
         {/* Pricing */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Set your price</CardTitle>
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-green-600" />
+              Set your price
+            </CardTitle>
+            <p className="text-gray-600">Price competitively to attract more guests</p>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-2">
-              <span className="text-lg">$</span>
+            <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
+              <span className="text-2xl font-bold text-green-600">$</span>
               <Input
                 type="number"
                 value={formData.price}
                 onChange={(e) => handleInputChange('price', e.target.value)}
                 placeholder="100"
-                className="text-lg"
+                className="text-2xl font-bold border-0 bg-transparent focus:ring-0 flex-1"
               />
-              <span className="text-gray-600">per night</span>
+              <span className="text-lg font-medium text-green-700">per night</span>
+            </div>
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">
+                💡 <strong>Tip:</strong> Competitive pricing increases your booking chances by up to 40%
+              </p>
             </div>
           </CardContent>
         </Card>
 
         {/* Submit Buttons */}
-        <div className="flex justify-between pt-6 border-t">
-          <Button type="button" variant="outline" onClick={onCancel}>
+        <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            className="px-8 py-3 text-base border-2 border-gray-300 hover:border-gray-400"
+          >
             Cancel
           </Button>
-          <Button type="submit" className="bg-moroccan-blue hover:bg-moroccan-blue/90">
+          <Button 
+            type="submit" 
+            className="px-8 py-3 text-base bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+          >
             {property ? 'Update listing' : 'Publish listing'}
           </Button>
         </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

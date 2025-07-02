@@ -1,6 +1,5 @@
-import type { Config } from "tailwindcss";
-
-export default {
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   darkMode: ["class"],
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
@@ -61,16 +60,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Professional monochromatic palette
-        "brand-primary": "#2C3E50",      // Professional dark blue-gray
-        "brand-secondary": "#34495E",     // Slightly lighter blue-gray
-        "brand-accent": "#3498DB",        // Subtle blue accent
-        "brand-neutral": "#ECF0F1",       // Light neutral
-        "brand-dark": "#1A252F",          // Deep dark
-        "brand-light": "#F8F9FA",         // Pure light
-        "text-primary": "#2C3E50",        // Main text color
-        "text-secondary": "#7F8C8D",      // Secondary text
-        "text-muted": "#95A5A6",          // Muted text
+        // Moroccan theme colors
+        "moroccan-blue": "#1A5D91",
+        "moroccan-gold": "#DAA520",
+        "moroccan-white": "#F9F7F4",
+        // Enhanced professional colors
+        "luxury-blue": "#0F4C75",
+        "luxury-gold": "#FFD700",
+        "luxury-platinum": "#E5E4E2",
+        "luxury-navy": "#1A1A2E",
+        "accent-cyan": "#00C9FF",
+        "accent-emerald": "#10B981",
+        "accent-purple": "#8B5CF6",
       },
       fontFamily: {
         'sans': ['Inter', 'Lato', 'system-ui', '-apple-system', 'sans-serif'],
@@ -109,16 +110,15 @@ export default {
         '3xl': '64px',
       },
       boxShadow: {
-        'professional': '0 4px 24px rgba(44, 62, 80, 0.08)',
-        'professional-lg': '0 8px 32px rgba(44, 62, 80, 0.12)',
-        'professional-xl': '0 16px 48px rgba(44, 62, 80, 0.15)',
-        'card': '0 2px 16px rgba(44, 62, 80, 0.06)',
-        'card-hover': '0 8px 32px rgba(44, 62, 80, 0.12)',
+        'luxury': '0 32px 64px -12px rgba(26, 93, 145, 0.25)',
+        'luxury-gold': '0 32px 64px -12px rgba(218, 165, 32, 0.25)',
+        'glow': '0 0 50px rgba(26, 93, 145, 0.3)',
+        'glow-gold': '0 0 50px rgba(218, 165, 32, 0.3)',
+        'professional': '0 20px 40px -12px rgba(0, 0, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.08)',
       },
       gradientColorStops: {
         'luxury-start': '#1A5D91',
         'luxury-end': '#DAA520',
-      }
       },
       keyframes: {
         "accordion-down": {
@@ -171,4 +171,4 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
-} satisfies Config;
+};
