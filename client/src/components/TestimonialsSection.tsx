@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Star, Quote } from 'lucide-react';
 import { useTestimonials } from '../contexts/TestimonialsContext';
 
@@ -107,10 +108,13 @@ const TestimonialsSection: React.FC = () => {
         
         {/* Call to Action */}
         <div className="text-center mt-16 animate-professional-fade-in">
-          <div className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold rounded-xl shadow-luxury hover:shadow-glow transition-all duration-300 hover:scale-105 cursor-pointer">
+          <Link 
+            to="/properties" 
+            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold rounded-xl shadow-luxury hover:shadow-glow transition-all duration-300 hover:scale-105 hover:from-blue-700 hover:to-blue-900"
+          >
             <Star className="w-5 h-5 mr-2" />
             Join Our Happy Guests
-          </div>
+          </Link>
         </div>
       </div>
     </section>

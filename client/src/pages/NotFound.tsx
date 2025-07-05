@@ -24,37 +24,18 @@ const NotFound = () => {
           The page you are looking for doesn't exist or has been moved.
         </p>
         <div className="space-y-4">
-          {isAdminPath ? (
-            <>
-              <Link 
-                to="/admin" 
-                className="block w-full px-4 py-2 bg-moroccan-blue text-white rounded hover:bg-moroccan-blue/90 transition"
-              >
-                Return to Admin Dashboard
-              </Link>
-              <Link 
-                to="/" 
-                className="block w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition"
-              >
-                Go to Homepage
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link 
-                to="/" 
-                className="block w-full px-4 py-2 bg-moroccan-blue text-white rounded hover:bg-moroccan-blue/90 transition"
-              >
-                Return to Homepage
-              </Link>
-              <Link 
-                to="/properties" 
-                className="block w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition"
-              >
-                Browse Properties
-              </Link>
-            </>
-          )}
+          <Link 
+            to="/" 
+            className="block w-full px-4 py-2 bg-moroccan-blue text-white rounded hover:bg-moroccan-blue/90 transition"
+          >
+            Return to Homepage
+          </Link>
+          <Link 
+            to="/properties" 
+            className="block w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition"
+          >
+            Browse Properties
+          </Link>
         </div>
       </div>
     </div>

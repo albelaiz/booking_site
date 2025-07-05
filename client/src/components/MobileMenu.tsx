@@ -32,7 +32,20 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   if (!isOpen) return null;
 
   return (
-    <nav className="lg:hidden py-4 border-t">
+    <nav className="lg:hidden py-4 border-t bg-white/95 backdrop-blur-sm">
+      {/* Bay Haven Logo in Mobile Menu */}
+      <div className="flex justify-center mb-4 pb-4 border-b border-gray-200">
+        <Link to="/" onClick={onLinkClick} className="flex items-center space-x-2 group">
+          <div className="w-8 h-8 logo-gradient flex items-center justify-center rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300">
+            <span className="text-white font-serif text-sm font-bold">BH</span>
+          </div>
+          <div className="font-serif">
+            <span className="text-gray-900 text-lg font-bold">Bay</span>
+            <span className="text-blue-600 text-lg font-bold ml-1">Haven</span>
+          </div>
+        </Link>
+      </div>
+      
       <Navigation isMobile onLinkClick={onLinkClick} />
       <div className="mt-4">
         {isLoggedIn ? (
@@ -70,12 +83,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             </div>
           </div>
         ) : (
-          <Button 
-            asChild
-            className="w-full bg-moroccan-gold hover:bg-moroccan-gold/90 text-white"
+          <Link 
+            to="/become-host" 
+            onClick={onLinkClick}
+            className="w-full bg-moroccan-gold hover:bg-moroccan-gold/90 text-white inline-flex items-center justify-center px-6 py-3 rounded-lg transition-all duration-200 font-medium"
           >
-            <Link to="/become-host" onClick={onLinkClick}>Become a host</Link>
-          </Button>
+            Become a Host
+          </Link>
         )}
       </div>
     </nav>

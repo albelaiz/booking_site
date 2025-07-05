@@ -61,6 +61,14 @@ export const useAuth = () => {
     setUserName(localStorage.getItem('userName') || 'User');
     setLoginMethod(localStorage.getItem('loginMethod') || '');
     
+    // Trigger storage event to refresh properties context
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'userRole',
+      oldValue: null,
+      newValue: localStorage.getItem('userRole'),
+      storageArea: localStorage
+    }));
+    
     const userRole = localStorage.getItem('userRole');
     console.log('Auth success, user role:', userRole);
     navigateByRole(userRole);
@@ -72,9 +80,19 @@ export const useAuth = () => {
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('loginMethod');
+    localStorage.removeItem('userId');
     setIsLoggedIn(false);
     setUserName('');
     setLoginMethod('');
+    
+    // Trigger storage event to refresh properties context
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'userRole',
+      oldValue: localStorage.getItem('userRole'),
+      newValue: null,
+      storageArea: localStorage
+    }));
+    
     navigate('/');
   };
 

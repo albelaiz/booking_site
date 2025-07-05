@@ -1,0 +1,29 @@
+{
+  "name": "express-local-server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "watch": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "nodejs",
+    "web-server",
+    "api"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "description": "A modern Express.js server for local development",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}

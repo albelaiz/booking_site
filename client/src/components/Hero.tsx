@@ -44,14 +44,33 @@ const Hero: React.FC = () => {
         <Ship size={36} className="drop-shadow-lg" />
       </div>
       
-      {/* Main Content */}
+      Main Content
       <div className="relative z-20 container-custom">
         <div className="text-center text-gray-900 max-w-5xl mx-auto">
+          {/* Bay Haven Brand Logo in Hero */}
+          {/* <div className="flex justify-center mb-8">
+            <div className="flex items-center space-x-4 bg-white/80 backdrop-blur-sm px-8 py-4 rounded-2xl shadow-xl border border-white/50 logo-glow">
+              <div className="relative">
+                <div className="w-16 h-16 logo-gradient flex items-center justify-center rounded-2xl shadow-lg logo-pulse">
+                  <span className="text-white font-serif text-2xl font-bold tracking-wider">BH</span>
+                </div>
+                <div className="absolute inset-0 bg-blue-400 rounded-2xl blur opacity-30"></div>
+              </div>
+              <div className="font-serif">
+                <div className="flex items-baseline">
+                  <span className="text-gray-900 text-4xl font-bold tracking-wide">Bay</span>
+                  <span className="text-blue-600 text-4xl font-bold ml-2 tracking-wide">Haven</span>
+                </div>
+                <span className="text-sm text-gray-600 tracking-widest uppercase font-sans">Premium Vacation Rentals • Morocco</span>
+              </div>
+            </div>
+          </div> */}
+          
           {/* Professional Badge */}
-          <div className="inline-flex items-center px-6 py-3 mb-8 bg-blue-50 backdrop-blur-sm rounded-full border border-blue-200 shadow-lg">
+          {/* <div className="inline-flex items-center px-6 py-3 mb-8 bg-blue-50 backdrop-blur-sm rounded-full border border-blue-200 shadow-lg">
             <Crown className="w-4 h-4 mr-2 text-blue-600" />
             <span className="text-blue-700 font-medium text-sm tracking-wide">Premium Accommodations</span>
-          </div>
+          </div> */}
           
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-light mb-8 leading-tight">
             <span className="block mb-4">

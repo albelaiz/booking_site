@@ -1224,3 +1224,34 @@ html {
   background: rgba(26, 93, 145, 0.2);
   color: #1A5D91;
 }
+
+/* Bay Haven Logo Animations */
+@keyframes logo-glow {
+  0%, 100% { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+  50% { box-shadow: 0 6px 25px rgba(37, 99, 235, 0.5); }
+}
+
+@keyframes logo-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.logo-glow {
+  animation: logo-glow 3s ease-in-out infinite;
+}
+
+.logo-pulse {
+  animation: logo-pulse 2s ease-in-out infinite;
+}
+
+.logo-gradient {
+  background: linear-gradient(-45deg, #2563eb, #3b82f6, #1d4ed8, #2563eb);
+  background-size: 400% 400%;
+  animation: gradient-shift 4s ease infinite;
+}

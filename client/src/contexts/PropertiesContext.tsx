@@ -34,12 +34,12 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [propertiesList, setPropertiesList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Check if user is admin/staff to determine which API to use
-  const userRole = localStorage.getItem('userRole') || '';
-  const isAdminUser = userRole === 'admin' || userRole === 'staff';
-
   const fetchProperties = async () => {
     try {
+      // Check current user role at fetch time
+      const userRole = localStorage.getItem('userRole') || '';
+      const isAdminUser = userRole === 'admin' || userRole === 'staff';
+      
       // Use admin API for admin/staff users, public API for everyone else
       const data = isAdminUser 
         ? await propertiesApi.getAllAdmin() 
@@ -60,15 +60,32 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       fetchProperties();
     }, 30000); // Refresh every 30 seconds
     
-    return () => clearInterval(interval);
+    // Listen for storage changes (like logout)
+    const handleStorageChange = () => {
+      fetchProperties();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const addProperty = async (newProperty: Omit<Property, 'id'>) => {
     try {
       const userId = parseInt(localStorage.getItem('userId') || '1');
+      const userRole = localStorage.getItem('userRole') || '';
+      
+      // Auto-approve properties created by admin or staff
+      const propertyToCreate = {
+        ...newProperty,
+        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : (newProperty.status || 'pending')
+      };
       
       // First try to save to the API
-      const savedProperty = await propertiesApi.create(newProperty);
+      const savedProperty = await propertiesApi.create(propertyToCreate);
       
       // Log the audit action
       await auditLogger.logPropertyAction(

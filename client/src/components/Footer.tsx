@@ -19,15 +19,21 @@ const Footer = () => {
       
       <div className="container-custom relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* Brand Information */}
+          {/* Enhanced Brand Information */}
           <div className="col-span-1 lg:col-span-1">
-            <Link to="/" className="flex items-center space-x-3 mb-5">
-              <div className="bg-blue-600 text-white p-2.5 rounded-lg shadow-md">
-                <span className="font-serif text-lg">B</span>
+            <Link to="/" className="flex items-center space-x-3 mb-6 group">
+              <div className="relative">
+                <div className="logo-gradient text-white p-3 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+                  <span className="font-serif text-lg font-bold tracking-wide">BH</span>
+                </div>
+                <div className="absolute inset-0 bg-blue-400 rounded-xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
               </div>
-              <div className="font-serif text-xl text-white">
-                <span className="text-white">Bay</span>
-                <span className="text-blue-400">Haven</span>
+              <div className="font-serif">
+                <div className="flex items-baseline">
+                  <span className="text-white text-xl font-bold tracking-wide">Bay</span>
+                  <span className="text-blue-400 text-xl font-bold ml-1 tracking-wide">Haven</span>
+                </div>
+                <span className="text-xs text-gray-400 tracking-widest uppercase font-sans">Morocco</span>
               </div>
             </Link>
             <p className="text-sm mb-6 leading-relaxed text-gray-400 font-normal">

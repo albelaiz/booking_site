@@ -4,6 +4,32 @@ import { storage } from "./storage";
 import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema, insertAuditLogSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Simple authentication middleware
+const requireAuth = (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  
+  // In a real app, you'd verify the JWT token here
+  // For now, we'll just check if it exists
+  next();
+};
+
+// Admin/Staff role middleware
+const requireAdminRole = (req: any, res: any, next: any) => {
+  // This would typically check the user's role from the JWT token
+  // For now, we'll implement basic protection
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: "Admin authentication required" });
+  }
+  
+  next();
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check route
   app.get("/api/health", async (req, res) => {
@@ -248,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin route - returns all properties (for admin dashboard)
-  app.get("/api/properties", async (req, res) => {
+  app.get("/api/properties", requireAdminRole, async (req, res) => {
     try {
       const properties = await storage.getAllProperties();
       res.json(properties);
@@ -258,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/properties/:id", async (req, res) => {
+  app.get("/api/properties/:id", requireAdminRole, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -277,7 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/properties", async (req, res) => {
+  app.post("/api/properties", requireAuth, async (req, res) => {
     try {
       const propertyData = insertPropertySchema.parse(req.body);
       const property = await storage.createProperty(propertyData);
@@ -291,7 +317,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/properties/:id", async (req, res) => {
+  app.put("/api/properties/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -312,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/properties/:id", async (req, res) => {
+  app.delete("/api/properties/:id", requireAdminRole, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
