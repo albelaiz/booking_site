@@ -25,6 +25,8 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
+
+  console.log("Setting up Vite middleware...");
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
@@ -76,6 +78,7 @@ export function serveStatic(app: Express) {
       `Could not find the build directory: ${distPath}, make sure to build the client first`,
     );
   }
+  console.log(`Serving static files from ${distPath}`);
 
   app.use(express.static(distPath));
 
