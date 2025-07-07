@@ -15,6 +15,7 @@ import DestinationShowcase from '../components/DestinationShowcase';
 import BookingAdvantages from '../components/BookingAdvantages';
 import InstantBooking from '../components/InstantBooking';
 import TestimonialsSection from '../components/TestimonialsSection';
+import TamudaChatbot from '../components/Chatbot';
 
 const Index = () => {
   return (
@@ -394,6 +395,9 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* AI Chatbot for Guests */}
+      <TamudaChatbot />
     </div>
   );
 };

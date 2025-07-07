@@ -10,8 +10,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
 import { Property } from '../data/properties';
-import { Pencil, Plus, Trash2, Eye, Home, DollarSign, Calendar, MapPin, Users, Star, TrendingUp, Settings } from 'lucide-react';
+import { Pencil, Plus, Trash2, Eye, Home, DollarSign, Calendar, MapPin, Users, Star, TrendingUp, Settings, MessageCircle, BarChart3, Brain, Sparkles } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
+import TamudaHostChatbot from '../components/HostChatbot';
 
 const OwnerDashboard = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const OwnerDashboard = () => {
   const { properties, addProperty, updateProperty, deleteProperty } = useProperties();
   const [isAddingProperty, setIsAddingProperty] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+  const [isGeneratingReview, setIsGeneratingReview] = useState(false);
+  const [reviewAnalysis, setReviewAnalysis] = useState<any>(null);
   
   // Get authenticated user data
   const userName = localStorage.getItem('userName') || 'Property Owner';
@@ -73,6 +76,42 @@ const OwnerDashboard = () => {
       });
     }
   };
+
+  const handleGenerateReviewAnalysis = async () => {
+    setIsGeneratingReview(true);
+    try {
+      const response = await fetch('/api/review-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ownerId: ownerId,
+          properties: ownerProperties.map(p => p.id)
+        }),
+      });
+
+      if (response.ok) {
+        const analysis = await response.json();
+        setReviewAnalysis(analysis);
+        toast({
+          title: "Analysis Complete",
+          description: "AI review analysis has been generated successfully.",
+        });
+      } else {
+        throw new Error('Failed to generate analysis');
+      }
+    } catch (error) {
+      console.error('Error generating review analysis:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "Unable to generate review analysis. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingReview(false);
+    }
+  };
   
   // Render property form modal or property listings
   if (isAddingProperty || editingProperty) {
@@ -121,9 +160,28 @@ const OwnerDashboard = () => {
                   <h1 className="text-4xl font-bold text-gray-900 mb-2">
                     Welcome back, {userName}!
                   </h1>
-                  <p className="text-lg text-gray-600">
+                  <p className="text-lg text-gray-600 mb-4">
                     Manage your properties and grow your rental business
                   </p>
+                  
+                  {/* Host Assistant Button */}
+                  <Button 
+                    onClick={() => {
+                      // Scroll to bottom to reveal host chatbot
+                      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                      // Trigger host chatbot to open
+                      setTimeout(() => {
+                        const hostChatButton = document.querySelector('[data-host-chat-trigger]') as HTMLElement;
+                        if (hostChatButton) {
+                          hostChatButton.click();
+                        }
+                      }, 1000);
+                    }}
+                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3"
+                  >
+                    <Home className="h-5 w-5 mr-2" />
+                    🤖 Get AI Host Assistant Help
+                  </Button>
                 </div>
                 <div className="hidden md:block">
                   <div className="bg-gradient-to-r from-moroccan-blue to-moroccan-gold p-4 rounded-xl">
@@ -186,7 +244,7 @@ const OwnerDashboard = () => {
           </div>
           
           <Tabs defaultValue="properties" className="mb-10">
-            <TabsList className="grid w-full grid-cols-3 bg-white rounded-lg shadow-sm">
+            <TabsList className="grid w-full grid-cols-4 bg-white rounded-lg shadow-sm">
               <TabsTrigger value="properties" className="data-[state=active]:bg-moroccan-blue data-[state=active]:text-white">
                 <Home className="h-4 w-4 mr-2" />
                 My Properties
@@ -194,6 +252,10 @@ const OwnerDashboard = () => {
               <TabsTrigger value="bookings" className="data-[state=active]:bg-moroccan-blue data-[state=active]:text-white">
                 <Calendar className="h-4 w-4 mr-2" />
                 Bookings
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="data-[state=active]:bg-moroccan-blue data-[state=active]:text-white">
+                <Brain className="h-4 w-4 mr-2" />
+                Reviews & AI
               </TabsTrigger>
               <TabsTrigger value="profile" className="data-[state=active]:bg-moroccan-blue data-[state=active]:text-white">
                 <Settings className="h-4 w-4 mr-2" />
@@ -368,6 +430,248 @@ const OwnerDashboard = () => {
               </Card>
             </TabsContent>
 
+            <TabsContent value="reviews" className="pt-8">
+              <div className="space-y-6">
+                {/* AI Review Summarizer Header */}
+                <Card className="bg-gradient-to-r from-purple-500 to-blue-600 text-white border-0">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-2xl">
+                      <Brain className="mr-3 h-6 w-6" />
+                      AI Review Summarizer
+                      <Sparkles className="ml-2 h-5 w-5 animate-pulse" />
+                    </CardTitle>
+                    <CardDescription className="text-purple-100">
+                      Get AI-powered insights and summaries of your property reviews to improve guest satisfaction
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+
+                {/* Review Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Overall Sentiment */}
+                  <Card className="border-green-200 bg-green-50">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center text-green-800">
+                        <BarChart3 className="mr-2 h-5 w-5" />
+                        Overall Sentiment
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-600 mb-2">85%</div>
+                        <p className="text-sm text-green-700">Positive Reviews</p>
+                        <div className="mt-4 bg-green-200 rounded-full h-2">
+                          <div className="bg-green-500 rounded-full h-2" style={{ width: '85%' }}></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Most Praised Features */}
+                  <Card className="border-blue-200 bg-blue-50">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center text-blue-800">
+                        <Star className="mr-2 h-5 w-5" />
+                        Most Praised
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-blue-700">Location</span>
+                          <span className="text-sm font-semibold text-blue-600">92%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-blue-700">Cleanliness</span>
+                          <span className="text-sm font-semibold text-blue-600">88%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-blue-700">Host Service</span>
+                          <span className="text-sm font-semibold text-blue-600">85%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-blue-700">Amenities</span>
+                          <span className="text-sm font-semibold text-blue-600">82%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Areas for Improvement */}
+                  <Card className="border-orange-200 bg-orange-50">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center text-orange-800">
+                        <TrendingUp className="mr-2 h-5 w-5" />
+                        Improvement Areas
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-orange-700">WiFi Speed</span>
+                          <span className="text-sm font-semibold text-orange-600">65%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-orange-700">Check-in Process</span>
+                          <span className="text-sm font-semibold text-orange-600">72%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-orange-700">Parking</span>
+                          <span className="text-sm font-semibold text-orange-600">68%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-orange-700">Noise Level</span>
+                          <span className="text-sm font-semibold text-orange-600">70%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* AI-Generated Summary */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Sparkles className="mr-2 h-5 w-5 text-purple-600" />
+                      AI Summary & Recommendations
+                    </CardTitle>
+                    <CardDescription>
+                      Based on analysis of your latest reviews
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
+                      <h4 className="font-semibold text-purple-800 mb-2">✨ Key Insights</h4>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Your properties are consistently praised for their excellent location and cleanliness. 
+                        Guests particularly love the proximity to Martil Beach and the authentic Moroccan décor. 
+                        The most common positive themes include "beautiful views," "spotless accommodation," and "helpful host."
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-lg border border-orange-200">
+                      <h4 className="font-semibold text-orange-800 mb-2">🎯 Action Items</h4>
+                      <ul className="text-sm text-gray-700 space-y-1">
+                        <li>• <strong>WiFi Upgrade:</strong> Consider upgrading internet speed - mentioned in 23% of reviews</li>
+                        <li>• <strong>Check-in Guide:</strong> Create a digital check-in guide to streamline the process</li>
+                        <li>• <strong>Parking Info:</strong> Add clear parking instructions to your listing description</li>
+                        <li>• <strong>Noise Management:</strong> Consider soundproofing or quiet hours policy</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                      <h4 className="font-semibold text-green-800 mb-2">🚀 Growth Opportunities</h4>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Your high ratings for location and cleanliness suggest you could increase prices by 10-15% 
+                        during peak season. Consider highlighting these strengths in your listing title and description 
+                        to attract more bookings.
+                      </p>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button 
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                      onClick={handleGenerateReviewAnalysis}
+                      disabled={isGeneratingReview}
+                    >
+                      {isGeneratingReview ? (
+                        <>
+                          <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                          Analyzing Reviews...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="mr-2 h-4 w-4" />
+                          Generate New Analysis
+                        </>
+                      )}
+                    </Button>
+                  </CardFooter>
+                </Card>
+
+                {/* Recent Reviews */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <MessageCircle className="mr-2 h-5 w-5" />
+                        Recent Reviews
+                      </div>
+                      <Badge className="bg-blue-100 text-blue-800">
+                        {ownerProperties.reduce((sum, p) => sum + (p.reviewCount || 0), 0)} Total Reviews
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription>
+                      Latest guest feedback across all your properties
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {/* Sample reviews - in real implementation, these would come from API */}
+                      <div className="border-l-4 border-green-400 pl-4 py-2 bg-green-50 rounded-r-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <div className="flex text-yellow-400">
+                              {[1,2,3,4,5].map(i => <Star key={i} className="h-4 w-4 fill-current" />)}
+                            </div>
+                            <span className="ml-2 text-sm font-medium text-gray-600">Villa Tamuda Bay</span>
+                          </div>
+                          <span className="text-xs text-gray-500">2 days ago</span>
+                        </div>
+                        <p className="text-sm text-gray-700 italic">
+                          "Amazing location with stunning sea views! The villa was spotlessly clean and the host was incredibly helpful. 
+                          Would definitely stay again when visiting Morocco."
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">- Sarah M. from UK</p>
+                      </div>
+
+                      <div className="border-l-4 border-blue-400 pl-4 py-2 bg-blue-50 rounded-r-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <div className="flex text-yellow-400">
+                              {[1,2,3,4].map(i => <Star key={i} className="h-4 w-4 fill-current" />)}
+                              <Star className="h-4 w-4 text-gray-300" />
+                            </div>
+                            <span className="ml-2 text-sm font-medium text-gray-600">Riad Martil</span>
+                          </div>
+                          <span className="text-xs text-gray-500">1 week ago</span>
+                        </div>
+                        <p className="text-sm text-gray-700 italic">
+                          "Beautiful traditional Moroccan décor and great location. WiFi could be faster for remote work, 
+                          but overall a wonderful experience."
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">- Ahmed K. from Spain</p>
+                      </div>
+
+                      <div className="border-l-4 border-yellow-400 pl-4 py-2 bg-yellow-50 rounded-r-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <div className="flex text-yellow-400">
+                              {[1,2,3,4].map(i => <Star key={i} className="h-4 w-4 fill-current" />)}
+                              <Star className="h-4 w-4 text-gray-300" />
+                            </div>
+                            <span className="ml-2 text-sm font-medium text-gray-600">Casa Marina</span>
+                          </div>
+                          <span className="text-xs text-gray-500">2 weeks ago</span>
+                        </div>
+                        <p className="text-sm text-gray-700 italic">
+                          "Lovely apartment with great amenities. Check-in process was a bit confusing, 
+                          could benefit from clearer instructions."
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">- Marie L. from France</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 text-center">
+                      <Button variant="outline" className="border-moroccan-blue text-moroccan-blue hover:bg-moroccan-blue hover:text-white">
+                        View All Reviews
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
             <TabsContent value="profile" className="pt-8">
               <Card>
                 <CardHeader>
@@ -403,6 +707,9 @@ const OwnerDashboard = () => {
         </div>
       </main>
       <Footer />
+      
+      {/* Host Chatbot for Property Owners */}
+      <TamudaHostChatbot />
     </div>
   );
 };

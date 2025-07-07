@@ -39,6 +39,8 @@ import HelpCenterPage from "./pages/HelpCenterPage";
 import CancellationOptionsPage from "./pages/CancellationOptionsPage";
 import SafetyInformationPage from "./pages/SafetyInformationPage";
 import EnhancedAuthDemo from "./pages/EnhancedAuthDemo";
+import ChatbotDemo from "./pages/ChatbotDemo";
+import HostChatbotDemo from "./pages/HostChatbotDemo";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +70,8 @@ const App = () => (
                 <Route path="/cancellation-options" element={<CancellationOptionsPage />} />
                 <Route path="/safety-information" element={<SafetyInformationPage />} />
                 <Route path="/enhanced-auth-demo" element={<EnhancedAuthDemo />} />
+                <Route path="/chatbot-demo" element={<ChatbotDemo />} />
+                <Route path="/host-chatbot-demo" element={<HostChatbotDemo />} />
 
                 {/* Protected user dashboard route - allow any authenticated user */}
                 <Route path="/dashboard" element={
