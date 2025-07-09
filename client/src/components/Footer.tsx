@@ -133,7 +133,7 @@ const Footer = () => {
               </p> */}
               <p className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-blue-400" />
-                <a href="mailto:info@tamudastay.com" className="hover:text-blue-400 transition-colors">info@tamudastay.com</a>
+                <a href="mailto:tamudastay@gmail.com" className="hover:text-blue-400 transition-colors">tamudastay@gmail.com</a>
               </p>
               <p className="flex items-center">
                 <Phone className="h-5 w-5 mr-3 text-blue-400" />

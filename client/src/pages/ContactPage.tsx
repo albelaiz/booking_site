@@ -33,13 +33,13 @@ const ContactPage = () => {
                 <h2 className="text-2xl font-serif font-medium mb-6 text-gray-900">Our Information</h2>
                 
                 <div className="space-y-8">
-                  <div>
+                  {/* <div>
                     <h3 className="text-lg font-medium mb-2 text-gray-900">Visit Our Office</h3>
                     <address className="not-italic text-gray-700 text-base leading-relaxed">
                       <p>Boulevard Mohammed V</p>
                       <p>TamudaStay, Morocco</p>
                     </address>
-                  </div>
+                  </div> */}
                   
                   <div>
                     <h3 className="text-lg font-medium mb-2 text-gray-900">Contact Details</h3>

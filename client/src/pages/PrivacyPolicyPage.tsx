@@ -43,8 +43,8 @@ const PrivacyPolicyPage = () => {
               <h2 className="text-2xl font-serif mb-4">Contact Us</h2>
               <p className="text-gray-700">
                 If you have any questions about this Privacy Policy, please contact us at 
-                <a href="mailto:info@tamudastay.com" className="text-moroccan-blue hover:underline ml-1">
-                  info@tamudastay.com
+                <a href="mailto:tamudastay@gmail.com" className="text-moroccan-blue hover:underline ml-1">
+                  tamudastay@gmail.com
                 </a>
               </p>
             </section>
