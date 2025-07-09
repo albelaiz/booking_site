@@ -2,6 +2,7 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ContactForm from '../components/ContactForm';
+import WhatsAppFloatingButton from '../components/WhatsAppFloatingButton';
 
 const ContactPage = () => {
   return (
@@ -107,6 +108,13 @@ const ContactPage = () => {
       </main>
       
       <Footer />
+      
+      {/* WhatsApp Floating Button */}
+      <WhatsAppFloatingButton 
+        phoneNumber="212654698554"
+        message="Hello! I have a question about TamudaStay. Can you help me?"
+        position="bottom-right"
+      />
     </div>
   );
 };
