@@ -1729,3 +1729,37 @@ html, body {
     font-size: 1rem;
   }
 }
+
+/* Logo Gradient for TS Icon */
+.logo-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.logo-gradient:hover::before {
+  left: 100%;
+}
+
+/* Enhanced Logo Responsiveness */
+@media (max-width: 480px) {
+  .logo-gradient {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logo-gradient span {
+    font-size: 16px;
+  }
+}
