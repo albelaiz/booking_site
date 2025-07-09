@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '../hooks/use-toast';
-import { Search, MapPin, Calendar, Users } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, Plus, Minus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 const SearchBar = () => {
@@ -119,17 +119,29 @@ const SearchBar = () => {
               <Users className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
               Guests
             </label>
-            <select
-              className="w-full text-gray-900 focus:outline-none bg-white"
-              value={guests}
-              onChange={(e) => setGuests(Number(e.target.value))}
-            >
-              {[...Array(10)].map((_, i) => (
-                <option key={i} value={i + 1}>
-                  {i + 1} Guest{i !== 0 ? 's' : ''}
-                </option>
-              ))}
-            </select>
+            <div className="guest-counter-container">
+              <button
+                type="button"
+                onClick={() => setGuests(Math.max(1, guests - 1))}
+                disabled={guests <= 1}
+                className="guest-counter-button guest-selector-button"
+                aria-label="Decrease guests"
+              >
+                <Minus className="w-4 h-4 text-gray-600" />
+              </button>
+              <span className="guest-counter-display guest-selector-display">
+                {guests} Guest{guests !== 1 ? 's' : ''}
+              </span>
+              <button
+                type="button"
+                onClick={() => setGuests(Math.min(10, guests + 1))}
+                disabled={guests >= 10}
+                className="guest-counter-button guest-selector-button"
+                aria-label="Increase guests"
+              >
+                <Plus className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
           </div>
 
           <button

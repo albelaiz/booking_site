@@ -1658,3 +1658,74 @@ html, body {
     margin-left: 0 !important;
   }
 }
+
+/* Guest Selector Mobile Improvements */
+@media (max-width: 768px) {
+  .guest-selector-buttons {
+    min-height: 44px; /* Touch-friendly size */
+  }
+  
+  .guest-selector-button {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+  
+  .guest-selector-display {
+    min-width: 80px !important;
+    font-size: 1rem !important;
+    padding: 0.5rem !important;
+  }
+}
+
+/* Enhanced Guest Counter Styling */
+.guest-counter-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.guest-counter-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.guest-counter-button:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.guest-counter-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.guest-counter-display {
+  min-width: 60px;
+  text-align: center;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+@media (max-width: 640px) {
+  .guest-counter-button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+  
+  .guest-counter-display {
+    min-width: 80px;
+    font-size: 1rem;
+  }
+}
