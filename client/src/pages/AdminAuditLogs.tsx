@@ -194,26 +194,26 @@ const AdminAuditLogs = () => {
 
         {/* Filters and Search */}
         <div className="bg-white p-4 rounded-lg shadow-sm space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4">
             {/* Search */}
-            <div className="flex-1">
+            <div className="w-full">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
                   type="text"
-                  placeholder="Search by action, entity, user, or description..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-moroccan-blue focus:border-transparent"
+                  placeholder="Search logs..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-moroccan-blue focus:border-transparent text-base form-input"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
 
-            {/* Filters */}
-            <div className="flex gap-2">
+            {/* Filters - Stack on mobile, grid on larger screens */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <Select value={filterAction} onValueChange={setFilterAction}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Action" />
+                <SelectTrigger className="w-full h-12">
+                  <SelectValue placeholder="All Actions" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Actions</SelectItem>
@@ -224,8 +224,8 @@ const AdminAuditLogs = () => {
               </Select>
 
               <Select value={filterEntity} onValueChange={setFilterEntity}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Entity" />
+                <SelectTrigger className="w-full h-12">
+                  <SelectValue placeholder="All Entities" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Entities</SelectItem>
@@ -236,8 +236,8 @@ const AdminAuditLogs = () => {
               </Select>
 
               <Select value={filterSeverity} onValueChange={setFilterSeverity}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Severity" />
+                <SelectTrigger className="w-full h-12">
+                  <SelectValue placeholder="All Severities" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Levels</SelectItem>
@@ -249,8 +249,8 @@ const AdminAuditLogs = () => {
               </Select>
 
               <Select value={filterUser} onValueChange={setFilterUser}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="User" />
+                <SelectTrigger className="w-full h-12">
+                  <SelectValue placeholder="All Users" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Users</SelectItem>
@@ -272,7 +272,8 @@ const AdminAuditLogs = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-moroccan-blue"></div>
             </div>
           ) : (
-            <Table>
+            <div className="overflow-x-auto">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-16">Severity</TableHead>
@@ -347,19 +348,21 @@ const AdminAuditLogs = () => {
                 )}
               </TableBody>
             </Table>
+            </div>
           )}
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-500">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow-sm">
+          <div className="text-sm text-gray-500 order-2 sm:order-1">
             Page {currentPage} • Showing {filteredLogs.length} of {auditLogs.length} logs
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 order-1 sm:order-2">
             <Button
               variant="outline"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
+              className="touch-friendly"
             >
               Previous
             </Button>
@@ -367,6 +370,7 @@ const AdminAuditLogs = () => {
               variant="outline"
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={filteredLogs.length < pageLimit}
+              className="touch-friendly"
             >
               Next
             </Button>
@@ -376,7 +380,7 @@ const AdminAuditLogs = () => {
 
       {/* Detail Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-4xl max-h-[90vh] mx-4 overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <History className="h-5 w-5" />
@@ -387,7 +391,7 @@ const AdminAuditLogs = () => {
           {selectedLog && (
             <div className="space-y-6">
               {/* Basic Information */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700">Date & Time</label>
                   <p className="text-sm text-gray-900">{formatDate(selectedLog.createdAt)}</p>

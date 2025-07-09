@@ -5,7 +5,7 @@ import { Sun, Waves, Umbrella, Ship, Star, MapPin, Calendar, Crown } from 'lucid
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative h-[100vh] min-h-[800px] flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100">
+    <div className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100">
       {/* Beautiful Multi-layer Background */}
       <div className="absolute inset-0 z-0">
         {/* Main Background Image with better overlay */}
@@ -72,11 +72,11 @@ const Hero: React.FC = () => {
             <span className="text-blue-700 font-medium text-sm tracking-wide">Premium Accommodations</span>
           </div> */}
           
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-light mb-8 leading-tight">
-            <span className="block mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-light mb-6 md:mb-8 leading-tight px-4">
+            <span className="block mb-2 md:mb-4">
               <span className="text-gray-900 font-medium">
                 Discover
-                <span className="relative inline-block ml-4">
+                <span className="relative inline-block ml-2 md:ml-4">
                   Martil
                   <div className="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-600"></div>
                 </span>
@@ -87,17 +87,17 @@ const Hero: React.FC = () => {
             </span>
           </h1>
           
-          <div className="mb-12">
-            <p className="text-xl md:text-2xl text-gray-700 font-light leading-relaxed max-w-3xl mx-auto">
+          <div className="mb-8 md:mb-12 px-4">
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-700 font-light leading-relaxed max-w-3xl mx-auto">
               Experience unparalleled comfort in carefully selected accommodations 
               along Morocco's stunning Mediterranean coastline.
             </p>
           </div>
           
           {/* Professional Search Section */}
-          <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl max-w-4xl mx-auto mb-16 border border-blue-100">
-            <div className="mb-6">
-              <h3 className="text-2xl font-semibold text-gray-900 mb-2">Find Your Perfect Stay</h3>
+          <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-w-4xl mx-4 md:mx-auto mb-8 md:mb-16 border border-blue-100">
+            <div className="mb-4 md:mb-6">
+              <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">Find Your Perfect Stay</h3>
               <p className="text-gray-600">Discover exceptional properties tailored to your preferences</p>
             </div>
             <SearchBar />
