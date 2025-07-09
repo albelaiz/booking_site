@@ -8,7 +8,7 @@ const AboutPage = () => {
   // Hero Section Content
   const heroContent = {
     backgroundImage: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1900&q=80",
-    title: "About BayHaven",
+    title: "About TamudaStay",
     subtitle: "Connecting travelers with exceptional vacation properties along stunning coastal destinations."
   };
 
@@ -16,7 +16,7 @@ const AboutPage = () => {
   const storyContent = {
     title: "Our Story",
     paragraphs: [
-      "BayHaven began with a simple vision: to showcase the beauty and charm of coastal destinations to travelers from around the world. Founded in 2020 by a group of coastal natives and travel enthusiasts, our mission is to provide visitors with authentic, high-quality accommodation experiences that highlight the unique character of beautiful waterfront locations.",
+      "TamudaStay began with a simple vision: to showcase the beauty and charm of coastal destinations to travelers from around the world. Founded in 2020 by a group of coastal natives and travel enthusiasts, our mission is to provide visitors with authentic, high-quality accommodation experiences that highlight the unique character of beautiful waterfront locations.",
       "Each property in our collection is personally vetted by our team to ensure it meets our standards of quality, comfort, and authentic coastal hospitality. From luxurious beachfront villas to charming seaside cottages, our diverse portfolio offers something for every type of traveler.",
       "We believe that the right accommodation can transform a good vacation into an unforgettable one. That's why we work closely with property owners to maintain high standards and with guests to understand their needs and preferences. Our local knowledge and personalized service set us apart, helping travelers discover not just beautiful properties but the true essence of coastal living."
     ]
@@ -108,7 +108,7 @@ const AboutPage = () => {
         {/* Why Choose Us */}
         <section className="py-16 bg-blue-50 relative z-10">
           <div className="container-custom">
-            <h2 className="section-title text-center mx-auto">Why Choose BayHaven</h2>
+            <h2 className="section-title text-center mx-auto">Why Choose TamudaStay</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
               {whyChooseUsFeatures.map((feature, index) => (

@@ -37,7 +37,7 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-sm mb-6 leading-relaxed text-gray-400 font-normal">
-              Discover beautiful vacation properties in BayHaven, Morocco. Experience the perfect blend of Moroccan hospitality and modern luxury on the Mediterranean coast.
+              Discover beautiful vacation properties in TamudaStay, Morocco. Experience the perfect blend of Moroccan hospitality and modern luxury on the Mediterranean coast.
             </p>
             <div className="flex space-x-5">
               <a href="#" className="text-gray-400 hover:text-blue-400 transition duration-200">
@@ -129,11 +129,11 @@ const Footer = () => {
             <address className="not-italic text-gray-400 space-y-4">
               <p className="flex items-start">
                 <MapPin className="h-5 w-5 mr-3 text-blue-400 mt-0.5" />
-                <span>Boulevard Mohammed V<br />BayHaven, Morocco</span>
+                <span>Boulevard Mohammed V<br />TamudaStay, Morocco</span>
               </p>
               <p className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-blue-400" />
-                <a href="mailto:info@bayhaven.com" className="hover:text-blue-400 transition-colors">info@bayhaven.com</a>
+                <a href="mailto:info@tamudastay.com" className="hover:text-blue-400 transition-colors">info@tamudastay.com</a>
               </p>
               <p className="flex items-center">
                 <Phone className="h-5 w-5 mr-3 text-blue-400" />
@@ -144,7 +144,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400 text-sm">
-          <p>&copy; {currentYear} BayHaven. All rights reserved.</p>
+          <p>&copy; {currentYear} TamudaStay. All rights reserved.</p>
           <div className="mt-3 space-x-6">
             <Link to="/privacy-policy" className="hover:text-blue-400 transition duration-200">
               Privacy Policy

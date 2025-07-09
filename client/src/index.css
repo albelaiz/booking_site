@@ -1225,7 +1225,7 @@ html {
   color: #1A5D91;
 }
 
-/* Bay Haven Logo Animations */
+/* TamudaStay Logo Animations */
 @keyframes logo-glow {
   0%, 100% { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
   50% { box-shadow: 0 6px 25px rgba(37, 99, 235, 0.5); }

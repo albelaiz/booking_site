@@ -63,7 +63,7 @@ const Header = () => {
         sticky top-0 z-50 transition-all duration-300 ease-out w-full`}>
         <div className="w-full bg-white/90 backdrop-blur-sm">
           <div className="container-custom flex items-center justify-between h-20">
-            {/* Enhanced Bay Haven Logo */}
+            {/* Enhanced TamudaStay Logo */}
             <Link 
               to="/" 
               className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-all duration-300 group"
@@ -73,7 +73,7 @@ const Header = () => {
                 {/* Enhanced Logo Icon */}
                 <div className="relative">
                   <div className="w-12 h-12 logo-gradient flex items-center justify-center rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                    <span className="text-white font-serif text-xl font-bold tracking-wider">BH</span>
+                    <span className="text-white font-serif text-xl font-bold tracking-wider">TS</span>
                   </div>
                   {/* Subtle glow effect */}
                   <div className="absolute inset-0 bg-blue-400 rounded-xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
@@ -81,8 +81,8 @@ const Header = () => {
                 {/* Enhanced Text */}
                 <div className="ml-4 font-serif flex flex-col">
                   <div className="flex items-baseline">
-                    <span className="text-gray-900 text-2xl font-bold tracking-wide">Bay</span>
-                    <span className="text-blue-600 text-2xl font-bold ml-1 tracking-wide">Haven</span>
+                    <span className="text-gray-900 text-2xl font-bold tracking-wide">Tamuda</span>
+                    <span className="text-blue-600 text-2xl font-bold ml-1 tracking-wide">Stay</span>
                   </div>
                   <span className="text-xs text-gray-500 tracking-widest uppercase font-sans">Morocco</span>
                 </div>

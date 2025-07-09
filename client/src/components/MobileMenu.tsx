@@ -33,15 +33,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
 
   return (
     <nav className="lg:hidden py-4 border-t bg-white/95 backdrop-blur-sm">
-      {/* Bay Haven Logo in Mobile Menu */}
+      {/* TamudaStay Logo in Mobile Menu */}
       <div className="flex justify-center mb-4 pb-4 border-b border-gray-200">
         <Link to="/" onClick={onLinkClick} className="flex items-center space-x-2 group">
           <div className="w-8 h-8 logo-gradient flex items-center justify-center rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300">
-            <span className="text-white font-serif text-sm font-bold">BH</span>
+            <span className="text-white font-serif text-sm font-bold">TS</span>
           </div>
           <div className="font-serif">
-            <span className="text-gray-900 text-lg font-bold">Bay</span>
-            <span className="text-blue-600 text-lg font-bold ml-1">Haven</span>
+            <span className="text-gray-900 text-lg font-bold">Tamuda</span>
+            <span className="text-blue-600 text-lg font-bold ml-1">Stay</span>
           </div>
         </Link>
       </div>

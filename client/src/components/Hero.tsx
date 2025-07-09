@@ -47,7 +47,7 @@ const Hero: React.FC = () => {
       Main Content
       <div className="relative z-20 container-custom">
         <div className="text-center text-gray-900 max-w-5xl mx-auto">
-          {/* Bay Haven Brand Logo in Hero */}
+          {/* TamudaStay Brand Logo in Hero */}
           {/* <div className="flex justify-center mb-8">
             <div className="flex items-center space-x-4 bg-white/80 backdrop-blur-sm px-8 py-4 rounded-2xl shadow-xl border border-white/50 logo-glow">
               <div className="relative">

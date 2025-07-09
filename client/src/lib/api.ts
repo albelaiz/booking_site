@@ -148,7 +148,7 @@ export const usersApi = {
     } catch (error) {
       console.warn('API not available, using localStorage fallback');
       // Fallback to localStorage
-      const savedUsers = localStorage.getItem('bayhaven_users');
+      const savedUsers = localStorage.getItem('tamudastay_users');
       return savedUsers ? JSON.parse(savedUsers) : [];
     }
   },
@@ -177,7 +177,7 @@ export const usersApi = {
     } catch (error) {
       console.warn('API not available, using localStorage fallback');
       // Fallback to localStorage
-      const savedUsers = localStorage.getItem('bayhaven_users');
+      const savedUsers = localStorage.getItem('tamudastay_users');
       const users = savedUsers ? JSON.parse(savedUsers) : [];
 
       // Validate required fields
@@ -205,7 +205,7 @@ export const usersApi = {
       };
 
       users.push(newUser);
-      localStorage.setItem('bayhaven_users', JSON.stringify(users));
+      localStorage.setItem('tamudastay_users', JSON.stringify(users));
       return newUser;
     }
   },
@@ -226,7 +226,7 @@ export const usersApi = {
       return response.json();
     } catch (error) {
       console.warn('API not available, using localStorage fallback');
-      const savedUsers = localStorage.getItem('bayhaven_users');
+      const savedUsers = localStorage.getItem('tamudastay_users');
       const users = savedUsers ? JSON.parse(savedUsers) : [];
 
       const userIndex = users.findIndex((u: any) => u.id == id);
@@ -235,7 +235,7 @@ export const usersApi = {
       }
 
       users[userIndex] = { ...users[userIndex], ...user };
-      localStorage.setItem('bayhaven_users', JSON.stringify(users));
+      localStorage.setItem('tamudastay_users', JSON.stringify(users));
       return users[userIndex];
     }
   },
@@ -252,7 +252,7 @@ export const usersApi = {
       return response.json();
     } catch (error) {
       console.warn('API not available, using localStorage fallback');
-      const savedUsers = localStorage.getItem('bayhaven_users');
+      const savedUsers = localStorage.getItem('tamudastay_users');
       const users = savedUsers ? JSON.parse(savedUsers) : [];
 
       const userIndex = users.findIndex((u: any) => u.id == id);
@@ -261,7 +261,7 @@ export const usersApi = {
       }
 
       users.splice(userIndex, 1);
-      localStorage.setItem('bayhaven_users', JSON.stringify(users));
+      localStorage.setItem('tamudastay_users', JSON.stringify(users));
       return { message: 'User deleted successfully' };
     }
   },
@@ -293,7 +293,7 @@ export const authApi = {
     } catch (error) {
       console.warn('API not available, using localStorage fallback');
       // Fallback to localStorage authentication with database seeded users
-      const savedUsers = localStorage.getItem('bayhaven_users');
+      const savedUsers = localStorage.getItem('tamudastay_users');
       const users = savedUsers ? JSON.parse(savedUsers) : [];
 
       // Default users matching database seed data
@@ -353,7 +353,7 @@ export const authApi = {
     } catch (error) {
       console.warn('API not available, using localStorage fallback');
       // Fallback to localStorage registration
-      const savedUsers = localStorage.getItem('bayhaven_users');
+      const savedUsers = localStorage.getItem('tamudastay_users');
       const users = savedUsers ? JSON.parse(savedUsers) : [];
 
       // Check for existing user
@@ -383,7 +383,7 @@ export const authApi = {
       };
 
       users.push(newUser);
-      localStorage.setItem('bayhaven_users', JSON.stringify(users));
+      localStorage.setItem('tamudastay_users', JSON.stringify(users));
 
       return {
         success: true,

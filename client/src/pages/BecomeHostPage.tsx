@@ -265,7 +265,7 @@ const BecomeHostPage = () => {
           <div className="container-custom">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-gray-900">
-                Why thousands choose BayHaven
+                Why thousands choose TamudaStay
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 Join the most trusted hosting platform in Morocco with industry-leading support and earning potential.
@@ -412,12 +412,12 @@ const BecomeHostPage = () => {
                 
                 <div className="space-y-4 text-lg text-gray-700">
                   <p>
-                    "I was skeptical about hosting at first, but after just one month on BayHaven, 
+                    "I was skeptical about hosting at first, but after just one month on TamudaStay, 
                     I earned enough to renovate my entire kitchen! The guests absolutely love experiencing 
                     authentic Moroccan hospitality."
                   </p>
                   <p>
-                    "What surprised me most was how BayHaven's support team helped me optimize my listing. 
+                    "What surprised me most was how TamudaStay's support team helped me optimize my listing. 
                     My bookings increased by 300% after following their photography and pricing tips."
                   </p>
                   <p className="font-semibold text-moroccan-blue">

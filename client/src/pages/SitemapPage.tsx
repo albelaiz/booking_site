@@ -6,9 +6,9 @@ import Footer from '../components/Footer';
 
 const SitemapPage = () => {
   const siteLinks = [
-    { title: 'Home', path: '/', description: 'Discover beautiful vacation properties in BayHaven' },
+    { title: 'Home', path: '/', description: 'Discover beautiful vacation properties in TamudaStay' },
     { title: 'Properties', path: '/properties', description: 'Browse all available properties' },
-    { title: 'About Us', path: '/about', description: 'Learn about BayHaven and our story' },
+    { title: 'About Us', path: '/about', description: 'Learn about TamudaStay and our story' },
     { title: 'Contact', path: '/contact', description: 'Get in touch with our team' },
     { title: 'Become a Host', path: '/become-host', description: 'List your property with us' },
     { title: 'Owner Dashboard', path: '/owner-dashboard', description: 'Manage your properties' },
@@ -24,7 +24,7 @@ const SitemapPage = () => {
         <div className="container-custom max-w-4xl">
           <h1 className="text-4xl font-serif font-medium mb-8">Sitemap</h1>
           <p className="text-gray-600 mb-12">
-            Find all the pages and sections available on BayHaven website.
+            Find all the pages and sections available on TamudaStay website.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

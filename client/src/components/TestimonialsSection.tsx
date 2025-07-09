@@ -43,12 +43,12 @@ const TestimonialsSection: React.FC = () => {
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 text-gray-900">
             What Our Guests Say About{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 animate-premium-gradient">
-              BayHaven
+              TamudaStay
             </span>
           </h2>
           
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Discover why travelers from around the world choose BayHaven for their 
+            Discover why travelers from around the world choose TamudaStay for their 
             unforgettable Mediterranean experiences in Morocco.
           </p>
         </div>

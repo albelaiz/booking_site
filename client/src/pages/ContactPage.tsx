@@ -37,14 +37,14 @@ const ContactPage = () => {
                     <h3 className="text-lg font-medium mb-2 text-gray-900">Visit Our Office</h3>
                     <address className="not-italic text-gray-700 text-base leading-relaxed">
                       <p>Boulevard Mohammed V</p>
-                      <p>BayHaven, Morocco</p>
+                      <p>TamudaStay, Morocco</p>
                     </address>
                   </div>
                   
                   <div>
                     <h3 className="text-lg font-medium mb-2 text-gray-900">Contact Details</h3>
                     <div className="text-gray-700 text-base leading-relaxed">
-                      <p>Email: info@bayhaven.com</p>
+                      <p>Email: info@tamudastay.com</p>
                       <p>Phone: +212 654698554</p>
                       <p>Fax: +212 654698554</p>
                     </div>

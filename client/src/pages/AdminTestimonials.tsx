@@ -99,7 +99,7 @@ const AdminTestimonials = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Testimonials Management</h1>
-            <p className="text-gray-600 mt-2">Manage what guests say about BayHaven</p>
+            <p className="text-gray-600 mt-2">Manage what guests say about TamudaStay</p>
           </div>
           <Button 
             onClick={() => setShowAddForm(true)}

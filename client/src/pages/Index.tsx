@@ -37,7 +37,7 @@ const Index = () => {
         {/* Professional Testimonials Section */}
         <TestimonialsSection />
         
-        {/* Enhanced About BayHaven Section */}
+        {/* Enhanced About TamudaStay Section */}
         <section className="py-20 bg-white relative overflow-hidden">
           {/* Beautiful Background Elements */}
           <div className="absolute inset-0">
@@ -57,19 +57,19 @@ const Index = () => {
                 
                 <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-gray-900">
                   Experience the Magic of 
-                  <span className="text-blue-600 block">BayHaven</span>
+                  <span className="text-blue-600 block">TamudaStay</span>
                 </h2>
                 
                 <div className="space-y-6 text-lg text-gray-700 leading-relaxed">
                   <p>
-                    Nestled on Morocco's stunning Mediterranean coast, BayHaven is where 
+                    Nestled on Morocco's stunning Mediterranean coast, TamudaStay is where 
                     <strong className="text-gray-900"> authentic Moroccan culture meets coastal luxury</strong>. 
                     This charming seaside destination offers pristine beaches, vibrant traditions, and an 
                     atmosphere that captures hearts instantly.
                   </p>
                   
                   <p>
-                    Just minutes from historic Tetouan, BayHaven provides the perfect blend of 
+                    Just minutes from historic Tetouan, TamudaStay provides the perfect blend of 
                     <strong className="text-blue-600">modern comfort and timeless Moroccan hospitality</strong>. 
                     Our curated collection of properties ensures every traveler finds their perfect coastal retreat.
                   </p>
@@ -186,7 +186,7 @@ const Index = () => {
               </h2>
               
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Discover why guests choose BayHaven for their perfect Moroccan getaway. 
+                Discover why guests choose TamudaStay for their perfect Moroccan getaway. 
                 Real stories from real travelers who experienced the magic.
               </p>
             </div>
@@ -206,7 +206,7 @@ const Index = () => {
                 </div>
                 
                 <blockquote className="text-gray-700 text-lg leading-relaxed mb-6 italic">
-                  "BayHaven made our Morocco dream trip come true! From the luxury riad in Marrakech to the beachfront villa in Martil, every property exceeded our expectations. The booking process was seamless and the local support team was incredible."
+                  "TamudaStay made our Morocco dream trip come true! From the luxury riad in Marrakech to the beachfront villa in Martil, every property exceeded our expectations. The booking process was seamless and the local support team was incredible."
                 </blockquote>
                 
                 <div className="flex items-center">
@@ -237,7 +237,7 @@ const Index = () => {
                 </div>
                 
                 <blockquote className="text-gray-700 text-lg leading-relaxed mb-6 italic">
-                  "We booked a 10-day Morocco tour through BayHaven - staying in Fes, Chefchaouen, and ending in Essaouira. Each property was carefully selected and perfectly located. The variety of authentic accommodations made our journey unforgettable."
+                  "We booked a 10-day Morocco tour through TamudaStay - staying in Fes, Chefchaouen, and ending in Essaouira. Each property was carefully selected and perfectly located. The variety of authentic accommodations made our journey unforgettable."
                 </blockquote>
                 
                 <div className="flex items-center">
@@ -268,7 +268,7 @@ const Index = () => {
                 </div>
                 
                 <blockquote className="text-gray-700 text-lg leading-relaxed mb-6 italic">
-                  "Our family adventure in Morocco was perfectly planned with BayHaven. From the desert camp in Merzouga to the coastal apartment in Agadir, every stay was family-friendly with amazing amenities. The kids still talk about the camel rides and surfing lessons!"
+                  "Our family adventure in Morocco was perfectly planned with TamudaStay. From the desert camp in Merzouga to the coastal apartment in Agadir, every stay was family-friendly with amazing amenities. The kids still talk about the camel rides and surfing lessons!"
                 </blockquote>
                 
                 <div className="flex items-center">
@@ -333,7 +333,7 @@ const Index = () => {
               
               <h2 className="text-4xl md:text-6xl font-serif font-bold mb-6 leading-tight">
                 Ready to Experience the
-                <span className="block text-blue-100">Magic of BayHaven?</span>
+                <span className="block text-blue-100">Magic of TamudaStay?</span>
               </h2>
               
               <p className="text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto leading-relaxed">
