@@ -34,7 +34,7 @@ const BookingAdvantages: React.FC = () => {
   return (
     <section className="py-16 bg-white">
       <div className="container-custom">
-        <h2 className="section-title text-center mx-auto">Why Book with BayHaven?</h2>
+        <h2 className="section-title text-center mx-auto">Why Book with TamudaStay?</h2>
         <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
           Experience the difference of booking with Morocco's premier accommodation platform
         </p>

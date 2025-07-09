@@ -44,9 +44,9 @@ const ContactPage = () => {
                   <div>
                     <h3 className="text-lg font-medium mb-2 text-gray-900">Contact Details</h3>
                     <div className="text-gray-700 text-base leading-relaxed">
-                      <p>Email: info@tamudastay.com</p>
+                      <p>Email: tamudastay@gmail.com</p>
                       <p>Phone: +212 654698554</p>
-                      <p>Fax: +212 654698554</p>
+                      <p>Phone: +212 617658218</p>
                     </div>
                   </div>
                   
@@ -54,8 +54,8 @@ const ContactPage = () => {
                     <h3 className="text-lg font-medium mb-2 text-gray-900">Business Hours</h3>
                     <div className="text-gray-700 text-base leading-relaxed">
                       <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-                      <p>Saturday: 10:00 AM - 4:00 PM</p>
-                      <p>Sunday: Closed</p>
+                      <p>Saturday: 10:00 AM - 6:00 PM</p>
+                      <p>Sunday: 9:00 AM - 6:00 PM</p>
                     </div>
                   </div>
                 </div>

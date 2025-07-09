@@ -127,10 +127,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-serif mb-6 text-blue-400">Contact Us</h3>
             <address className="not-italic text-gray-400 space-y-4">
-              <p className="flex items-start">
+              {/* <p className="flex items-start">
                 <MapPin className="h-5 w-5 mr-3 text-blue-400 mt-0.5" />
                 <span>Boulevard Mohammed V<br />TamudaStay, Morocco</span>
-              </p>
+              </p> */}
               <p className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-blue-400" />
                 <a href="mailto:info@tamudastay.com" className="hover:text-blue-400 transition-colors">info@tamudastay.com</a>

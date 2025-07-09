@@ -1,8 +1,8 @@
-# BayHaven - Vacation Rental Platform
+# Tamudastay - Vacation Rental Platform
 
 ## Overview
 
-BayHaven is a modern vacation rental platform built for coastal properties. The application is a full-stack web application that combines a React frontend with an Express.js backend, utilizing PostgreSQL for data persistence through Drizzle ORM.
+TamudaStay is a modern vacation rental platform built for coastal properties. The application is a full-stack web application that combines a React frontend with an Express.js backend, utilizing PostgreSQL for data persistence through Drizzle ORM.
 
 ## System Architecture
 
