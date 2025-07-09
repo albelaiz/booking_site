@@ -2,11 +2,24 @@
 import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import HotelSearchBar from '../components/HotelSearchBar';
 
 const PrivacyPolicyPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      
+      {/* Hotel Search Bar */}
+      <div className="bg-gray-50 py-8">
+        <div className="container-custom max-w-6xl">
+          <HotelSearchBar 
+            onSearch={(searchData) => {
+              console.log('Search data:', searchData);
+              // Handle search logic here
+            }}
+          />
+        </div>
+      </div>
       
       <main className="flex-grow py-16">
         <div className="container-custom max-w-4xl">

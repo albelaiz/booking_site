@@ -26,10 +26,13 @@ const OwnerDashboard = () => {
   // Get authenticated user data
   const userName = localStorage.getItem('userName') || 'Property Owner';
   const userRole = localStorage.getItem('userRole') || 'owner';
-  const ownerId = localStorage.getItem('userId') || '3'; // Default to owner ID from database
+  const ownerId = parseInt(localStorage.getItem('userId') || '3'); // Convert to number
   
-  // Filter properties for the current user
-  const ownerProperties = properties.filter(p => p.ownerId === ownerId);
+  // Filter properties for the current user - compare numbers properly
+  const ownerProperties = properties.filter(p => {
+    const propertyOwnerId = typeof p.ownerId === 'string' ? parseInt(p.ownerId) : p.ownerId;
+    return propertyOwnerId === ownerId;
+  });
   
   // Calculate dashboard stats
   const totalProperties = ownerProperties.length;
@@ -40,7 +43,7 @@ const OwnerDashboard = () => {
   const handleAddProperty = (propertyData: any) => {
     addProperty({
       ...propertyData,
-      ownerId: ownerId, // Add authenticated owner ID to the property
+      ownerId: ownerId, // Add authenticated owner ID to the property as number
       status: 'pending', // New listings start as pending
       createdAt: new Date().toISOString(),
     });

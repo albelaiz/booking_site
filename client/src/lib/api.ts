@@ -1,5 +1,20 @@
 const API_BASE_URL = '/api';
 
+// Get auth headers for authenticated requests
+const getAuthHeaders = () => {
+  const userRole = localStorage.getItem('userRole');
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json'
+  };
+  
+  // Add auth token for admin/staff users
+  if (userRole === 'admin' || userRole === 'staff') {
+    headers.Authorization = `Bearer ${userRole}-token`;
+  }
+  
+  return headers;
+};
+
 // Check if server is available
 const isServerAvailable = async () => {
   try {
@@ -39,7 +54,9 @@ export const propertiesApi = {
   // Admin API - returns all properties regardless of status
   getAllAdmin: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/properties`);
+      const response = await fetch(`${API_BASE_URL}/properties`, {
+        headers: getAuthHeaders()
+      });
       if (!response.ok) throw new Error('Failed to fetch properties');
       return response.json();
     } catch (error) {
@@ -50,7 +67,9 @@ export const propertiesApi = {
 
   getByIdAdmin: async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/properties/${id}`);
+      const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
+        headers: getAuthHeaders()
+      });
       if (!response.ok) throw new Error('Failed to fetch property');
       return response.json();
     } catch (error) {
@@ -63,9 +82,7 @@ export const propertiesApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/properties`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(property),
       });
       if (!response.ok) throw new Error('Failed to create property');
@@ -80,9 +97,7 @@ export const propertiesApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(property),
       });
       if (!response.ok) throw new Error('Failed to update property');
@@ -97,6 +112,7 @@ export const propertiesApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
       if (!response.ok) throw new Error('Failed to delete property');
       return response.ok;

@@ -78,15 +78,31 @@ export interface AnalyticsData {
 // Simple API utility
 const api = {
   get: async (url: string) => {
-    const response = await fetch(`${API_BASE_URL}${url}`);
+    const headers: HeadersInit = {};
+    const userRole = localStorage.getItem('userRole');
+    
+    // Add auth token for authenticated requests
+    if (userRole === 'admin' || userRole === 'staff' || userRole === 'owner') {
+      headers.Authorization = `Bearer ${userRole}-token`;
+    }
+    
+    const response = await fetch(`${API_BASE_URL}${url}`, { headers });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   },
   
   post: async (url: string, data: any) => {
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    const userRole = localStorage.getItem('userRole');
+    
+    // Add auth token for authenticated requests
+    if (userRole === 'admin' || userRole === 'staff' || userRole === 'owner') {
+      headers.Authorization = `Bearer ${userRole}-token`;
+    }
+    
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -94,9 +110,17 @@ const api = {
   },
   
   put: async (url: string, data: any) => {
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    const userRole = localStorage.getItem('userRole');
+    
+    // Add auth token for authenticated requests
+    if (userRole === 'admin' || userRole === 'staff' || userRole === 'owner') {
+      headers.Authorization = `Bearer ${userRole}-token`;
+    }
+    
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -104,8 +128,17 @@ const api = {
   },
 
   delete: async (url: string) => {
+    const headers: HeadersInit = {};
+    const userRole = localStorage.getItem('userRole');
+    
+    // Add auth token for authenticated requests
+    if (userRole === 'admin' || userRole === 'staff' || userRole === 'owner') {
+      headers.Authorization = `Bearer ${userRole}-token`;
+    }
+    
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'DELETE',
+      headers,
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();

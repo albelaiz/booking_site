@@ -285,6 +285,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Owner route - returns properties for a specific owner
+  app.get("/api/properties/owner/:ownerId", requireAuth, async (req, res) => {
+    try {
+      const ownerId = parseInt(req.params.ownerId);
+      if (isNaN(ownerId)) {
+        return res.status(400).json({ error: "Invalid owner ID" });
+      }
+
+      const properties = await storage.getPropertiesByOwner(ownerId);
+      res.json(properties);
+    } catch (error) {
+      console.error("Get properties by owner error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.get("/api/properties/:id", requireAdminRole, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
