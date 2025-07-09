@@ -58,8 +58,8 @@ const CancellationOptionsPage = () => {
               <p className="text-gray-700">
                 Refunds are typically processed within 5-10 business days to your original payment method. 
                 For questions about your refund, contact us at 
-                <a href="mailto:refunds@martilhaven.com" className="text-moroccan-blue hover:underline ml-1">
-                  refunds@martilhaven.com
+                <a href="mailto:refunds@tamudastay.com" className="text-moroccan-blue hover:underline ml-1">
+                  refunds@tamudastay.com
                 </a>
               </p>
             </section>

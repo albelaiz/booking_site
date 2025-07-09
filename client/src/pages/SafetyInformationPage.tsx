@@ -57,8 +57,8 @@ const SafetyInformationPage = () => {
               <h2 className="text-2xl font-serif mb-4">Reporting Issues</h2>
               <p className="text-gray-700">
                 If you encounter any safety concerns during your stay, please report them immediately to our support team at 
-                <a href="mailto:safety@martilhaven.com" className="text-moroccan-blue hover:underline ml-1">
-                  safety@martilhaven.com
+                <a href="mailto:safety@tamudastay.com" className="text-moroccan-blue hover:underline ml-1">
+                  safety@tamudastay.com
                 </a> or call our emergency hotline at +212 5XX XX XX XX.
               </p>
             </section>

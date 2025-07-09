@@ -16,7 +16,7 @@ const HelpCenterPage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-serif mb-4">Getting Started</h2>
               <p className="text-gray-700 mb-4">
-                Welcome to MartilHaven! Here you'll find answers to common questions and helpful guides 
+                Welcome to TamudaStay! Here you'll find answers to common questions and helpful guides 
                 to make the most of your experience with us.
               </p>
             </section>
@@ -49,8 +49,8 @@ const HelpCenterPage = () => {
               <h2 className="text-2xl font-serif mb-4">Contact Support</h2>
               <p className="text-gray-700">
                 Need additional help? Contact our support team at 
-                <a href="mailto:support@martilhaven.com" className="text-moroccan-blue hover:underline ml-1">
-                  support@martilhaven.com
+                <a href="mailto:support@tamudastay.com" className="text-moroccan-blue hover:underline ml-1">
+                  support@tamudastay.com
                 </a> or call us at +212 5XX XX XX XX
               </p>
             </section>

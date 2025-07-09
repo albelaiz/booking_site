@@ -152,7 +152,7 @@ const AdminTestimonials = () => {
                   <Input
                     value={formData.propertyStayed || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, propertyStayed: e.target.value }))}
-                    placeholder="e.g., Oceanview Villa Martil"
+                    placeholder="e.g., Oceanview Villa TamudaStay"
                   />
                 </div>
                 <div className="md:col-span-2">

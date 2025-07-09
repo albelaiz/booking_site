@@ -61,7 +61,7 @@ const AdminUsers = () => {
         variant: "destructive",
       });
       // Fallback to localStorage if API fails
-      const savedUsers = localStorage.getItem('martilhaven_users');
+      const savedUsers = localStorage.getItem('tamudastay_users');
       if (savedUsers) {
         setUsers(JSON.parse(savedUsers));
       }

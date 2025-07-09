@@ -488,7 +488,7 @@ const BecomeHostPage = () => {
 
               <AccordionItem value="item-3" className="border border-gray-200 rounded-lg px-6">
                 <AccordionTrigger className="text-left text-lg font-semibold hover:no-underline">
-                  How does Martil Haven protect me as a host?
+                  How does TamudaStay protect me as a host?
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-700 pb-6">
                   We provide Host Protection Insurance covering up to $1M in damages, 24/7 customer support, 

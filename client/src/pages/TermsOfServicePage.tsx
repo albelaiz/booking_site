@@ -18,7 +18,7 @@ const TermsOfServicePage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-serif mb-4">Acceptance of Terms</h2>
               <p className="text-gray-700 mb-4">
-                By accessing and using MartilHaven, you accept and agree to be bound by the terms 
+                By accessing and using TamudaStay, you accept and agree to be bound by the terms 
                 and provision of this agreement.
               </p>
             </section>
@@ -26,7 +26,7 @@ const TermsOfServicePage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-serif mb-4">Use License</h2>
               <p className="text-gray-700 mb-4">
-                Permission is granted to temporarily use MartilHaven for personal, non-commercial 
+                Permission is granted to temporarily use TamudaStay for personal, non-commercial 
                 transitory viewing only.
               </p>
             </section>
@@ -42,7 +42,7 @@ const TermsOfServicePage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-serif mb-4">Liability</h2>
               <p className="text-gray-700 mb-4">
-                MartilHaven shall not be liable for any damages arising from the use of this service.
+                TamudaStay shall not be liable for any damages arising from the use of this service.
               </p>
             </section>
 
@@ -50,8 +50,8 @@ const TermsOfServicePage = () => {
               <h2 className="text-2xl font-serif mb-4">Contact Information</h2>
               <p className="text-gray-700">
                 For questions regarding these terms, please contact us at 
-                <a href="mailto:info@martilhaven.com" className="text-moroccan-blue hover:underline ml-1">
-                  info@martilhaven.com
+                <a href="mailto:info@tamudastay.com" className="text-moroccan-blue hover:underline ml-1">
+                  info@tamudastay.com
                 </a>
               </p>
             </section>

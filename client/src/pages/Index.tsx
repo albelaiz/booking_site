@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { 
   Star, 
   MapPin, 
-  Shield, 
+  Shield,
   Heart, 
   Sparkles,
   ArrowRight
