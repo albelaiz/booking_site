@@ -134,10 +134,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
         if (response.success && response.user) {
           // Store user info in localStorage
           localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userId', response.user.id.toString());
           localStorage.setItem('userRole', response.user.role);
           localStorage.setItem('userName', response.user.name);
           localStorage.setItem('userEmail', response.user.email);
           localStorage.setItem('loginMethod', 'credentials');
+          // Create a simple auth token for API calls
+          localStorage.setItem('authToken', `Bearer ${response.user.role}-${response.user.id}`);
           
           onSuccess();
         } else {
@@ -158,10 +161,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
         if (response.success && response.user) {
           // Store user info in localStorage
           localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userId', response.user.id.toString());
           localStorage.setItem('userRole', response.user.role);
           localStorage.setItem('userName', response.user.name);
           localStorage.setItem('userEmail', response.user.email);
           localStorage.setItem('loginMethod', 'credentials');
+          // Create a simple auth token for API calls
+          localStorage.setItem('authToken', `Bearer ${response.user.role}-${response.user.id}`);
           
           onSuccess();
         } else {
@@ -187,10 +193,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
   const handleGoogleLogin = () => {
     // Mock Google login
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userId', '999');
     localStorage.setItem('userRole', 'customer');
     localStorage.setItem('userName', 'Google User');
     localStorage.setItem('userEmail', 'user@gmail.com');
     localStorage.setItem('loginMethod', 'google');
+    localStorage.setItem('authToken', 'Bearer customer-999');
     onSuccess();
   };
 

@@ -39,7 +39,15 @@ export const propertiesApi = {
   // Admin API - returns all properties regardless of status
   getAllAdmin: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/properties`);
+      // Get auth token from localStorage
+      const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
+      
+      const response = await fetch(`${API_BASE_URL}/properties`, {
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch properties');
       return response.json();
     } catch (error) {
@@ -50,7 +58,14 @@ export const propertiesApi = {
 
   getByIdAdmin: async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/properties/${id}`);
+      const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
+      
+      const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch property');
       return response.json();
     } catch (error) {
@@ -61,10 +76,17 @@ export const propertiesApi = {
 
   create: async (property: any) => {
     try {
+      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      const userId = localStorage.getItem('userId');
+      const userRole = localStorage.getItem('userRole');
+      
       const response = await fetch(`${API_BASE_URL}/properties`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token,
+          'x-user-id': userId || '1',
+          'x-user-role': userRole || 'user'
         },
         body: JSON.stringify(property),
       });
@@ -78,10 +100,13 @@ export const propertiesApi = {
 
   update: async (id: string, property: any) => {
     try {
+      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token
         },
         body: JSON.stringify(property),
       });
@@ -95,8 +120,13 @@ export const propertiesApi = {
 
   delete: async (id: string) => {
     try {
+      const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
+      
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': token
+        }
       });
       if (!response.ok) throw new Error('Failed to delete property');
       return response.ok;
@@ -109,7 +139,14 @@ export const propertiesApi = {
   // Get properties by owner (for host dashboard)
   getByOwner: async (ownerId: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/properties/owner/${ownerId}`);
+      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      
+      const response = await fetch(`${API_BASE_URL}/properties/owner/${ownerId}`, {
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch owner properties');
       return response.json();
     } catch (error) {
@@ -121,10 +158,13 @@ export const propertiesApi = {
   // Admin approval actions
   approve: async (id: string) => {
     try {
+      const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
+      
       const response = await fetch(`${API_BASE_URL}/properties/${id}/approve`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token
         },
       });
       if (!response.ok) throw new Error('Failed to approve property');
@@ -137,10 +177,13 @@ export const propertiesApi = {
 
   reject: async (id: string) => {
     try {
+      const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
+      
       const response = await fetch(`${API_BASE_URL}/properties/${id}/reject`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token
         },
       });
       if (!response.ok) throw new Error('Failed to reject property');
