@@ -36,14 +36,38 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const fetchProperties = async () => {
     try {
-      // Check current user role at fetch time
+      // Check current user role and ID at fetch time
       const userRole = localStorage.getItem('userRole') || '';
-      const isAdminUser = userRole === 'admin' || userRole === 'staff';
+      const userId = localStorage.getItem('userId') || '';
       
-      // Use admin API for admin/staff users, public API for everyone else
-      const data = isAdminUser 
-        ? await propertiesApi.getAllAdmin() 
-        : await propertiesApi.getAll();
+      let data;
+      
+      if (userRole === 'admin' || userRole === 'staff') {
+        // Admin/staff see ALL properties
+        data = await propertiesApi.getAllAdmin();
+      } else if (userRole === 'owner' && userId) {
+        // Property owners see only their own properties
+        try {
+          const response = await fetch(`/api/properties/owner/${userId}`, {
+            headers: {
+              'Authorization': `Bearer ${userRole}-token`
+            }
+          });
+          if (response.ok) {
+            data = await response.json();
+          } else {
+            console.error('Failed to fetch owner properties:', response.status);
+            data = [];
+          }
+        } catch (error) {
+          console.error('Error fetching owner properties:', error);
+          data = [];
+        }
+      } else {
+        // Regular users/visitors see only approved properties
+        data = await propertiesApi.getAll();
+      }
+      
       setPropertiesList(data);
     } catch (error) {
       console.error('Error fetching properties:', error);
@@ -78,14 +102,19 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const userId = parseInt(localStorage.getItem('userId') || '1');
       const userRole = localStorage.getItem('userRole') || '';
       
-      // Auto-approve properties created by admin or staff
+      // Ensure ownerId is set correctly for the current user
       const propertyToCreate = {
         ...newProperty,
-        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : (newProperty.status || 'pending')
+        ownerId: userId, // Always set to current user's ID
+        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending' // Admin properties auto-approved, host properties pending
       };
+      
+      console.log('Creating property:', propertyToCreate); // Debug log
       
       // First try to save to the API
       const savedProperty = await propertiesApi.create(propertyToCreate);
+      
+      console.log('Property created:', savedProperty); // Debug log
       
       // Log the audit action
       await auditLogger.logPropertyAction(
