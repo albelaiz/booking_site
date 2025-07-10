@@ -58,7 +58,7 @@ async function testAdminAccess() {
   const testProperty = {
     title: 'Admin Test Property ' + Date.now(),
     description: 'A test property to verify admin can see new properties',
-    price: 120,
+    price: '120.00',
     priceUnit: 'night',
     location: 'Admin Test Location',
     bedrooms: 2,

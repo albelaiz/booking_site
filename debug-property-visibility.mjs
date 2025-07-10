@@ -92,7 +92,7 @@ async function debugPropertyVisibility() {
   const testProperty = {
     title: 'DEBUG Test Property',
     description: 'A test property for debugging',
-    price: 100,
+    price: '100.00',
     priceUnit: 'night',
     location: 'Test Location',
     bedrooms: 2,
