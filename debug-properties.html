@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties API Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #cce7ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+        .property-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .property-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .property-details {
+            color: #666;
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Properties API Debug Tool</h1>
+        <p>This page tests the properties API to help diagnose issues with blank pages.</p>
+        
+        <div class="info">
+            <strong>Current URL:</strong> <span id="current-url"></span><br>
+            <strong>Test Time:</strong> <span id="test-time"></span>
+        </div>
+        
+        <button onclick="runTests()">🔄 Run Tests</button>
+        <button onclick="clearResults()">🗑️ Clear Results</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Set current URL and time
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('test-time').textContent = new Date().toLocaleString();
+
+        function addResult(type, message) {
+            const resultsDiv = document.getElementById('results');
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+            resultsDiv.appendChild(statusDiv);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function runTests() {
+            clearResults();
+            addResult('info', '🚀 Starting API tests...');
+
+            // Test 1: Check if we can reach the API
+            try {
+                addResult('info', '1. Testing API health endpoint...');
+                const healthResponse = await fetch('/api/health');
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    addResult('success', `✅ API health check passed: ${healthData.status}`);
+                } else {
+                    addResult('error', `❌ API health check failed: ${healthResponse.status}`);
+                }
+            } catch (error) {
+                addResult('error', `❌ API health check error: ${error.message}`);
+            }
+
+            // Test 2: Test public properties endpoint
+            try {
+                addResult('info', '2. Testing public properties endpoint...');
+                const propertiesResponse = await fetch('/api/properties/public');
+                if (propertiesResponse.ok) {
+                    const properties = await propertiesResponse.json();
+                    addResult('success', `✅ Public properties API working: ${properties.length} properties found`);
+                    
+                    if (properties.length > 0) {
+                        addResult('info', '<strong>Properties found:</strong>');
+                        properties.forEach((property, index) => {
+                            const propertyDiv = document.createElement('div');
+                            propertyDiv.className = 'property-card';
+                            propertyDiv.innerHTML = `
+                                <div class="property-title">${property.title}</div>
+                                <div class="property-details">
+                                    ID: ${property.id} | Status: ${property.status} | 
+                                    Location: ${property.location} | 
+                                    Price: ${property.price} ${property.priceUnit}
+                                </div>
+                            `;
+                            document.getElementById('results').appendChild(propertyDiv);
+                        });
+                    } else {
+                        addResult('error', '❌ No properties found in database');
+                    }
+                } else {
+                    addResult('error', `❌ Public properties API failed: ${propertiesResponse.status}`);
+                }
+            } catch (error) {
+                addResult('error', `❌ Public properties API error: ${error.message}`);
+            }
+
+            // Test 3: Check if main React app is loading
+            try {
+                addResult('info', '3. Testing React app loading...');
+                const reactResponse = await fetch('/');
+                if (reactResponse.ok) {
+                    const html = await reactResponse.text();
+                    if (html.includes('<!DOCTYPE html>')) {
+                        addResult('success', '✅ React app HTML is loading');
+                        if (html.includes('vite') || html.includes('react')) {
+                            addResult('success', '✅ React/Vite assets detected');
+                        }
+                    } else {
+                        addResult('error', '❌ React app HTML is not loading properly');
+                    }
+                } else {
+                    addResult('error', `❌ React app failed to load: ${reactResponse.status}`);
+                }
+            } catch (error) {
+                addResult('error', `❌ React app loading error: ${error.message}`);
+            }
+
+            // Test 4: Network information
+            addResult('info', '4. Network information:');
+            const networkInfo = `
+                <strong>Host:</strong> ${window.location.hostname}<br>
+                <strong>Port:</strong> ${window.location.port}<br>
+                <strong>Protocol:</strong> ${window.location.protocol}<br>
+                <strong>Full URL:</strong> ${window.location.href}
+            `;
+            addResult('info', networkInfo);
+
+            // Test 5: Local Storage check
+            addResult('info', '5. Checking user authentication...');
+            const userRole = localStorage.getItem('userRole');
+            const userId = localStorage.getItem('userId');
+            const authToken = localStorage.getItem('authToken');
+            
+            if (userRole || userId || authToken) {
+                addResult('info', `User data found: Role=${userRole}, ID=${userId}, Token=${authToken ? 'Present' : 'Missing'}`);
+            } else {
+                addResult('info', 'No user authentication data found (public user)');
+            }
+
+            addResult('success', '✅ All tests completed!');
+        }
+
+        // Run tests automatically when page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

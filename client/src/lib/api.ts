@@ -1,4 +1,14 @@
-const API_BASE_URL = '/api';
+// Dynamic API base URL configuration
+const getApiBaseUrl = () => {
+  // In development or when accessing via localhost, use relative path
+  if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return '/api';
+  }
+  // For external access, use absolute URL with current host
+  return `${window.location.protocol}//${window.location.host}/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Check if server is available
 const isServerAvailable = async () => {

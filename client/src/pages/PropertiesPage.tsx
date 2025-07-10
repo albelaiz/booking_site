@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
@@ -23,6 +22,11 @@ const PropertiesPage = () => {
   const guests = guestsParam ? parseInt(guestsParam, 10) : undefined;
 
   useEffect(() => {
+    // Debug logging
+    console.log('PropertiesPage: Properties data:', properties);
+    console.log('PropertiesPage: Properties length:', properties.length);
+    console.log('PropertiesPage: Search params:', { location, checkIn, checkOut, guests });
+    
     // Filter properties based on search params
     let filtered = [...properties];
 
@@ -39,6 +43,7 @@ const PropertiesPage = () => {
     // Note: In a real application, you would filter by dates as well
     // This is simplified for the demo
 
+    console.log('PropertiesPage: Filtered properties:', filtered);
     setFilteredProperties(filtered);
   }, [properties, location, checkIn, checkOut, guests]);
 
