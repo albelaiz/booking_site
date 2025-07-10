@@ -47,7 +47,7 @@ const Index = () => {
             <div className="absolute inset-0 opacity-5 bg-mesh-pattern"></div>
           </div>
           
-          <div className="container-custom relative z-10">
+          <div className="section-content relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div className="order-2 lg:order-1">
                 <div className="inline-flex items-center px-4 py-2 bg-blue-50 rounded-full text-blue-700 text-sm font-medium mb-6">
@@ -173,7 +173,7 @@ const Index = () => {
             }}></div>
           </div>
           
-          <div className="container-custom relative z-10">
+          <div className="section-content relative z-10">
             <div className="text-center mb-16">
               <div className="inline-flex items-center px-4 py-2 bg-white rounded-full text-blue-700 text-sm font-medium mb-6 shadow-sm">
                 <Star className="w-4 h-4 mr-2" />
@@ -324,7 +324,7 @@ const Index = () => {
             }}></div>
           </div>
           
-          <div className="container-custom relative z-10">
+          <div className="section-content relative z-10">
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-8">
                 <Sparkles className="w-4 h-4 mr-2" />

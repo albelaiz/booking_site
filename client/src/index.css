@@ -157,31 +157,189 @@
   @apply border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-6 py-3 rounded-lg transition-all duration-200 shadow-md font-medium;
 }
 
+/* ========================================
+   CONSISTENT WEBSITE LAYOUT SYSTEM
+   ======================================== */
+
+/* Main content container - 1200px max width for consistency */
+.site-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .site-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Updated container-custom to use consistent 1200px width */
 .container-custom {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-custom {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Header container - matches main content width */
+.header-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .header-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Section content wrapper */
+.section-content {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .section-content {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-content {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Search form specific styles */
+.search-form-container {
+  width: 100%;
+  max-width: 64rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-field-equal {
+  flex: 1;
+}
+
+/* Standard section padding */
+.section-padding {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
 }
 
 .section-title {
-  @apply text-2xl md:text-3xl lg:text-4xl font-serif font-semibold mb-12 text-gray-900 relative;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-weight: 600;
+  margin-bottom: 3rem;
+  color: rgb(17 24 39);
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-title {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
 }
 
 .section-title::after {
   content: '';
-  @apply absolute bottom-[-16px] left-0 w-16 h-0.5 bg-blue-600;
+  position: absolute;
+  bottom: -16px;
+  left: 0;
+  width: 4rem;
+  height: 0.125rem;
+  background-color: rgb(37 99 235);
 }
 
 /* Navigation link hover effect */
 .nav-link {
-  @apply relative text-slate-700;
+  position: relative;
+  color: rgb(71 85 105);
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  color: rgb(37 99 235);
 }
 
 .nav-link::after {
   content: '';
-  @apply absolute left-0 bottom-[-4px] w-0 h-0.5 bg-blue-500 transition-all duration-300;
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 0.125rem;
+  background-color: rgb(59 130 246);
+  transition: all 0.3s ease-in-out;
 }
 
 .nav-link:hover::after {
-  @apply w-full;
+  width: 100%;
 }
 
 /* Custom animations */
@@ -2115,4 +2273,179 @@ html, body {
   right: 12px;
   color: #9ca3af;
   cursor: pointer;
+}
+
+/* ========================================
+   ENHANCED LAYOUT CONSISTENCY
+   ======================================== */
+
+/* Perfect search form alignment */
+.search-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (min-width: 768px) {
+  .search-form-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+}
+
+/* Enhanced search fields with perfect borders */
+.search-field {
+  min-height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.3);
+  border-right: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+.search-field:last-child {
+  border-right: none;
+}
+
+@media (min-width: 768px) {
+  .search-field {
+    border-bottom: none;
+  }
+}
+
+/* Section wrapper for full-width backgrounds */
+.section-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+/* Content alignment utilities */
+.content-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Responsive grid utilities */
+.grid-equal-4 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .grid-equal-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-equal-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Header alignment fix */
+.header-content {
+  height: 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Perfect centering for hero content */
+.hero-content {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* Consistent spacing */
+.section-spacing {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .section-spacing {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* Mobile-first responsive containers */
+@media (max-width: 767px) {
+  .site-container,
+  .container-custom,
+  .section-content {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .search-form-grid {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}
+
+/* Perfect alignment for navigation */
+.nav-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .nav-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nav-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* ========================================
+   ENHANCED PROFESSIONAL ALIGNMENT SYSTEM
+   ======================================== */
+
+/* Perfect width alignment for search components */
+.search-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .search-container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .search-container {
+    padding: 0 2rem;
+  }
+}
+
+/* Enhanced search form grid with perfect 25% fields */
+.search-form-perfect {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }

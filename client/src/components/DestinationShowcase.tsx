@@ -30,7 +30,7 @@ const DestinationShowcase: React.FC = () => {
 
   return (
     <section className="py-16 bg-gradient-to-br from-moroccan-white to-gray-50">
-      <div className="container-custom">
+      <div className="site-container">
         <h2 className="section-title text-center mx-auto">Explore Morocco's Wonders</h2>
         <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
           From imperial cities to mountain villages, from Atlantic beaches to Sahara dunes - 

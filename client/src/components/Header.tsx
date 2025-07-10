@@ -62,7 +62,7 @@ const Header = () => {
         : "bg-transparent"} 
         sticky top-0 z-50 transition-all duration-300 ease-out w-full`}>
         <div className="w-full bg-white/90 backdrop-blur-sm">
-          <div className="container-custom flex items-center justify-between h-20">
+          <div className="site-container flex items-center justify-between h-20">
             {/* Enhanced TamudaStay Logo */}
             <Link 
               to="/" 

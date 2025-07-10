@@ -17,7 +17,7 @@ const ContactPage = () => {
         <div className="absolute bottom-32 right-20 w-80 h-80 bg-blue-50 rounded-full mix-blend-multiply filter blur-3xl opacity-8 animate-blob animation-delay-2000"></div>
         {/* Page Header */}
         <section className="bg-blue-50 py-12 relative z-10">
-          <div className="container-custom">
+          <div className="site-container">
             <h1 className="text-3xl font-serif font-medium mb-2 text-gray-900">Contact Us</h1>
             <p className="text-gray-700 text-lg">
               Have questions or need assistance? We're here to help.
@@ -27,7 +27,7 @@ const ContactPage = () => {
         
         {/* Contact Content */}
         <section className="py-16 bg-white relative z-10">
-          <div className="container-custom">
+          <div className="site-container">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               {/* Contact Information */}
               <div>
@@ -72,7 +72,7 @@ const ContactPage = () => {
         
         {/* FAQ Section */}
         <section className="py-16 bg-blue-50 relative z-10">
-          <div className="container-custom">
+          <div className="site-container">
             <h2 className="section-title text-center mx-auto">Frequently Asked Questions</h2>
             <div className="max-w-3xl mx-auto mt-10 space-y-6">
               <div className="bg-white p-6 rounded-lg shadow-sm border border-blue-100">

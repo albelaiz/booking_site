@@ -1,0 +1,220 @@
+/* ========================================
+   WEBSITE WIDTH ALIGNMENT - COMPREHENSIVE SOLUTION
+   ========================================
+   
+   This file provides consistent width and alignment classes
+   for the entire TamudaStay website.
+*/
+
+/* ===================
+   CONTAINER SYSTEM
+   =================== */
+
+/* Main content container - 1200px max width for desktop */
+.site-container {
+  @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Header container - matches main content width */
+.header-container {
+  @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Section container for full-width sections */
+.section-container {
+  @apply w-full;
+}
+
+/* Content wrapper inside sections */
+.section-content {
+  @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* ===================
+   SEARCH FORM STYLING
+   =================== */
+
+/* Search form container */
+.search-form-container {
+  @apply w-full max-w-[1000px] mx-auto bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2;
+}
+
+/* Search form grid - 4 equal columns on desktop */
+.search-form-grid {
+  @apply grid grid-cols-1 md:grid-cols-4 gap-2;
+}
+
+/* Search form field - each takes 25% width on desktop */
+.search-form-field {
+  @apply flex-1 p-3 border-b md:border-b-0 md:border-r border-gray-200 last:border-r-0;
+}
+
+/* Search form label styling */
+.search-form-label {
+  @apply flex items-center text-xs font-medium text-gray-500 mb-2;
+}
+
+/* Search form input styling */
+.search-form-input {
+  @apply w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded border border-gray-300 px-3 py-2;
+}
+
+/* Search form select styling */
+.search-form-select {
+  @apply w-full text-gray-900 focus:outline-none;
+}
+
+/* Search button styling */
+.search-form-button {
+  @apply w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl;
+}
+
+/* ===================
+   GUEST COUNTER STYLING
+   =================== */
+
+.guest-counter-container {
+  @apply flex items-center border border-gray-300 rounded-md overflow-hidden;
+}
+
+.guest-counter-button {
+  @apply p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center;
+}
+
+.guest-counter-display {
+  @apply flex-1 text-center py-2 font-medium text-sm;
+}
+
+/* ===================
+   RESPONSIVE DESIGN
+   =================== */
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .site-container,
+  .header-container,
+  .section-content {
+    @apply px-3;
+  }
+  
+  .search-form-container {
+    @apply mx-3 p-1.5;
+  }
+  
+  .search-form-grid {
+    @apply grid-cols-1 gap-1;
+  }
+  
+  .search-form-field {
+    @apply border-b border-r-0 p-2;
+  }
+  
+  .search-form-button {
+    @apply w-full mt-2;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .search-form-grid {
+    @apply grid-cols-2 gap-2;
+  }
+}
+
+/* ===================
+   SECTION SPACING
+   =================== */
+
+/* Standard section padding */
+.section-padding {
+  @apply py-16 lg:py-20;
+}
+
+/* Hero section specific */
+.hero-section {
+  @apply min-h-screen flex items-center;
+}
+
+/* ===================
+   NAVIGATION ALIGNMENT
+   =================== */
+
+/* Header wrapper */
+.header-wrapper {
+  @apply w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100;
+}
+
+/* Header content */
+.header-content {
+  @apply flex items-center justify-between h-16 lg:h-20;
+}
+
+/* Navigation menu */
+.nav-menu {
+  @apply hidden lg:flex items-center space-x-8;
+}
+
+/* Navigation link */
+.nav-link {
+  @apply text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 relative;
+}
+
+.nav-link::after {
+  @apply absolute left-0 bottom-[-4px] w-0 h-0.5 bg-blue-600 transition-all duration-300;
+  content: '';
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+/* ===================
+   FOOTER ALIGNMENT
+   =================== */
+
+.footer-container {
+  @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* ===================
+   UTILITY CLASSES
+   =================== */
+
+/* Center content horizontally */
+.center-content {
+  @apply flex justify-center;
+}
+
+/* Center content both ways */
+.center-both {
+  @apply flex items-center justify-center;
+}
+
+/* Full width with padding */
+.full-width-padded {
+  @apply w-full px-4 sm:px-6 lg:px-8;
+}
+
+/* Text alignment utilities */
+.text-center-mobile {
+  @apply text-center lg:text-left;
+}
+
+/* ===================
+   GRID LAYOUTS
+   =================== */
+
+/* Property grid */
+.property-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+/* Feature grid */
+.feature-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8;
+}
+
+/* Testimonial grid */
+.testimonial-grid {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
+}

@@ -45,7 +45,7 @@ const Hero: React.FC = () => {
       </div>
       
       Main Content
-      <div className="relative z-20 container-custom">
+      <div className="relative z-20 site-container">
         <div className="text-center text-gray-900 max-w-5xl mx-auto">
           {/* TamudaStay Brand Logo in Hero */}
           {/* <div className="flex justify-center mb-8">
@@ -95,8 +95,8 @@ const Hero: React.FC = () => {
           </div>
           
           {/* Professional Search Section */}
-          <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-w-4xl mx-4 md:mx-auto mb-8 md:mb-16 border border-blue-100">
-            <div className="mb-4 md:mb-6">
+          <div className="search-form-container mb-8 md:mb-16">
+            <div className="mb-4 md:mb-6 text-center">
               <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">Find Your Perfect Stay</h3>
               <p className="text-gray-600">Discover exceptional properties tailored to your preferences</p>
             </div>
