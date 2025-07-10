@@ -218,7 +218,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
 
     const propertyData = {
       ...formData,
-      price: Number(formData.price),
+      price: formData.price.toString(), // Keep price as string for backend
       priceUnit: 'night',
       amenities: selectedAmenities,
       images: images,
