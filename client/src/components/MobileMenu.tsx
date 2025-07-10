@@ -33,30 +33,23 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
 
   return (
     <nav className="lg:hidden py-4 border-t bg-white/95 backdrop-blur-sm">
-      {/* TamudaStay Logo in Mobile Menu */}
-      {/* <div className="flex justify-center mb-4 pb-4 border-b border-gray-200">
-        <Link to="/" onClick={onLinkClick} className="flex items-center space-x-2 group">
-          <div className="w-8 h-8 logo-gradient flex items-center justify-center rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300">
-            <span className="text-white font-serif text-sm font-bold">TS</span>
-          </div>
-          <div className="font-serif">
-            <span className="text-gray-900 text-lg font-bold">Tamuda</span>
-            <span className="text-blue-600 text-lg font-bold ml-1">Stay</span>
-          </div>
-        </Link>
-      </div> */}
-      
+      {/* Navigation Buttons */}
       <Navigation isMobile onLinkClick={onLinkClick} />
-      <div className="mt-4">
+      
+      {/* Dashboard/Auth Section */}
+      <div className="mt-6 px-4">
         {isLoggedIn ? (
-          <div className="space-y-2">
-            <Button 
+          <div className="space-y-3">
+            {/* Dashboard Button - Styled to match navigation */}
+            <button 
               onClick={onDashboardClick} 
-              className="w-full bg-moroccan-gold hover:bg-moroccan-gold/90 text-white"
+              className="w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 border bg-moroccan-gold text-white border-moroccan-gold shadow-md hover:bg-moroccan-gold/90 hover:shadow-lg transform hover:scale-105"
             >
               Dashboard
-            </Button>
-            <div className="flex items-center justify-between">
+            </button>
+            
+            {/* User Info Section */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
               <div className="flex items-center space-x-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-moroccan-blue text-white text-sm">
@@ -75,10 +68,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                 onClick={onLogout}
                 variant="outline" 
                 size="sm" 
-                className="flex items-center space-x-1 lg:space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-2 lg:px-3"
+                className="flex items-center space-x-1 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 border-red-200 hover:border-red-300"
               >
-                <LogOut className="h-3 w-3 lg:h-4 lg:w-4" />
-                <span className="hidden sm:inline text-xs lg:text-sm">Logout</span>
+                <LogOut className="h-4 w-4" />
+                <span className="text-xs">Logout</span>
               </Button>
             </div>
           </div>
@@ -86,7 +79,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
           <Link 
             to="/become-host" 
             onClick={onLinkClick}
-            className="w-full bg-moroccan-gold hover:bg-moroccan-gold/90 text-white inline-flex items-center justify-center px-6 py-3 rounded-lg transition-all duration-200 font-medium"
+            className="w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 border bg-moroccan-gold text-white border-moroccan-gold shadow-md hover:bg-moroccan-gold/90 hover:shadow-lg transform hover:scale-105 inline-flex items-center justify-center"
           >
             Become a Host
           </Link>
