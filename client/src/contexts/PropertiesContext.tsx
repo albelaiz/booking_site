@@ -8,6 +8,8 @@ interface PropertiesContextType {
   addProperty: (property: Omit<Property, 'id'>) => Promise<any>;
   updateProperty: (id: string, property: Partial<Property>) => Promise<void>;
   deleteProperty: (id: string) => Promise<void>;
+  approveProperty: (id: string) => Promise<void>;
+  rejectProperty: (id: string) => Promise<void>;
   refreshProperties: () => Promise<void>;
   loading: boolean;
 }
@@ -18,6 +20,8 @@ export const PropertiesContext = createContext<PropertiesContextType>({
   addProperty: async () => {},
   updateProperty: async () => {},
   deleteProperty: async () => {},
+  approveProperty: async () => {},
+  rejectProperty: async () => {},
   refreshProperties: async () => {},
   loading: false
 });
@@ -36,35 +40,22 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const fetchProperties = async () => {
     try {
-      // Check current user role and ID at fetch time
+      // Check current user role at fetch time
       const userRole = localStorage.getItem('userRole') || '';
       const userId = localStorage.getItem('userId') || '';
+      const isAdminUser = userRole === 'admin' || userRole === 'staff';
+      const isOwner = userRole === 'owner';
       
       let data;
       
-      if (userRole === 'admin' || userRole === 'staff') {
-        // Admin/staff see ALL properties
+      if (isAdminUser) {
+        // Admin/staff sees all properties
         data = await propertiesApi.getAllAdmin();
-      } else if (userRole === 'owner' && userId) {
-        // Property owners see only their own properties
-        try {
-          const response = await fetch(`/api/properties/owner/${userId}`, {
-            headers: {
-              'Authorization': `Bearer ${userRole}-token`
-            }
-          });
-          if (response.ok) {
-            data = await response.json();
-          } else {
-            console.error('Failed to fetch owner properties:', response.status);
-            data = [];
-          }
-        } catch (error) {
-          console.error('Error fetching owner properties:', error);
-          data = [];
-        }
+      } else if (isOwner && userId) {
+        // Owners see only their own properties
+        data = await propertiesApi.getByOwner(userId);
       } else {
-        // Regular users/visitors see only approved properties
+        // Public sees only approved properties
         data = await propertiesApi.getAll();
       }
       
@@ -102,19 +93,14 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const userId = parseInt(localStorage.getItem('userId') || '1');
       const userRole = localStorage.getItem('userRole') || '';
       
-      // Ensure ownerId is set correctly for the current user
+      // Auto-approve properties created by admin or staff
       const propertyToCreate = {
         ...newProperty,
-        ownerId: userId, // Always set to current user's ID
-        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending' // Admin properties auto-approved, host properties pending
+        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : (newProperty.status || 'pending')
       };
-      
-      console.log('Creating property:', propertyToCreate); // Debug log
       
       // First try to save to the API
       const savedProperty = await propertiesApi.create(propertyToCreate);
-      
-      console.log('Property created:', savedProperty); // Debug log
       
       // Log the audit action
       await auditLogger.logPropertyAction(
@@ -221,12 +207,76 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
+  const approveProperty = async (id: string) => {
+    try {
+      const currentProperty = propertiesList.find(p => p.id === id);
+      const userId = parseInt(localStorage.getItem('userId') || '1');
+      
+      // Call API to approve property
+      await propertiesApi.approve(id);
+      
+      // Log the audit action
+      if (currentProperty) {
+        await auditLogger.logPropertyAction(
+          'property_approved',
+          { ...currentProperty, status: 'approved' },
+          userId
+        );
+      }
+      
+      // Refresh properties to get updated data
+      await fetchProperties();
+    } catch (error) {
+      console.error('Error approving property:', error);
+      
+      // Fallback: update local state only
+      setPropertiesList(prevProperties => 
+        prevProperties.map(property => 
+          property.id === id ? { ...property, status: 'approved' } : property
+        )
+      );
+    }
+  };
+
+  const rejectProperty = async (id: string) => {
+    try {
+      const currentProperty = propertiesList.find(p => p.id === id);
+      const userId = parseInt(localStorage.getItem('userId') || '1');
+      
+      // Call API to reject property
+      await propertiesApi.reject(id);
+      
+      // Log the audit action
+      if (currentProperty) {
+        await auditLogger.logPropertyAction(
+          'property_rejected',
+          { ...currentProperty, status: 'rejected' },
+          userId
+        );
+      }
+      
+      // Refresh properties to get updated data
+      await fetchProperties();
+    } catch (error) {
+      console.error('Error rejecting property:', error);
+      
+      // Fallback: update local state only
+      setPropertiesList(prevProperties => 
+        prevProperties.map(property => 
+          property.id === id ? { ...property, status: 'rejected' } : property
+        )
+      );
+    }
+  };
+
   const value = {
     properties: propertiesList,
     loading,
     addProperty,
     updateProperty,
     deleteProperty,
+    approveProperty,
+    rejectProperty,
     refreshProperties: fetchProperties,
   };
 

@@ -26,33 +26,39 @@ const OwnerDashboard = () => {
   // Get authenticated user data
   const userName = localStorage.getItem('userName') || 'Property Owner';
   const userRole = localStorage.getItem('userRole') || 'owner';
-  const ownerId = parseInt(localStorage.getItem('userId') || '3'); // Convert to number
+  const ownerId = localStorage.getItem('userId') || '3'; // Default to owner ID from database
   
-  // Filter properties for the current user - compare numbers properly
-  const ownerProperties = properties.filter(p => {
-    const propertyOwnerId = typeof p.ownerId === 'string' ? parseInt(p.ownerId) : p.ownerId;
-    return propertyOwnerId === ownerId;
-  });
+  // Filter properties for the current user
+  const ownerProperties = properties.filter(p => p.ownerId === parseInt(ownerId));
   
   // Calculate dashboard stats
   const totalProperties = ownerProperties.length;
   const activeProperties = ownerProperties.filter(p => p.status === 'approved').length;
   const pendingProperties = ownerProperties.filter(p => p.status === 'pending').length;
+  const rejectedProperties = ownerProperties.filter(p => p.status === 'rejected').length;
   const totalRevenue = ownerProperties.reduce((sum, p) => sum + (parseFloat(p.price.toString()) * 30), 0); // Estimated monthly
   
-  const handleAddProperty = (propertyData: any) => {
-    addProperty({
-      ...propertyData,
-      ownerId: ownerId, // Add authenticated owner ID to the property as number
-      status: 'pending', // New listings start as pending
-      createdAt: new Date().toISOString(),
-    });
-    
-    setIsAddingProperty(false);
-    toast({
-      title: "Property submitted",
-      description: "Your property listing has been submitted for review.",
-    });
+  const handleAddProperty = async (propertyData: any) => {
+    try {
+      await addProperty({
+        ...propertyData,
+        ownerId: parseInt(ownerId), // Add authenticated owner ID to the property
+        status: 'pending', // New listings start as pending
+        createdAt: new Date().toISOString(),
+      });
+      
+      setIsAddingProperty(false);
+      toast({
+        title: "Property submitted",
+        description: "Your property listing has been submitted for admin review and will be published once approved.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit property. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
   
   const handleUpdateProperty = (propertyData: any) => {

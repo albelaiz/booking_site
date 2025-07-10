@@ -15,7 +15,6 @@ const SearchBar = () => {
     { value: 'martil', label: 'Martil - Beach Paradise' },
     { value: 'cabo-negro', label: 'Cabo Negro - Coastal Resort' },
     { value: 'mdiq', label: "M'diq - Fishing Village Charm" },
-    { value: 'atlas-mountains', label: 'Atlas Mountains - Mountain Retreat' },
     { value: 'tetouan', label: 'Tetouan - Andalusian Heritage' }
   ];
 

@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 import { Property } from '../data/properties';
 
 const AdminProperties = () => {
-  const { properties, updateProperty, addProperty } = useProperties();
+  const { properties, updateProperty, addProperty, approveProperty, rejectProperty } = useProperties();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddingProperty, setIsAddingProperty] = useState(false);
@@ -23,7 +23,7 @@ const AdminProperties = () => {
   const filteredProperties = properties.filter(property => 
     property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.id.toLowerCase().includes(searchTerm.toLowerCase())
+    property.id.toString().includes(searchTerm.toLowerCase())
   );
 
   // Group properties by status
@@ -31,20 +31,36 @@ const AdminProperties = () => {
   const approvedProperties = filteredProperties.filter(p => p.status === 'approved');
   const rejectedProperties = filteredProperties.filter(p => p.status === 'rejected');
 
-  const handleApproveProperty = (id: string) => {
-    updateProperty(id, { status: 'approved' });
-    toast({
-      title: "Property approved",
-      description: "The property listing has been published.",
-    });
+  const handleApproveProperty = async (id: string) => {
+    try {
+      await approveProperty(id);
+      toast({
+        title: "Property approved",
+        description: "The property listing has been published and is now visible to visitors.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to approve property. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleRejectProperty = (id: string) => {
-    updateProperty(id, { status: 'rejected' });
-    toast({
-      title: "Property rejected",
-      description: "The property listing has been rejected.",
-    });
+  const handleRejectProperty = async (id: string) => {
+    try {
+      await rejectProperty(id);
+      toast({
+        title: "Property rejected",
+        description: "The property listing has been rejected and hidden from visitors.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reject property. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAddProperty = (propertyData: any) => {

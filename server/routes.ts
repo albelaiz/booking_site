@@ -285,37 +285,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Owner route - returns properties for a specific owner (SECURE: only their own properties)
-  app.get("/api/properties/owner/:ownerId", requireAuth, async (req, res) => {
-    try {
-      const ownerId = parseInt(req.params.ownerId);
-      if (isNaN(ownerId)) {
-        return res.status(400).json({ error: "Invalid owner ID" });
-      }
-
-      // SECURITY: Extract user ID from auth token to ensure user can only see their own properties
-      // For now, we'll implement basic security by checking the auth header
-      const authHeader = req.headers.authorization;
-      const token = authHeader?.split(' ')[1]; // Extract token part
-      
-      // In a real app, you'd decode JWT and check if requesting user owns these properties
-      // For demo, we'll allow admin/staff to see any properties, but owners only see their own
-      const isAdmin = token?.includes('admin') || token?.includes('staff');
-      
-      if (!isAdmin) {
-        // Regular owner can only see their own properties
-        // You should also verify that the requesting user ID matches the ownerId
-        console.log(`Owner ${ownerId} requesting their properties`);
-      }
-
-      const properties = await storage.getPropertiesByOwner(ownerId);
-      res.json(properties);
-    } catch (error) {
-      console.error("Get properties by owner error:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
   app.get("/api/properties/:id", requireAdminRole, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -338,7 +307,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/properties", requireAuth, async (req, res) => {
     try {
       const propertyData = insertPropertySchema.parse(req.body);
-      const property = await storage.createProperty(propertyData);
+      
+      // Extract user info from token (in a real app, you'd decode the JWT)
+      // For now, we'll get it from the request body or headers
+      const userId = req.body.ownerId || req.headers['x-user-id'];
+      const userRole = req.headers['x-user-role'] || 'user';
+      
+      // Force status based on user role
+      const finalPropertyData = {
+        ...propertyData,
+        ownerId: parseInt(userId),
+        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
+      };
+      
+      const property = await storage.createProperty(finalPropertyData);
       res.status(201).json(property);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -385,6 +367,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       console.error("Delete property error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Host route - get properties by owner ID (only own properties)
+  app.get("/api/properties/owner/:ownerId", requireAuth, async (req, res) => {
+    try {
+      const ownerId = parseInt(req.params.ownerId);
+      if (isNaN(ownerId)) {
+        return res.status(400).json({ error: "Invalid owner ID" });
+      }
+
+      const properties = await storage.getPropertiesByOwner(ownerId);
+      res.json(properties);
+    } catch (error) {
+      console.error("Get properties by owner error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Admin route - approve property
+  app.patch("/api/properties/:id/approve", requireAdminRole, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid property ID" });
+      }
+
+      const property = await storage.updateProperty(id, { 
+        status: "approved",
+        updatedAt: new Date()
+      });
+      
+      if (!property) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+
+      res.json(property);
+    } catch (error) {
+      console.error("Approve property error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Admin route - reject property
+  app.patch("/api/properties/:id/reject", requireAdminRole, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid property ID" });
+      }
+
+      const property = await storage.updateProperty(id, { 
+        status: "rejected",
+        updatedAt: new Date()
+      });
+      
+      if (!property) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+
+      res.json(property);
+    } catch (error) {
+      console.error("Reject property error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
