@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { List, X } from "lucide-react";
 import AuthModal from "./AuthModal";
-import { Button } from "./ui/button";
-import Navigation from "./Navigation";
-import UserMenu from "./UserMenu";
 import MobileMenu from "./MobileMenu";
 import { useAuth } from "../hooks/useAuth";
 
@@ -89,39 +86,10 @@ const Header = () => {
               </div>
             </Link>
 
-            {/* Professional Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
-              <Navigation />
-              
-              {isLoggedIn ? (
-                <div className="flex items-center space-x-4">
-                  <Button 
-                    onClick={onDashboardClick} 
-                    className="btn-primary"
-                  >
-                    Dashboard
-                  </Button>
-                  <UserMenu 
-                    userName={userName}
-                    loginMethod={loginMethod}
-                    onProfileClick={handleProfileClick}
-                    onLogout={handleLogout}
-                  />
-                </div>
-              ) : (
-                <Link 
-                  to="/become-host"
-                  className="btn-outline hover:text-white inline-flex items-center justify-center"
-                >
-                  Become a Host
-                </Link>
-              )}
-            </div>
-
-            {/* Mobile menu button */}
+            {/* Hamburger Menu Button - Always Visible */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-              className="lg:hidden flex items-center p-2 text-gray-700 hover:text-gray-900 transition-colors" 
+              className="flex items-center p-3 text-gray-700 hover:text-gray-900 transition-all duration-200 hover:bg-gray-100 rounded-lg" 
               aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
@@ -134,7 +102,7 @@ const Header = () => {
               </span>
             </button>
           </div>
-          {/* Mobile Navigation */}
+          {/* Navigation Menu - Now universal for all screen sizes */}
           <MobileMenu 
             isOpen={isMobileMenuOpen}
             isLoggedIn={isLoggedIn}
@@ -143,6 +111,7 @@ const Header = () => {
             onDashboardClick={onDashboardClick}
             onLogout={handleLogout}
             onLinkClick={() => setIsMobileMenuOpen(false)}
+            onProfileClick={handleProfileClick}
             getLoginMethodIcon={getLoginMethodIcon}
             getLoginMethodText={getLoginMethodText}
           />

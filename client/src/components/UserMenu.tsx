@@ -51,8 +51,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ userName, loginMethod, onProfileCli
             variant="ghost" 
             className="flex items-center space-x-1 p-2 hover:bg-gray-100 rounded-lg"
           >
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-moroccan-blue text-white text-sm">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarFallback className="bg-moroccan-blue text-white text-xs font-medium">
                 {userName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>

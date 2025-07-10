@@ -14,6 +14,7 @@ interface MobileMenuProps {
   onDashboardClick: () => void;
   onLogout: () => void;
   onLinkClick: () => void;
+  onProfileClick?: () => void;
   getLoginMethodIcon: () => React.ReactNode;
   getLoginMethodText: () => string;
 }
@@ -26,13 +27,14 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   onDashboardClick,
   onLogout,
   onLinkClick,
+  onProfileClick,
   getLoginMethodIcon,
   getLoginMethodText
 }) => {
   if (!isOpen) return null;
 
   return (
-    <nav className="lg:hidden py-4 border-t bg-white/95 backdrop-blur-sm">
+    <nav className="py-4 border-t bg-white/95 backdrop-blur-sm">
       {/* Navigation Buttons */}
       <Navigation isMobile onLinkClick={onLinkClick} />
       
@@ -50,20 +52,26 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             
             {/* User Info Section */}
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex items-center space-x-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-moroccan-blue text-white text-sm">
+              <button 
+                onClick={() => {
+                  if (onProfileClick) onProfileClick();
+                  onLinkClick();
+                }}
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              >
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarFallback className="bg-moroccan-blue text-white text-xs font-medium">
                     {userName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <div className="font-medium text-sm">{userName}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-sm text-gray-900 truncate">{userName}</div>
                   <div className="text-xs text-gray-500 flex items-center space-x-1">
                     {getLoginMethodIcon()}
-                    <span>{getLoginMethodText()}</span>
+                    <span className="truncate">{getLoginMethodText()}</span>
                   </div>
                 </div>
-              </div>
+              </button>
               <Button 
                 onClick={onLogout}
                 variant="outline" 
