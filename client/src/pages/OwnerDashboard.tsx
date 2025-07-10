@@ -1,10 +1,10 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PropertyForm from '../components/PropertyForm';
 import { useProperties } from '../contexts/PropertiesContext';
+import { propertiesApi } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
@@ -17,19 +17,43 @@ import TamudaHostChatbot from '../components/HostChatbot';
 const OwnerDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { properties, addProperty, updateProperty, deleteProperty } = useProperties();
+  const { addProperty, updateProperty, deleteProperty } = useProperties();
   const [isAddingProperty, setIsAddingProperty] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [isGeneratingReview, setIsGeneratingReview] = useState(false);
   const [reviewAnalysis, setReviewAnalysis] = useState<any>(null);
+  const [ownerProperties, setOwnerProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Get authenticated user data
   const userName = localStorage.getItem('userName') || 'Property Owner';
   const userRole = localStorage.getItem('userRole') || 'owner';
   const ownerId = localStorage.getItem('userId') || '3'; // Default to owner ID from database
   
-  // Filter properties for the current user
-  const ownerProperties = properties.filter(p => p.ownerId === parseInt(ownerId));
+  // Fetch owner-specific properties directly
+  useEffect(() => {
+    const fetchOwnerProperties = async () => {
+      try {
+        setLoading(true);
+        const data = await propertiesApi.getByOwner(ownerId);
+        setOwnerProperties(data);
+        console.log('OwnerDashboard - Fetched owner properties:', data.length);
+      } catch (error) {
+        console.error('Error fetching owner properties:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load your properties. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (ownerId) {
+      fetchOwnerProperties();
+    }
+  }, [ownerId, toast]);
   
   // Calculate dashboard stats
   const totalProperties = ownerProperties.length;
@@ -47,6 +71,10 @@ const OwnerDashboard = () => {
         createdAt: new Date().toISOString(),
       });
       
+      // Refresh owner properties after adding
+      const data = await propertiesApi.getByOwner(ownerId);
+      setOwnerProperties(data);
+      
       setIsAddingProperty(false);
       toast({
         title: "Property submitted",
@@ -61,28 +89,53 @@ const OwnerDashboard = () => {
     }
   };
   
-  const handleUpdateProperty = (propertyData: any) => {
+  const handleUpdateProperty = async (propertyData: any) => {
     if (editingProperty) {
-      updateProperty(editingProperty.id, {
-        ...propertyData,
-        updatedAt: new Date().toISOString(),
-      });
-      
-      setEditingProperty(null);
-      toast({
-        title: "Property updated",
-        description: "Your property listing has been updated.",
-      });
+      try {
+        await updateProperty(editingProperty.id, {
+          ...propertyData,
+          updatedAt: new Date().toISOString(),
+        });
+        
+        // Refresh owner properties after updating
+        const data = await propertiesApi.getByOwner(ownerId);
+        setOwnerProperties(data);
+        
+        setEditingProperty(null);
+        toast({
+          title: "Property updated",
+          description: "Your property listing has been updated.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update property. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
   };
   
-  const handleDeleteProperty = (id: string) => {
+  const handleDeleteProperty = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this property listing?")) {
-      deleteProperty(id);
-      toast({
-        title: "Property deleted",
-        description: "Your property listing has been deleted.",
-      });
+      try {
+        await deleteProperty(id);
+        
+        // Refresh owner properties after deleting
+        const data = await propertiesApi.getByOwner(ownerId);
+        setOwnerProperties(data);
+        
+        toast({
+          title: "Property deleted",
+          description: "Your property listing has been deleted.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete property. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -122,6 +175,24 @@ const OwnerDashboard = () => {
     }
   };
   
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow bg-gray-50 py-16">
+          <div className="container-custom">
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-moroccan-blue mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading your properties...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   // Render property form modal or property listings
   if (isAddingProperty || editingProperty) {
     return (
