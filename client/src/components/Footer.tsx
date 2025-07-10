@@ -46,7 +46,7 @@ const Footer = () => {
               </a>
               <a href="#" className="text-gray-400 hover:text-blue-400 transition duration-200">
                 <Instagram className="h-5 w-5" />
-                <span className="sr-only">Instagram</span>
+                <span className="https://www.instagram.com/tamudastay/">Instagram</span>
               </a>
               <a href="#" className="text-gray-400 hover:text-blue-400 transition duration-200">
                 <Twitter className="h-5 w-5" />

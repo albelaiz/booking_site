@@ -45,7 +45,7 @@ const Hero: React.FC = () => {
       </div>
       
       Main Content
-      <div className="relative z-20 site-container">
+      <div className="relative z-20 container-custom">
         <div className="text-center text-gray-900 max-w-5xl mx-auto">
           {/* TamudaStay Brand Logo in Hero */}
           {/* <div className="flex justify-center mb-8">
@@ -72,7 +72,7 @@ const Hero: React.FC = () => {
             <span className="text-blue-700 font-medium text-sm tracking-wide">Premium Accommodations</span>
           </div> */}
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-light mb-6 md:mb-8 leading-tight px-4">
+          {/* <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-light mb-6 md:mb-8 leading-tight px-4">
             <span className="block mb-2 md:mb-4">
               <span className="text-gray-900 font-medium">
                 Discover
@@ -85,18 +85,18 @@ const Hero: React.FC = () => {
             <span className="block text-gray-700 font-light">
               Morocco's Premier Destination
             </span>
-          </h1>
+          </h1> */}
           
-          <div className="mb-8 md:mb-12 px-4">
+          {/* <div className="mb-8 md:mb-12 px-4">
             <p className="text-lg sm:text-xl md:text-2xl text-gray-700 font-light leading-relaxed max-w-3xl mx-auto">
               Experience unparalleled comfort in carefully selected accommodations 
               along Morocco's stunning Mediterranean coastline.
             </p>
-          </div>
+          </div> */}
           
           {/* Professional Search Section */}
-          <div className="search-form-container mb-8 md:mb-16">
-            <div className="mb-4 md:mb-6 text-center">
+          <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-w-4xl mx-4 md:mx-auto mb-8 md:mb-16 border border-blue-100">
+            <div className="mb-4 md:mb-6">
               <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">Find Your Perfect Stay</h3>
               <p className="text-gray-600">Discover exceptional properties tailored to your preferences</p>
             </div>
