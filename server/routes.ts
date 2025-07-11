@@ -374,12 +374,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Host route - get properties by owner ID (only own properties)
   app.get("/api/properties/owner/:ownerId", requireAuth, async (req, res) => {
     try {
-      const ownerId = parseInt(req.params.ownerId);
-      if (isNaN(ownerId)) {
-        return res.status(400).json({ error: "Invalid owner ID" });
+      // SECURITY: Use authenticated user's ID from headers, not URL parameter
+      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
+        ? req.headers['x-user-id'][0] 
+        : req.headers['x-user-id'];
+      const userRole = Array.isArray(req.headers['x-user-role']) 
+        ? req.headers['x-user-role'][0] 
+        : req.headers['x-user-role'] || 'user';
+      
+      if (!authenticatedUserId) {
+        return res.status(401).json({ error: "User ID required" });
       }
 
-      const properties = await storage.getPropertiesByOwner(ownerId);
+      const ownerId = parseInt(authenticatedUserId);
+      if (isNaN(ownerId)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
+
+      // Admin/staff can view any owner's properties via the URL parameter
+      let targetOwnerId = ownerId; // Default to authenticated user's properties
+      if (userRole === 'admin' || userRole === 'staff') {
+        const urlOwnerId = parseInt(req.params.ownerId);
+        if (!isNaN(urlOwnerId)) {
+          targetOwnerId = urlOwnerId;
+        }
+      }
+
+      const properties = await storage.getPropertiesByOwner(targetOwnerId);
       res.json(properties);
     } catch (error) {
       console.error("Get properties by owner error:", error);

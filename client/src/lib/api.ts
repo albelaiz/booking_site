@@ -150,10 +150,14 @@ export const propertiesApi = {
   getByOwner: async (ownerId: string) => {
     try {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      const userId = localStorage.getItem('userId') || ownerId;
+      const userRole = localStorage.getItem('userRole') || 'user';
       
       const response = await fetch(`${API_BASE_URL}/properties/owner/${ownerId}`, {
         headers: {
           'Authorization': token,
+          'x-user-id': userId,
+          'x-user-role': userRole,
           'Content-Type': 'application/json'
         }
       });
@@ -640,4 +644,108 @@ export const auditLogsApi = {
       throw new Error('Failed to create audit log - server not available');
     }
   },
+};
+
+// Host Dashboard API
+export const hostApi = {
+  getStats: async (ownerId: string, period: string = '30') => {
+    try {
+      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      const userId = localStorage.getItem('userId') || ownerId;
+      const userRole = localStorage.getItem('userRole') || 'user';
+      
+      const response = await fetch(`${API_BASE_URL}/hosts/${ownerId}/stats?period=${period}`, {
+        headers: {
+          'Authorization': token,
+          'x-user-id': userId,
+          'x-user-role': userRole,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch host stats');
+      return response.json();
+    } catch (error) {
+      console.warn('Host stats API not available');
+      return null;
+    }
+  },
+
+  getBookings: async (ownerId: string, filters: any = {}) => {
+    try {
+      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      const userId = localStorage.getItem('userId') || ownerId;
+      const userRole = localStorage.getItem('userRole') || 'user';
+      
+      const queryParams = new URLSearchParams();
+      Object.keys(filters).forEach(key => {
+        if (filters[key]) {
+          queryParams.append(key, filters[key]);
+        }
+      });
+      
+      const url = `${API_BASE_URL}/hosts/${ownerId}/bookings${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': token,
+          'x-user-id': userId,
+          'x-user-role': userRole,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch host bookings');
+      return response.json();
+    } catch (error) {
+      console.warn('Host bookings API not available');
+      return [];
+    }
+  },
+
+  getMessages: async (ownerId: string, status?: string) => {
+    try {
+      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      const userId = localStorage.getItem('userId') || ownerId;
+      const userRole = localStorage.getItem('userRole') || 'user';
+      
+      const url = status 
+        ? `${API_BASE_URL}/hosts/${ownerId}/messages?status=${status}`
+        : `${API_BASE_URL}/hosts/${ownerId}/messages`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': token,
+          'x-user-id': userId,
+          'x-user-role': userRole,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch host messages');
+      return response.json();
+    } catch (error) {
+      console.warn('Host messages API not available');
+      return [];
+    }
+  },
+
+  getAnalytics: async (ownerId: string, period: string = '30') => {
+    try {
+      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      const userId = localStorage.getItem('userId') || ownerId;
+      const userRole = localStorage.getItem('userRole') || 'user';
+      
+      const response = await fetch(`${API_BASE_URL}/hosts/${ownerId}/analytics?period=${period}`, {
+        headers: {
+          'Authorization': token,
+          'x-user-id': userId,
+          'x-user-role': userRole,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch host analytics');
+      return response.json();
+    } catch (error) {
+      console.warn('Host analytics API not available');
+      return [];
+    }
+  }
 };

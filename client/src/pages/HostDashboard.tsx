@@ -17,6 +17,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { propertiesApi, hostApi } from '../lib/api';
 
 interface Property {
   id: number;
@@ -77,10 +78,53 @@ const HostDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30'); // days
 
-  // Sample data - replace with API calls
+  // Load real data from API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
+    const loadDashboardData = async () => {
+      try {
+        // Get user info from localStorage
+        const userId = localStorage.getItem('userId');
+        const userRole = localStorage.getItem('userRole');
+        
+        if (!userId) {
+          console.error('No user ID found');
+          loadMockData();
+          return;
+        }
+
+        console.log('Loading dashboard data for user:', userId);
+
+        // Fetch real data from backend
+        const [statsData, propertiesData, bookingsData] = await Promise.all([
+          hostApi.getStats(userId),
+          propertiesApi.getByOwner(userId),
+          hostApi.getBookings(userId)
+        ]);
+
+        console.log('Loaded data:', { statsData, propertiesData, bookingsData });
+
+        if (statsData) {
+          setStats(statsData);
+        }
+
+        if (propertiesData && propertiesData.length > 0) {
+          setProperties(propertiesData);
+        }
+
+        if (bookingsData && bookingsData.length > 0) {
+          setBookings(bookingsData);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+        // Fall back to mock data if API fails
+        loadMockData();
+      }
+    };
+
+    const loadMockData = () => {
+      console.log('Loading mock data...');
       setStats({
         totalRevenue: 12450,
         totalBookings: 89,
@@ -112,7 +156,7 @@ const HostDashboard: React.FC = () => {
         {
           id: 2,
           title: "Traditional Riad",
-          location: "Marrakech, Morocco",
+          location: "Marrakech, Morocco", 
           price: 150,
           priceUnit: "night",
           status: "approved",
@@ -157,7 +201,9 @@ const HostDashboard: React.FC = () => {
       ]);
 
       setLoading(false);
-    }, 1000);
+    };
+
+    loadDashboardData();
   }, []);
 
   const tabs = [
