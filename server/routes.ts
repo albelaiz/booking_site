@@ -371,6 +371,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Property approval endpoints for admin
+  app.put("/api/properties/:id/approve", requireAdminRole, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid property ID" });
+      }
+
+      const updatedProperty = await storage.updateProperty(id, { status: 'approved' });
+      if (!updatedProperty) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+
+      res.json(updatedProperty);
+    } catch (error) {
+      console.error("Approve property error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/properties/:id/reject", requireAdminRole, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid property ID" });
+      }
+
+      const updatedProperty = await storage.updateProperty(id, { status: 'rejected' });
+      if (!updatedProperty) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+
+      res.json(updatedProperty);
+    } catch (error) {
+      console.error("Reject property error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Admin route - get all pending properties (similar to pending messages)
+  app.get("/api/admin/properties/pending", requireAdminRole, async (req, res) => {
+    try {
+      const pendingProperties = await storage.getPropertiesByStatus('pending');
+      res.json(pendingProperties);
+    } catch (error) {
+      console.error("Get pending properties error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Host route - get properties by owner ID (only own properties)
   app.get("/api/properties/owner/:ownerId", requireAuth, async (req, res) => {
     try {
@@ -408,50 +458,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin route - approve property
-  app.patch("/api/properties/:id/approve", requireAdminRole, async (req, res) => {
+  // Owner Dashboard route - get ALL owner's properties (pending, approved, rejected)
+  app.get("/api/owner/properties", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid property ID" });
-      }
-
-      const property = await storage.updateProperty(id, { 
-        status: "approved",
-        updatedAt: new Date()
-      });
+      // Get authenticated user's ID from headers
+      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
+        ? req.headers['x-user-id'][0] 
+        : req.headers['x-user-id'];
       
-      if (!property) {
-        return res.status(404).json({ error: "Property not found" });
+      if (!authenticatedUserId) {
+        return res.status(401).json({ error: "User ID required for owner dashboard" });
       }
 
-      res.json(property);
+      const ownerId = parseInt(authenticatedUserId);
+      if (isNaN(ownerId)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
+
+      // Get ALL properties owned by this user (regardless of status)
+      const properties = await storage.getPropertiesByOwner(ownerId);
+      res.json(properties);
     } catch (error) {
-      console.error("Approve property error:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  // Admin route - reject property
-  app.patch("/api/properties/:id/reject", requireAdminRole, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid property ID" });
-      }
-
-      const property = await storage.updateProperty(id, { 
-        status: "rejected",
-        updatedAt: new Date()
-      });
-      
-      if (!property) {
-        return res.status(404).json({ error: "Property not found" });
-      }
-
-      res.json(property);
-    } catch (error) {
-      console.error("Reject property error:", error);
+      console.error("Get owner properties error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

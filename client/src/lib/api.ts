@@ -169,6 +169,33 @@ export const propertiesApi = {
     }
   },
 
+  // Get ALL owner's properties for owner dashboard (all statuses)
+  getOwnerDashboardProperties: async () => {
+    try {
+      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
+      const userId = localStorage.getItem('userId');
+      const userRole = localStorage.getItem('userRole') || 'user';
+      
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/owner/properties`, {
+        headers: {
+          'Authorization': token,
+          'x-user-id': userId,
+          'x-user-role': userRole,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch owner dashboard properties');
+      return response.json();
+    } catch (error) {
+      console.warn('Owner dashboard API not available:', error);
+      return [];
+    }
+  },
+
   // Admin approval actions
   approve: async (id: string) => {
     try {

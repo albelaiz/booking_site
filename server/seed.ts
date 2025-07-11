@@ -1,4 +1,3 @@
-
 import { storage } from "./storage";
 
 export async function seedDatabase() {
@@ -60,10 +59,12 @@ export async function seedDatabase() {
       }
     }
 
-    // Get the owner user for properties
+    // Get the owner users for properties
     const ownerUser = createdUsers.find(u => u.role === 'owner');
+    const ownerUser2 = createdUsers.find(u => u.username === 'user'); // Create second owner
+    
     if (ownerUser) {
-      // Create sample approved properties for visitor browsing
+      // Create sample properties with different statuses for testing
       const sampleProperties = [
         {
           title: "Luxury Villa in Martil",
@@ -93,7 +94,7 @@ export async function seedDatabase() {
           amenities: ["WiFi", "Traditional Architecture", "Rooftop Terrace", "Kitchen", "Air Conditioning"],
           featured: false,
           ownerId: ownerUser.id,
-          status: "approved"
+          status: "pending"
         },
         {
           title: "Modern Apartment with Sea View",
@@ -108,7 +109,7 @@ export async function seedDatabase() {
           amenities: ["WiFi", "Sea View", "Balcony", "Kitchen", "Air Conditioning", "Beach Access"],
           featured: true,
           ownerId: ownerUser.id,
-          status: "approved"
+          status: "rejected"
         },
         {
           title: "Family Beach House",
@@ -124,28 +125,49 @@ export async function seedDatabase() {
           featured: false,
           ownerId: ownerUser.id,
           status: "approved"
-        },
-        {
-          title: "Mountain View Chalet",
-          description: "Peaceful chalet with stunning mountain views, perfect for nature lovers seeking tranquility.",
-          price: "150.00",
-          priceUnit: "night",
-          images: ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4"],
-          location: "Rif Mountains, Morocco",
-          bedrooms: 2,
-          bathrooms: 1,
-          capacity: 4,
-          amenities: ["WiFi", "Mountain View", "Fireplace", "Kitchen", "Hiking Trails", "Garden"],
-          featured: false,
-          ownerId: ownerUser.id,
-          status: "approved"
         }
       ];
+
+      // Add properties for second owner if exists
+      if (ownerUser2) {
+        sampleProperties.push(
+          {
+            title: "Downtown Apartment",
+            description: "Modern apartment in the heart of Tétouan's new town. Perfect for business travelers.",
+            price: "80.00",
+            priceUnit: "night",
+            images: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"],
+            location: "Tétouan City Center, Morocco",
+            bedrooms: 1,
+            bathrooms: 1,
+            capacity: 2,
+            amenities: ["WiFi", "Air Conditioning", "Kitchen", "Parking"],
+            featured: false,
+            ownerId: ownerUser2.id,
+            status: "approved"
+          },
+          {
+            title: "Beachside Studio",
+            description: "Cozy studio apartment just steps from Martil beach. Great for couples.",
+            price: "90.00",
+            priceUnit: "night",
+            images: ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4"],
+            location: "Martil Beach, Morocco",
+            bedrooms: 1,
+            bathrooms: 1,
+            capacity: 2,
+            amenities: ["WiFi", "Beach Access", "Kitchenette", "Air Conditioning"],
+            featured: false,
+            ownerId: ownerUser2.id,
+            status: "pending"
+          }
+        );
+      }
 
       for (const property of sampleProperties) {
         try {
           await storage.createProperty(property);
-          console.log(`Created approved property: ${property.title}`);
+          console.log(`Created property: ${property.title} (Status: ${property.status})`);
         } catch (error) {
           console.log(`Error creating property ${property.title}:`, error);
         }

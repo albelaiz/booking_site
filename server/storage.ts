@@ -18,6 +18,7 @@ export interface IStorage {
   getApprovedProperty(id: number): Promise<Property | undefined>;
   getAllProperties(): Promise<Property[]>;
   getApprovedProperties(): Promise<Property[]>;
+  getPropertiesByStatus(status: string): Promise<Property[]>;
   getPropertiesByOwner(ownerId: number): Promise<Property[]>;
   createProperty(property: any): Promise<Property>;
   updateProperty(id: number, property: any): Promise<Property | undefined>;
@@ -180,6 +181,15 @@ export class DatabaseStorage implements IStorage {
       return await db.select().from(properties).where(eq(properties.status, "approved"));
     } catch (error) {
       console.error('Error fetching approved properties:', error);
+      return [];
+    }
+  }
+
+  async getPropertiesByStatus(status: string): Promise<Property[]> {
+    try {
+      return await db.select().from(properties).where(eq(properties.status, status));
+    } catch (error) {
+      console.error('Error fetching properties by status:', error);
       return [];
     }
   }

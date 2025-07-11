@@ -22,18 +22,27 @@ import { propertiesApi, hostApi } from '../lib/api';
 interface Property {
   id: number;
   title: string;
+  description?: string;
   location: string;
   price: number;
   priceUnit: string;
   status: string;
   featured: boolean;
   rating: number;
-  reviewCount: number;
+  reviewCount?: number;
+  reviews?: number;
   images: string[];
-  bookings: number;
-  revenue: number;
-  occupancyRate: number;
-  lastBooked: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  capacity?: number;
+  amenities?: string[];
+  ownerId?: number;
+  bookings?: number;
+  revenue?: number;
+  occupancyRate?: number;
+  lastBooked?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface Booking {
@@ -78,13 +87,34 @@ const HostDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30'); // days
 
+  // Status Badge Component
+  const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+    const getStatusColor = (status: string) => {
+      switch (status) {
+        case 'approved':
+          return 'bg-green-100 text-green-800 border-green-200';
+        case 'pending':
+          return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        case 'rejected':
+          return 'bg-red-100 text-red-800 border-red-200';
+        default:
+          return 'bg-gray-100 text-gray-800 border-gray-200';
+      }
+    };
+
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(status)}`}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+
   // Load real data from API
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
         // Get user info from localStorage
         const userId = localStorage.getItem('userId');
-        const userRole = localStorage.getItem('userRole');
         
         if (!userId) {
           console.error('No user ID found');
@@ -97,7 +127,7 @@ const HostDashboard: React.FC = () => {
         // Fetch real data from backend
         const [statsData, propertiesData, bookingsData] = await Promise.all([
           hostApi.getStats(userId),
-          propertiesApi.getByOwner(userId),
+          propertiesApi.getOwnerDashboardProperties(), // Use new dedicated endpoint
           hostApi.getBookings(userId)
         ]);
 
@@ -230,75 +260,6 @@ const HostDashboard: React.FC = () => {
         </div>
         <div className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center`}>
           {icon}
-        </div>
-      </div>
-    </div>
-  );
-
-  const PropertyCard: React.FC<{ property: Property }> = ({ property }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      <div className="relative">
-        <img 
-          src={property.images[0]} 
-          alt={property.title}
-          className="w-full h-48 object-cover"
-        />
-        {property.featured && (
-          <div className="absolute top-2 left-2 bg-moroccan-gold text-white px-2 py-1 rounded-md text-xs font-medium">
-            Featured
-          </div>
-        )}
-        <div className={`absolute top-2 right-2 px-2 py-1 rounded-md text-xs font-medium ${
-          property.status === 'approved' ? 'bg-green-100 text-green-800' :
-          property.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-          'bg-red-100 text-red-800'
-        }`}>
-          {property.status}
-        </div>
-      </div>
-      
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-1">{property.title}</h3>
-        <p className="text-sm text-gray-600 mb-2 flex items-center">
-          <MapPin className="h-4 w-4 mr-1" />
-          {property.location}
-        </p>
-        
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-lg font-bold text-moroccan-gold">
-            ${property.price}/{property.priceUnit}
-          </span>
-          <div className="flex items-center">
-            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-sm font-medium ml-1">{property.rating}</span>
-            <span className="text-sm text-gray-500 ml-1">({property.reviewCount})</span>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-3 gap-2 text-center mb-4">
-          <div>
-            <p className="text-sm font-medium text-gray-900">{property.bookings}</p>
-            <p className="text-xs text-gray-600">Bookings</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-900">${property.revenue}</p>
-            <p className="text-xs text-gray-600">Revenue</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-900">{property.occupancyRate}%</p>
-            <p className="text-xs text-gray-600">Occupancy</p>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" className="flex-1">
-            <Eye className="h-4 w-4 mr-1" />
-            View
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1">
-            <Edit3 className="h-4 w-4 mr-1" />
-            Edit
-          </Button>
         </div>
       </div>
     </div>
@@ -441,11 +402,94 @@ const HostDashboard: React.FC = () => {
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-moroccan-blue mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading your properties...</p>
+              </div>
+            ) : properties.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-gray-100 rounded-full">
+                  <Home className="h-8 w-8 text-moroccan-blue" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">No properties yet</h3>
+                <p className="text-gray-600 max-w-md mx-auto mb-6">
+                  Start earning by adding your first property. It's quick and easy!
+                </p>
+                <Button className="bg-moroccan-gold hover:bg-moroccan-gold/90">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Property
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {properties.map((property) => (
+                  <div key={property.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                    {/* Property Image */}
+                    <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+                      {property.images && property.images.length > 0 ? (
+                        <img 
+                          src={property.images[0]} 
+                          alt={property.title}
+                          className="w-full h-48 object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                          <Home className="h-12 w-12 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Property Info */}
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">{property.title}</h3>
+                        <StatusBadge status={property.status} />
+                      </div>
+                      
+                      <div className="flex items-center text-gray-600 mb-2">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        <span className="text-sm truncate">{property.location}</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <span>{property.bedrooms || 0} beds • {property.bathrooms || 0} baths</span>
+                        <span>{property.capacity || 0} guests</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="text-lg font-semibold text-gray-900">
+                          ${property.price}/{property.priceUnit || 'night'}
+                        </div>
+                        <div className="flex items-center">
+                          {property.rating && (
+                            <>
+                              <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
+                              <span className="text-sm font-medium">{property.rating}</span>
+                              {property.reviews && (
+                                <span className="text-sm text-gray-500 ml-1">({property.reviews})</span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="mt-4 flex space-x-2">
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <Edit3 className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
 
