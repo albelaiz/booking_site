@@ -63,15 +63,16 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-elevated p-1.5">
-      <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-2">
-        <div className="p-3 border-b md:border-b-0 md:border-r border-gray-200">
-          <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
-            <MapPin className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
+    <div className="w-full max-w-5xl mx-auto bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2">
+      <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-0">
+        {/* Location Field - Exactly 25% width on desktop */}
+        <div className="flex-1 p-3 border-b md:border-b-0 md:border-r border-gray-200/50 last:border-r-0">
+          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
+            <MapPin className="w-3.5 h-3.5 mr-1 text-blue-600" />
             Location
           </label>
           <Select value={location} onValueChange={setLocation}>
-            <SelectTrigger className="w-full text-gray-900 focus:outline-none">
+            <SelectTrigger className="w-full text-gray-900 focus:outline-none border-0 p-0 h-auto">
               <SelectValue placeholder="Select a location" />
             </SelectTrigger>
             <SelectContent className="bg-white border shadow-lg">
@@ -84,72 +85,74 @@ const SearchBar = () => {
           </Select>
         </div>
 
-        <div className="p-3 border-b md:border-b-0 md:border-r border-gray-200">
-          <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
-            <Calendar className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
+        {/* Check-in Field - Exactly 25% width on desktop */}
+        <div className="flex-1 p-3 border-b md:border-b-0 md:border-r border-gray-200/50 last:border-r-0">
+          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
+            <Calendar className="w-3.5 h-3.5 mr-1 text-blue-600" />
             Check-in Date
           </label>
           <input
             type="date"
-            className="w-full text-gray-900 focus:outline-none"
+            className="w-full text-gray-900 focus:outline-none border-0 p-0"
             value={checkIn}
             onChange={(e) => setCheckIn(e.target.value)}
-            min={new Date().toISOString().split('T')[0]} // Today's date as minimum
+            min={new Date().toISOString().split('T')[0]}
           />
         </div>
 
-        <div className="p-3 border-b md:border-b-0 md:border-r border-gray-200">
-          <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
-            <Calendar className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
+        {/* Check-out Field - Exactly 25% width on desktop */}
+        <div className="flex-1 p-3 border-b md:border-b-0 md:border-r border-gray-200/50 last:border-r-0">
+          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
+            <Calendar className="w-3.5 h-3.5 mr-1 text-blue-600" />
             Check-out Date
           </label>
           <input
             type="date"
-            className="w-full text-gray-900 focus:outline-none"
+            className="w-full text-gray-900 focus:outline-none border-0 p-0"
             value={checkOut}
             onChange={(e) => setCheckOut(e.target.value)}
             min={checkIn || new Date().toISOString().split('T')[0]}
           />
         </div>
 
-        <div className="flex items-center space-x-3 p-3">
-          <div className="flex-1">
-            <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
-              <Users className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
-              Guests
-            </label>
-            <div className="guest-counter-container">
+        {/* Guests & Search Field - Exactly 25% width on desktop */}
+        <div className="flex-1 p-3 flex flex-col justify-between">
+          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
+            <Users className="w-3.5 h-3.5 mr-1 text-blue-600" />
+            Guests
+          </label>
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center border border-gray-300 rounded-md flex-1">
               <button
                 type="button"
                 onClick={() => setGuests(Math.max(1, guests - 1))}
                 disabled={guests <= 1}
-                className="guest-counter-button guest-selector-button"
+                className="p-1.5 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 aria-label="Decrease guests"
               >
-                <Minus className="w-4 h-4 text-gray-600" />
+                <Minus className="w-3 h-3 text-gray-600" />
               </button>
-              <span className="guest-counter-display guest-selector-display">
-                {guests} Guest{guests !== 1 ? 's' : ''}
+              <span className="flex-1 text-center py-1 text-sm font-medium">
+                {guests}
               </span>
               <button
                 type="button"
                 onClick={() => setGuests(Math.min(10, guests + 1))}
                 disabled={guests >= 10}
-                className="guest-counter-button guest-selector-button"
+                className="p-1.5 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 aria-label="Increase guests"
               >
-                <Plus className="w-4 h-4 text-gray-600" />
+                <Plus className="w-3 h-3 text-gray-600" />
               </button>
             </div>
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-1 shadow-lg hover:shadow-xl"
+            >
+              <Search className="w-4 h-4" />
+              <span className="hidden lg:inline text-sm">Search</span>
+            </button>
           </div>
-
-          <button
-            type="submit"
-            className="h-full flex items-center space-x-2 bg-moroccan-blue hover:bg-moroccan-blue/90 text-white px-5 py-3 rounded-lg transition duration-300 shadow-button"
-          >
-            <Search className="w-4 h-4" />
-            <span>Search</span>
-          </button>
         </div>
       </form>
     </div>
