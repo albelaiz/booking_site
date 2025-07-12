@@ -94,8 +94,66 @@ const handleFavoriteToggle = (e: React.MouseEvent) => {
           )}
         </div>
       </div>
+
+      {/* Content Section */}
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-moroccan-blue transition-colors duration-200">
+            {property.title}
+          </h3>
+          {property.isNew && (
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+              New
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center text-gray-600 mb-3">
+          <MapPin className="w-4 h-4 mr-1" />
+          <span className="text-sm">{property.location}</span>
+        </div>
+
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Star className="w-4 h-4 text-yellow-500 mr-1" />
+            <span className="text-sm font-medium">{property.rating}</span>
+            {property.reviews && (
+              <span className="text-sm text-gray-500 ml-1">({property.reviews})</span>
+            )}
+          </div>
+          <div className="text-right">
+            <span className="text-xl font-bold text-moroccan-blue">${property.price}</span>
+            <span className="text-sm text-gray-500">/night</span>
+          </div>
+        </div>
+
+        {/* Amenities */}
+        {property.amenities && property.amenities.length > 0 && (
+          <div className="flex items-center gap-3 mb-4">
+            {property.amenities.slice(0, 4).map((amenity, index) => {
+              const IconComponent = amenityIcons[amenity.toLowerCase()] || Home;
+              return (
+                <div key={index} className="flex items-center text-gray-600">
+                  <IconComponent className="w-4 h-4" />
+                </div>
+              );
+            })}
+            {property.amenities.length > 4 && (
+              <span className="text-sm text-gray-500">+{property.amenities.length - 4} more</span>
+            )}
+          </div>
+        )}
+
+        {/* Action Button */}
+        <Link
+          to={`/property/${property.id}`}
+          className="block w-full bg-moroccan-blue text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+        >
+          View Details
+        </Link>
+      </div>
     </div>
   );
-};
+});
 
 export default PropertyCard;
