@@ -31,7 +31,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   return (
-    <div className={`fixed inset-0 z-50 bg-white transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <div className={`fixed inset-0 z-[60] bg-white transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       {/* Close Button */}
       <div className="p-4 flex justify-end">
         <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">

@@ -105,24 +105,30 @@ const Hero: React.FC = () => {
             </div> */}
           </div>
           
-          {/* Professional Statistics */}
+          {/* Features Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
-              <div className="text-4xl font-light text-gray-900 mb-2">150+</div>
-              <div className="text-blue-600 font-medium mb-1">Premium Properties</div>
-              <div className="text-gray-600 text-sm">Carefully curated accommodations</div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Star className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="text-blue-600 font-medium mb-2">Instant Booking</div>
+              <div className="text-gray-600 text-sm">Book your perfect stay in just a few clicks</div>
             </div>
             
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
-              <div className="text-4xl font-light text-gray-900 mb-2">4.9</div>
-              <div className="text-blue-600 font-medium mb-1">Guest Rating</div>
-              <div className="text-gray-600 text-sm">Exceptional guest experiences</div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="text-blue-600 font-medium mb-2">Best Locations</div>
+              <div className="text-gray-600 text-sm">Prime spots across Morocco's coastline</div>
             </div>
             
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
-              <div className="text-4xl font-light text-gray-900 mb-2">5K+</div>
-              <div className="text-blue-600 font-medium mb-1">Happy Guests</div>
-              <div className="text-gray-600 text-sm">Satisfied travelers served</div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="text-blue-600 font-medium mb-2">24/7 Support</div>
+              <div className="text-gray-600 text-sm">We're here to help whenever you need us</div>
             </div>
           </div>
         </div>

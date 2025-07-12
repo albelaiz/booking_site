@@ -64,7 +64,7 @@ const Header: React.FC = () => {
             {/* Hamburger Menu on the right */}
             <button
               onClick={toggleMobileMenu}
-              className="flex items-center justify-center w-12 h-12 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200 border border-gray-200"
+              className="flex items-center justify-center w-12 h-12 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200 border border-gray-200 z-50"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
