@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BookingsProvider } from "./contexts/BookingsContext";
 import { PropertiesProvider } from "./contexts/PropertiesContext";
 import { MessagesProvider } from "./contexts/MessagesContext";
-import { TestimonialsProvider } from "./contexts/TestimonialsContext";
+import { TestimonialsProvider } from "./contexts/TestimonialsProvider";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import PropertyPage from "./pages/PropertyPage";
@@ -15,7 +15,9 @@ import PropertiesPage from "./pages/PropertiesPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import BecomeHostPage from "./pages/BecomeHostPage";
-import LoginPage from "./pages/LoginPage";
+import LoginPage from './pages/LoginPage';
+import HostLoginPage from './pages/HostLoginPage';
+import NotFound from './pages/NotFound';
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import SitemapPage from "./pages/SitemapPage";
@@ -40,14 +42,13 @@ import AdminTestimonials from "./pages/AdminTestimonials";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffProperties from "./pages/StaffProperties";
 import StaffBookings from "./pages/StaffBookings";
-import NotFound from "./pages/NotFound";
 import AuthCheck from "./components/AuthCheck";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   console.log('App component is rendering...');
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <TestimonialsProvider>
@@ -61,12 +62,13 @@ const App = () => {
                   <ScrollToTop />
                   <Routes>
                     <Route path="/login" element={<LoginPage />} />
+          <Route path="/host-login" element={<HostLoginPage />} />
+          <Route path="/become-host" element={<BecomeHostPage />} />
                     <Route path="/" element={<Index />} />
                     <Route path="/properties" element={<PropertiesPage />} />
                     <Route path="/property/:id" element={<PropertyPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/about" element={<AboutPage />} />
-                    <Route path="/become-host" element={<BecomeHostPage />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                     <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                     <Route path="/sitemap" element={<SitemapPage />} />

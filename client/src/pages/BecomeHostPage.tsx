@@ -20,7 +20,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../hooks/useAuth';
-import AuthModal from '../components/AuthModal';
+import HostAuthModal from '../components/HostAuthModal';
 import {
   Accordion,
   AccordionContent,
@@ -549,17 +549,22 @@ const BecomeHostPage = () => {
                 Learn More
               </Button>
             </div>
-            <p className="text-sm mt-6 opacity-75">
-              Have questions? <Link to="/contact" className="underline hover:no-underline">Contact our support team</Link>
-            </p>
+            <div className="text-sm mt-6 opacity-75 space-y-2">
+              <p>
+                Have questions? <Link to="/contact" className="underline hover:no-underline">Contact our support team</Link>
+              </p>
+              <p>
+                Already a host? <Link to="/host-login" className="underline hover:no-underline text-moroccan-gold">Access Host Portal</Link>
+              </p>
+            </div>
           </div>
         </section>
       </main>
 
       <Footer />
       
-      {/* Auth Modal for Signup/Login */}
-      <AuthModal 
+      {/* Host Auth Modal for Signup/Login */}
+      <HostAuthModal 
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
         onSuccess={handleAuthSuccess}
