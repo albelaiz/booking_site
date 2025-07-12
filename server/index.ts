@@ -1,7 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { seedDatabase } from "./seed";
+import { connectMongoDB } from "./config/mongodb";
+import { mongoStorage } from "./storage/mongoStorage";
 
 const app = express();
 app.use(express.json());
@@ -38,8 +39,11 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Connect to MongoDB
+  await connectMongoDB();
+  
   // Seed the database with initial data
-  await seedDatabase();
+  await mongoStorage.seedDatabase();
 
   const server = await registerRoutes(app);
 
