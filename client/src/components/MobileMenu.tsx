@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { X, Home, Building2, Phone, User, LogIn, Settings, Heart, History, HelpCircle } from 'lucide-react';
+import { X, Home, Building2, Phone, User, LogIn, Settings, Heart, History, HelpCircle, Info } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface MobileMenuProps {
