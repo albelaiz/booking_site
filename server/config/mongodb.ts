@@ -6,18 +6,18 @@ export const connectMongoDB = async () => {
   try {
     await mongoose.connect(MONGODB_URI, {
       // Mongoose 6+ doesn't need these options, but we'll keep them for compatibility
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
     });
     console.log('✅ Connected to MongoDB');
     
     // Enable debug mode in development
     if (process.env.NODE_ENV === 'development') {
-      mongoose.set('debug', true);
+      mongoose.set('debug', false); // Reduce noise in development
     }
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
+    console.error('❌ MongoDB connection error:', error instanceof Error ? error.message : error);
+    throw error; // Let the caller handle the error
   }
 };
 

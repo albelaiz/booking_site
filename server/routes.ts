@@ -1,14 +1,38 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { mongoStorageAdapter } from "./adapters/mongoAdapter";
+import { storage } from "./storage";
 import { z } from "zod";
 import OpenAI from "openai";
 import { mongoUserSchema, mongoPropertySchema, mongoBookingSchema, mongoMessageSchema } from "./schemas/mongo";
+import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema } from "@shared/schema";
 
 // Import new route handlers
 import { approveProperty, getPendingProperties } from './routes/admin/properties';
 import { submitProperty, getHostProperties } from './routes/host/properties';
 import { getHomePageProperties, getPublicProperties } from './routes/public/properties';
+
+// Dynamic storage selection
+let activeStorage: any = storage; // Default to PostgreSQL
+let usingMongoDB = false;
+
+export const setStorageBackend = (useMongo: boolean) => {
+  if (useMongo) {
+    activeStorage = mongoStorageAdapter;
+    usingMongoDB = true;
+    console.log('📊 Using MongoDB storage backend');
+  } else {
+    activeStorage = storage;
+    usingMongoDB = false;
+    console.log('📊 Using PostgreSQL storage backend');
+  }
+};
+
+// Dynamic schema selection
+const getPropertySchema = () => usingMongoDB ? mongoPropertySchema : insertPropertySchema;
+const getBookingSchema = () => usingMongoDB ? mongoBookingSchema : insertBookingSchema;
+const getMessageSchema = () => usingMongoDB ? mongoMessageSchema : insertMessageSchema;
+const getUserSchema = () => usingMongoDB ? mongoUserSchema : insertUserSchema;
 
 // Simple authentication middleware
 const requireAuth = (req: any, res: any, next: any) => {
@@ -68,9 +92,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Try to find user by username or email
-      let user = await mongoStorageAdapter.getUserByUsername(username);
+      let user = await activeStorage.getUserByUsername(username);
       if (!user) {
-        user = await mongoStorageAdapter.getUserByUsername(username); // Try email as fallback
+        user = await activeStorage.getUserByUsername(username); // Try email as fallback
       }
 
       if (!user || user.password !== password) {
@@ -92,20 +116,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userData = mongoUserSchema.parse(req.body);
       
       // Check if user already exists
-      const existingUser = await mongoStorageAdapter.getUserByUsername(userData.username);
+      const existingUser = await activeStorage.getUserByUsername(userData.username);
       if (existingUser) {
         return res.status(409).json({ error: "Username already exists" });
       }
 
       if (userData.email) {
-        const existingEmailUser = await mongoStorageAdapter.getUserByEmail(userData.email);
+        const existingEmailUser = await activeStorage.getUserByEmail(userData.email);
         if (existingEmailUser) {
           return res.status(409).json({ error: "Email already exists" });
         }
       }
 
       // If validation passes, create the user
-      const user = await mongoStorageAdapter.createUser(userData);
+      const user = await activeStorage.createUser(userData);
       const { password: _, ...userWithoutPassword } = user;
       res.status(201).json({ success: true, user: userWithoutPassword });
     } catch (error) {
@@ -132,7 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
   app.get("/api/users", async (req, res) => {
     try {
-      const users = await mongoStorageAdapter.getAllUsers();
+      const users = await activeStorage.getAllUsers();
       const usersWithoutPasswords = users.map(({ password: _, ...user }) => user);
       res.json(usersWithoutPasswords);
     } catch (error) {
@@ -148,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user ID" });
       }
 
-      const user = await mongoStorageAdapter.getUser(id);
+      const user = await activeStorage.getUser(id);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -176,12 +200,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user already exists
-      const existingUser = await mongoStorageAdapter.getUserByUsername(req.body.username);
+      const existingUser = await activeStorage.getUserByUsername(req.body.username);
       if (existingUser) {
         return res.status(409).json({ error: "Username already exists" });
       }
 
-      const existingEmailUser = await mongoStorageAdapter.getUserByEmail(req.body.email);
+      const existingEmailUser = await activeStorage.getUserByEmail(req.body.email);
       if (existingEmailUser) {
         return res.status(409).json({ error: "Email already exists" });
       }
@@ -199,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("Validated user data:", userData);
       
-      const user = await mongoStorageAdapter.createUser(userData);
+      const user = await activeStorage.createUser(userData);
       const { password: _, ...userWithoutPassword } = user;
       
       console.log("User created successfully:", userWithoutPassword);
@@ -228,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         delete updateData.password;
       }
 
-      const user = await mongoStorageAdapter.updateUser(id, updateData);
+      const user = await activeStorage.updateUser(id, updateData);
       
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -251,7 +275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("Deleting user with ID:", id);
 
-      const deleted = await mongoStorageAdapter.deleteUser(id);
+      const deleted = await activeStorage.deleteUser(id);
       if (!deleted) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -279,7 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Existing property routes...
   app.get("/api/properties", requireAdminRole, async (req, res) => {
     try {
-      const properties = await mongoStorageAdapter.getAllProperties();
+      const properties = await activeStorage.getAllProperties();
       res.json(properties);
     } catch (error) {
       console.error("Get properties error:", error);
@@ -294,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const property = await mongoStorageAdapter.getProperty(id);
+      const property = await activeStorage.getProperty(id);
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -308,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/properties", requireAuth, async (req, res) => {
     try {
-      const propertyData = mongoPropertySchema.parse(req.body);
+      const propertyData = getPropertySchema().parse(req.body);
       
       // Extract user info from token (in a real app, you'd decode the JWT)
       // For now, we'll get it from the request body or headers
@@ -323,7 +347,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
       };
       
-      const property = await mongoStorageAdapter.createProperty(finalPropertyData);
+      const property = await activeStorage.createProperty(finalPropertyData);
       res.status(201).json(property);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -342,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updateData = req.body;
-      const property = await mongoStorageAdapter.updateProperty(id, updateData);
+      const property = await activeStorage.updateProperty(id, updateData);
       
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
@@ -362,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const deleted = await mongoStorageAdapter.deleteProperty(id);
+      const deleted = await activeStorage.deleteProperty(id);
       if (!deleted) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -382,7 +406,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const updatedProperty = await mongoStorageAdapter.updateProperty(id, { status: 'approved' });
+      const updatedProperty = await activeStorage.updateProperty(id, { status: 'approved' });
       if (!updatedProperty) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -401,7 +425,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const updatedProperty = await mongoStorageAdapter.updateProperty(id, { status: 'rejected' });
+      const updatedProperty = await activeStorage.updateProperty(id, { status: 'rejected' });
       if (!updatedProperty) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -416,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin route - get all pending properties (similar to pending messages)
   app.get("/api/admin/properties/pending", requireAdminRole, async (req, res) => {
     try {
-      const pendingProperties = await mongoStorageAdapter.getPropertiesByStatus('pending');
+      const pendingProperties = await activeStorage.getPropertiesByStatus('pending');
       res.json(pendingProperties);
     } catch (error) {
       console.error("Get pending properties error:", error);
@@ -453,7 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const properties = await mongoStorageAdapter.getPropertiesByOwner(targetOwnerId);
+      const properties = await activeStorage.getPropertiesByOwner(targetOwnerId);
       res.json(properties);
     } catch (error) {
       console.error("Get properties by owner error:", error);
@@ -479,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get ALL properties owned by this user (regardless of status)
-      const properties = await mongoStorageAdapter.getPropertiesByOwner(ownerId);
+      const properties = await activeStorage.getPropertiesByOwner(ownerId);
       res.json(properties);
     } catch (error) {
       console.error("Get owner properties error:", error);
@@ -506,25 +530,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate property data
-      const propertyData = mongoPropertySchema.parse({
+      const propertyData = getPropertySchema().parse({
         ...req.body,
         ownerId: hostId,
         status: 'pending'
       });
 
       // Create the property
-      const property = await mongoStorageAdapter.createProperty(propertyData);
+      const property = await activeStorage.createProperty(propertyData);
 
       // Get host information for notifications
-      const host = await mongoStorageAdapter.getUserById(hostId);
+      const host = await activeStorage.getUserById(hostId);
       if (!host) {
         return res.status(404).json({ error: "Host not found" });
       }
 
       // Create notifications for all admins
-      const adminUsers = await mongoStorageAdapter.getUsersByRole('admin');
+      const adminUsers = await activeStorage.getUsersByRole('admin');
       const notificationPromises = adminUsers.map(admin => 
-        mongoStorageAdapter.createNotification({
+        activeStorage.createNotification({
           userId: admin.id,
           type: 'property_review',
           title: 'New Property Pending Review',
@@ -581,7 +605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update property status
-      const updatedProperty = await mongoStorageAdapter.updateProperty(id, {
+      const updatedProperty = await activeStorage.updateProperty(id, {
         status,
         reviewedAt: new Date(),
         reviewedBy: adminId,
@@ -593,17 +617,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get property and host info
-      const property = await mongoStorageAdapter.getPropertyById(id);
+      const property = await activeStorage.getPropertyById(id);
       
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
 
-      const host = property.ownerId ? await mongoStorageAdapter.getUserById(property.ownerId.toString()) : null;
+      const host = property.ownerId ? await activeStorage.getUserById(property.ownerId.toString()) : null;
 
       if (host) {
         // Notify host about the decision
-        await mongoStorageAdapter.createNotification({
+        await activeStorage.createNotification({
           userId: host.id,
           type: status === 'approved' ? 'property_approved' : 'property_rejected',
           title: `Property ${status === 'approved' ? 'Approved' : 'Rejected'}`,
@@ -645,7 +669,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const limit = parseInt(req.query.limit as string) || 50;
-      const notifications = await mongoStorageAdapter.getUserNotifications(userId, limit);
+      const notifications = await activeStorage.getUserNotifications(userId, limit);
       
       res.json({ notifications });
     } catch (error) {
@@ -673,7 +697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid IDs" });
       }
 
-      await mongoStorageAdapter.markNotificationAsRead(id, userId);
+      await activeStorage.markNotificationAsRead(id, userId);
       
       res.json({ success: true, message: "Notification marked as read" });
     } catch (error) {
@@ -685,7 +709,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Booking routes
   app.get("/api/bookings", async (req, res) => {
     try {
-      const bookings = await mongoStorageAdapter.getAllBookings();
+      const bookings = await activeStorage.getAllBookings();
       res.json(bookings);
     } catch (error) {
       console.error("Get bookings error:", error);
@@ -700,7 +724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid booking ID" });
       }
 
-      const booking = await mongoStorageAdapter.getBooking(id);
+      const booking = await activeStorage.getBooking(id);
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
       }
@@ -714,16 +738,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/bookings", async (req, res) => {
     try {
-      const bookingData = mongoBookingSchema.parse(req.body);
+      const bookingData = getBookingSchema().parse(req.body);
       
       // Check if this is an authenticated user booking
       if (bookingData.userId) {
         // Use createOrUpdateBooking for authenticated users
-        const booking = await mongoStorageAdapter.createOrUpdateBooking(bookingData);
+        const booking = await activeStorage.createOrUpdateBooking(bookingData);
         res.status(201).json(booking);
       } else {
         // For guest bookings, always create new
-        const booking = await mongoStorageAdapter.createBooking(bookingData);
+        const booking = await activeStorage.createBooking(bookingData);
         res.status(201).json(booking);
       }
     } catch (error) {
@@ -746,7 +770,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updateData = req.body;
-      const booking = await mongoStorageAdapter.updateBooking(id, updateData);
+      const booking = await activeStorage.updateBooking(id, updateData);
       
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
@@ -762,7 +786,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Message routes
   app.get("/api/messages", async (req, res) => {
     try {
-      const messages = await mongoStorageAdapter.getAllMessages();
+      const messages = await activeStorage.getAllMessages();
       res.json(messages);
     } catch (error) {
       console.error("Get messages error:", error);
@@ -777,7 +801,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid message ID" });
       }
 
-      const message = await mongoStorageAdapter.getMessage(id);
+      const message = await activeStorage.getMessage(id);
       if (!message) {
         return res.status(404).json({ error: "Message not found" });
       }
@@ -791,8 +815,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/messages", async (req, res) => {
     try {
-      const messageData = mongoMessageSchema.parse(req.body);
-      const message = await mongoStorageAdapter.createMessage(messageData);
+      const messageData = getMessageSchema().parse(req.body);
+      const message = await activeStorage.createMessage(messageData);
       res.status(201).json(message);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -811,7 +835,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updateData = req.body;
-      const message = await mongoStorageAdapter.updateMessage(id, updateData);
+      const message = await activeStorage.updateMessage(id, updateData);
       
       if (!message) {
         return res.status(404).json({ error: "Message not found" });
@@ -831,7 +855,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid message ID" });
       }
 
-      const deleted = await mongoStorageAdapter.deleteMessage(id);
+      const deleted = await activeStorage.deleteMessage(id);
       if (!deleted) {
         return res.status(404).json({ error: "Message not found" });
       }
@@ -868,7 +892,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Check-in date must be before check-out date" });
       }
 
-      const isAvailable = await mongoStorageAdapter.checkBookingAvailability(
+      const isAvailable = await activeStorage.checkBookingAvailability(
         propertyId,
         checkInDate,
         checkOutDate
@@ -876,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!isAvailable) {
         // Get booked dates to show user what's already taken
-        const bookedDates = await mongoStorageAdapter.getBookedDatesForProperty(propertyId);
+        const bookedDates = await activeStorage.getBookedDatesForProperty(propertyId);
         return res.json({ 
           available: false, 
           bookedDates,
@@ -900,7 +924,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const bookedDates = await mongoStorageAdapter.getBookedDatesForProperty(propertyId);
+      const bookedDates = await activeStorage.getBookedDatesForProperty(propertyId);
       res.json(bookedDates);
     } catch (error) {
       console.error("Get booked dates error:", error);
@@ -917,7 +941,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user ID" });
       }
 
-      const userBookings = await mongoStorageAdapter.getBookingsByUser(userId);
+      const userBookings = await activeStorage.getBookingsByUser(userId);
       res.json(userBookings);
     } catch (error) {
       console.error("Get user bookings error:", error);
@@ -936,11 +960,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get host properties
-      const hostProperties = await mongoStorageAdapter.getPropertiesByOwner(ownerId);
+      const hostProperties = await activeStorage.getPropertiesByOwner(ownerId);
       const propertyIds = hostProperties.map(p => p.id);
 
       // Get all bookings for host properties
-      const allBookings = await mongoStorageAdapter.getAllBookings();
+      const allBookings = await activeStorage.getAllBookings();
       const hostBookings = allBookings.filter(booking => 
         propertyIds.includes(booking.propertyId)
       );
@@ -1002,11 +1026,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get host properties
-      const hostProperties = await mongoStorageAdapter.getPropertiesByOwner(ownerId);
+      const hostProperties = await activeStorage.getPropertiesByOwner(ownerId);
       const propertyIds = hostProperties.map(p => p.id);
 
       // Get all bookings for host properties
-      const allBookings = await mongoStorageAdapter.getAllBookings();
+      const allBookings = await activeStorage.getAllBookings();
       const hostBookings = allBookings
         .filter(booking => propertyIds.includes(booking.propertyId))
         .map(booking => {
@@ -1058,7 +1082,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all messages (in a real app, you'd filter by property owner)
-      const messages = await mongoStorageAdapter.getAllMessages();
+      const messages = await activeStorage.getAllMessages();
       
       // Apply status filter
       const { status } = req.query;
@@ -1085,10 +1109,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get host properties and bookings
-      const hostProperties = await mongoStorageAdapter.getPropertiesByOwner(ownerId);
+      const hostProperties = await activeStorage.getPropertiesByOwner(ownerId);
       const propertyIds = hostProperties.map(p => p.id);
       
-      const allBookings = await mongoStorageAdapter.getAllBookings();
+      const allBookings = await activeStorage.getAllBookings();
       const hostBookings = allBookings.filter(booking => 
         propertyIds.includes(booking.propertyId)
       );
@@ -1134,7 +1158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get bookings for the property within the date range
-      const bookings = await mongoStorageAdapter.getBookingsByProperty(propertyId);
+      const bookings = await activeStorage.getBookingsByProperty(propertyId);
       const startDate = new Date(start as string);
       const endDate = new Date(end as string);
 
@@ -1179,7 +1203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       filters.page = parseInt(page as string);
       filters.limit = parseInt(limit as string);
 
-      const auditLogs = await mongoStorageAdapter.getAuditLogs(filters);
+      const auditLogs = await activeStorage.getAuditLogs(filters);
       res.json(auditLogs);
     } catch (error) {
       console.error("Get audit logs error:", error);
@@ -1190,7 +1214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/audit-logs/recent", async (req, res) => {
     try {
       const { limit = 20 } = req.query;
-      const recentLogs = await mongoStorageAdapter.getRecentAuditLogs(parseInt(limit as string));
+      const recentLogs = await activeStorage.getRecentAuditLogs(parseInt(limit as string));
       res.json(recentLogs);
     } catch (error) {
       console.error("Get recent audit logs error:", error);
@@ -1205,7 +1229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user ID" });
       }
 
-      const userAuditLogs = await mongoStorageAdapter.getAuditLogsByUser(userId);
+      const userAuditLogs = await activeStorage.getAuditLogsByUser(userId);
       res.json(userAuditLogs);
     } catch (error) {
       console.error("Get user audit logs error:", error);
@@ -1216,7 +1240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/audit-logs", async (req, res) => {
     try {
       const auditLogData = req.body;
-      const auditLog = await mongoStorageAdapter.createAuditLog(auditLogData);
+      const auditLog = await activeStorage.createAuditLog(auditLogData);
       res.status(201).json(auditLog);
     } catch (error) {
       console.error("Create audit log error:", error);
@@ -1629,7 +1653,7 @@ Your response guidelines:
         comments: reason || "Dates blocked by host"
       };
 
-      const booking = await mongoStorageAdapter.createBooking(blockingData);
+      const booking = await activeStorage.createBooking(blockingData);
       res.status(201).json(booking);
     } catch (error) {
       console.error("Block dates error:", error);

@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { registerRoutes, setStorageBackend } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { connectMongoDB } from "./config/mongodb";
 import { mongoStorage } from "./storage/mongoStorage";
@@ -39,11 +39,21 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Connect to MongoDB
-  await connectMongoDB();
+  let mongoConnected = false;
   
-  // Seed the database with initial data
-  await mongoStorage.seedDatabase();
+  // Try to connect to MongoDB, but don't fail if it's not available
+  try {
+    await connectMongoDB();
+    await mongoStorage.seedDatabase();
+    setStorageBackend(true); // Use MongoDB
+    mongoConnected = true;
+    console.log('🎉 MongoDB migration active - using MongoDB storage');
+  } catch (error) {
+    console.log('⚠️  MongoDB not available, using original PostgreSQL system');
+    console.log('   To use MongoDB: Set MONGODB_URI environment variable or start local MongoDB');
+    setStorageBackend(false); // Use PostgreSQL
+    mongoConnected = false;
+  }
 
   const server = await registerRoutes(app);
 
