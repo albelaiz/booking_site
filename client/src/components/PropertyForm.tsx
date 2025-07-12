@@ -37,6 +37,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
   );
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedPlace, setSelectedPlace] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Enhanced amenities list with icons
   const popularAmenities = [
@@ -194,56 +196,74 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Enhanced validation
-    if (!formData.title || !formData.description || !selectedCity || !selectedPlace || !formData.price) {
+    // Check authentication first
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+
+    if (!token || !userId) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to add properties.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.title || !formData.description || !formData.price || !formData.location) {
       toast({
         title: "Missing information",
-        description: "Please fill in the title, description, city, place and price.",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
     }
 
-    if (images.length === 0) {
-      toast({
-        title: "Add photos",
-        description: "Please add at least one photo of your property.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Ensure price is a valid number
-    const numericPrice = parseFloat(formData.price);
-    if (isNaN(numericPrice) || numericPrice <= 0) {
-      toast({
-        title: "Invalid price",
-        description: "Please enter a valid price greater than 0.",
-        variant: "destructive",
-      });
-      return;
-    }
+    setIsSubmitting(true);
 
     const propertyData = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      price: numericPrice.toString(),
-      location: formData.location.trim(),
-      bedrooms: Number(formData.bedrooms),
-      bathrooms: Number(formData.bathrooms),
-      capacity: Number(formData.capacity),
+      ...formData,
+      price: parseFloat(formData.price.toString()),
+      bedrooms: parseInt(formData.bedrooms.toString()),
+      bathrooms: parseInt(formData.bathrooms.toString()),
+      capacity: parseInt(formData.capacity.toString()),
       amenities: selectedAmenities,
       images: images,
-      featured: formData.featured || false,
-      rules: '', // Add default rules
-      status: 'pending' // Explicitly set status
+      rules: formData.rules || '',
+      featured: false,
+      status: 'pending',
+      hostId: parseInt(userId),
+      ownerId: parseInt(userId)
     };
 
-    console.log('Submitting property data:', propertyData);
-    onSubmit(propertyData);
+    try {
+      if (property) {
+        await onSubmit(propertyData);
+        toast({
+          title: "Property updated",
+          description: "Property updated successfully!",
+        });
+      } else {
+        // Call the onSubmit function which should handle the API call
+        await onSubmit(propertyData);
+        toast({
+          title: "Property submitted",
+          description: "Property submitted successfully and is pending admin review!",
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting property:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error submitting property. Please try again.';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

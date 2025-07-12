@@ -94,7 +94,7 @@ const OwnerDashboard = () => {
 
   const handleAddProperty = async (propertyData: any) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       const userId = localStorage.getItem('userId');
 
       if (!token || !userId) {
@@ -113,7 +113,8 @@ const OwnerDashboard = () => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-          'x-user-id': userId
+          'x-user-id': userId,
+          'x-user-role': userRole || 'owner'
         },
         body: JSON.stringify({
           ...propertyData,
@@ -143,11 +144,32 @@ const OwnerDashboard = () => {
         description: `Your property "${data.property?.title || propertyData.title}" has been submitted for admin review. You'll be notified once it's approved.`,
       });
 
-      setShowAddForm(false);
+      setIsAddingProperty(false);
 
       // Refresh the properties list after a short delay
-      setTimeout(() => {
-        fetchProperties();
+      setTimeout(async () => {
+        try {
+          const token = localStorage.getItem('authToken');
+          const response = await fetch(`/api/host/properties`, {
+            headers: {
+              'Authorization': token || '',
+              'x-user-id': ownerId,
+              'x-user-role': userRole,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            const data = result.properties || [];
+            const filteredData = data.filter(property => 
+              property.hostId === parseInt(ownerId) || property.ownerId === parseInt(ownerId)
+            );
+            setOwnerProperties(filteredData);
+          }
+        } catch (error) {
+          console.error('Error refreshing properties:', error);
+        }
       }, 1000);
 
     } catch (error) {
