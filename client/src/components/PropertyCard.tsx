@@ -1,89 +1,97 @@
-
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Property } from '../data/properties';
-import { MapPin, Star, Home, Bath, Users } from 'lucide-react';
+import React, { useState, memo } from 'react';
+import { Link } from 'react-router-dom';
+import { Star, MapPin, Wifi, Car, UtensilsCrossed, Home, Heart, Eye } from 'lucide-react';
 
 interface PropertyCardProps {
-  property: Property;
+  property: {
+    id: string;
+    title: string;
+    location: string;
+    price: number;
+    rating: number;
+    images: string[];
+    amenities: string[];
+    type: string;
+    reviews?: number;
+    isNew?: boolean;
+  };
+  className?: string;
+  showQuickView?: boolean;
 }
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
-  const navigate = useNavigate();
+const PropertyCard: React.FC<PropertyCardProps> = memo(({ 
+  property, 
+  className = '',
+  showQuickView = true 
+}) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+
+  const amenityIcons: { [key: string]: React.ComponentType<any> } = {
+    wifi: Wifi,
+    parking: Car,
+    kitchen: UtensilsCrossed,
+    'pool': Home,
+  };
+
+const handleFavoriteToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFavorited(!isFavorited);
+  };
 
   return (
-    <div 
-      className="group relative bg-white rounded-xl overflow-hidden cursor-pointer property-card"
-      onClick={() => navigate(`/property/${property.id}`)}
-    >
-      {/* Professional Featured Badge */}
-      {property.featured && (
-        <div className="absolute top-3 left-3 z-20">
-          <span className="bg-blue-500 text-white text-xs font-medium px-3 py-1 rounded-full shadow-lg">
-            Featured
-          </span>
-        </div>
-      )}
-      
-      {/* Professional Image Container */}
-      <div className="relative h-64 overflow-hidden">
+    <div className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100 group ${className}`}>
+      <div className="relative h-48 overflow-hidden">
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
         <img 
           src={property.images[0]} 
           alt={property.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
+            imageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+          onLoad={() => setImageLoaded(true)}
+          loading="lazy"
         />
-        
-        {/* Professional Price Badge */}
-        <div className="absolute bottom-3 right-3">
-          <div className="bg-white/95 backdrop-blur-sm text-slate-800 font-semibold text-base px-3 py-2 rounded-lg shadow-lg">
-            ${property.price}
-            <span className="text-sm text-slate-600 font-normal">/{property.priceUnit}</span>
-          </div>
+
+        {/* Property Type Badge */}
+        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium text-gray-700">
+          {property.type}
         </div>
-      </div>
-      
-      {/* Professional Property Details */}
-      <div className="p-5 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full">
-            <Star className="w-4 h-4 text-amber-500 mr-1" />
-            <span className="text-sm font-semibold text-slate-800">{property.rating}</span>
-            <span className="text-xs text-slate-600 ml-1">({property.reviews} reviews)</span>
+
+        {/* New Badge */}
+        {property.isNew && (
+          <div className="absolute top-4 right-4 bg-blue-600 text-white rounded-full px-2 py-1 text-xs font-medium">
+            New
           </div>
-        </div>
-        
-        <h3 className="text-lg font-serif font-semibold text-slate-800 group-hover:text-blue-600 transition-colors duration-300 leading-tight">
-          {property.title}
-        </h3>
-        
-        <p className="text-slate-600 text-sm flex items-center">
-          <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-          {property.location}
-        </p>
-        
-        {/* Professional Features Grid */}
-        <div className="grid grid-cols-3 gap-3 pt-3 border-t border-gray-200">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mb-1">
-              <Home className="w-4 h-4 text-slate-700" />
-            </div>
-            <span className="text-xs font-semibold text-slate-800">{property.bedrooms}</span>
-            <span className="text-xs text-slate-500">Beds</span>
-          </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mb-1">
-              <Bath className="w-4 h-4 text-slate-700" />
-            </div>
-            <span className="text-xs font-semibold text-slate-800">{property.bathrooms}</span>
-            <span className="text-xs text-slate-500">Baths</span>
-          </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mb-1">
-              <Users className="w-4 h-4 text-slate-700" />
-            </div>
-            <span className="text-xs font-semibold text-slate-800">{property.capacity}</span>
-            <span className="text-xs text-slate-500">Guests</span>
-          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <button
+            onClick={handleFavoriteToggle}
+            className={`p-2 rounded-full backdrop-blur-sm transition-colors duration-200 ${
+              isFavorited 
+                ? 'bg-red-500 text-white' 
+                : 'bg-white/80 text-gray-700 hover:bg-white'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
+          </button>
+
+          {showQuickView && (
+            <Link
+              to={`/property/${property.id}`}
+              className="p-2 bg-white/80 backdrop-blur-sm rounded-full text-gray-700 hover:bg-white transition-colors duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Eye className="w-4 h-4" />
+            </Link>
+          )}
         </div>
       </div>
     </div>

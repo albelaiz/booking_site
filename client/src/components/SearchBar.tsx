@@ -1,160 +1,293 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Search, MapPin, Calendar, Users, Filter, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from '../hooks/use-toast';
-import { Search, MapPin, Calendar, Users, Plus, Minus } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
-const SearchBar = () => {
+interface SearchBarProps {
+  onSearch?: (filters: SearchFilters) => void;
+  className?: string;
+  variant?: 'hero' | 'header' | 'compact';
+}
+
+interface SearchFilters {
+  location: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  priceRange: [number, number];
+  propertyType: string;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({ 
+  onSearch, 
+  className = '',
+  variant = 'hero' 
+}) => {
+  const [filters, setFilters] = useState<SearchFilters>({
+    location: '',
+    checkIn: '',
+    checkOut: '',
+    guests: 1,
+    priceRange: [0, 1000],
+    propertyType: ''
+  });
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const [location, setLocation] = useState('');
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
-  const [guests, setGuests] = useState(1);
 
-  const locationOptions = [
-    { value: 'martil', label: 'Martil - Beach Paradise' },
-    { value: 'cabo-negro', label: 'Cabo Negro - Coastal Resort' },
-    { value: 'mdiq', label: "M'diq - Fishing Village Charm" },
-    { value: 'tetouan', label: 'Tetouan - Andalusian Heritage' }
+  const moroccanCities = [
+    'Tetouan', 'Martil', 'Chefchaouen', 'Tangier', 'Rabat', 
+    'Casablanca', 'Marrakech', 'Fes', 'Agadir', 'Essaouira'
   ];
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const propertyTypes = [
+    { value: '', label: 'All Types' },
+    { value: 'villa', label: 'Villa' },
+    { value: 'apartment', label: 'Apartment' },
+    { value: 'riad', label: 'Riad' },
+    { value: 'hotel', label: 'Hotel' },
+    { value: 'guesthouse', label: 'Guesthouse' }
+  ];
 
-    // Validate inputs
-    if (!location) {
-      toast({
-        title: "Location required",
-        description: "Please select a location to search.",
-        variant: "destructive",
+  // Handle location input and suggestions
+  const handleLocationChange = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, location: value }));
+    
+    if (value.length > 0) {
+      const suggestions = moroccanCities.filter(city =>
+        city.toLowerCase().includes(value.toLowerCase())
+      );
+      setLocationSuggestions(suggestions);
+      setShowLocationDropdown(true);
+    } else {
+      setShowLocationDropdown(false);
+    }
+  }, []);
+
+  // Handle search submission
+  const handleSearch = useCallback(() => {
+    if (onSearch) {
+      onSearch(filters);
+    } else {
+      const searchParams = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== '' && !(Array.isArray(value) && value.every(v => v === 0))) {
+          searchParams.set(key, Array.isArray(value) ? value.join(',') : value.toString());
+        }
       });
-      return;
+      navigate(`/properties?${searchParams.toString()}`);
     }
+  }, [filters, onSearch, navigate]);
 
-    if (checkIn && checkOut) {
-      const checkInDate = new Date(checkIn);
-      const checkOutDate = new Date(checkOut);
-
-      if (checkInDate >= checkOutDate) {
-        toast({
-          title: "Invalid dates",
-          description: "Check-out date must be after check-in date.",
-          variant: "destructive",
-        });
-        return;
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowLocationDropdown(false);
+        setShowFilters(false);
       }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'hero':
+        return 'bg-white shadow-2xl rounded-2xl p-6';
+      case 'header':
+        return 'bg-white shadow-lg rounded-xl p-4';
+      case 'compact':
+        return 'bg-white shadow-md rounded-lg p-3';
+      default:
+        return 'bg-white shadow-2xl rounded-2xl p-6';
     }
-
-    // Navigate with search params
-    const searchParams = new URLSearchParams();
-    const selectedLocation = locationOptions.find(opt => opt.value === location);
-    if (selectedLocation) searchParams.set('location', selectedLocation.label);
-    if (checkIn) searchParams.set('checkIn', checkIn);
-    if (checkOut) searchParams.set('checkOut', checkOut);
-    searchParams.set('guests', guests.toString());
-
-    toast({
-      title: "Search started",
-      description: `Searching for properties in ${selectedLocation?.label || location}`,
-    });
-
-    // Navigate to properties page with search params
-    navigate(`/properties?${searchParams.toString()}`);
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2">
-      <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-0">
-        {/* Location Field - Exactly 25% width on desktop */}
-        <div className="flex-1 p-3 border-b md:border-b-0 md:border-r border-gray-200/50 last:border-r-0">
-          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
-            <MapPin className="w-3.5 h-3.5 mr-1 text-blue-600" />
-            Location
-          </label>
-          <Select value={location} onValueChange={setLocation}>
-            <SelectTrigger className="w-full text-gray-900 focus:outline-none border-0 p-0 h-auto">
-              <SelectValue placeholder="Select a location" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border shadow-lg">
-              {locationOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div ref={searchRef} className={`relative ${className}`}>
+      <div className={getVariantClasses()}>
+        {/* Main Search Form */}
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end">
+          {/* Location */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <MapPin className="w-4 h-4 inline mr-1" />
+              Where
+            </label>
+            <input
+              type="text"
+              value={filters.location}
+              onChange={(e) => handleLocationChange(e.target.value)}
+              placeholder="Search destinations"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            
+            {/* Location Suggestions Dropdown */}
+            {showLocationDropdown && locationSuggestions.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {locationSuggestions.map((city) => (
+                  <button
+                    key={city}
+                    onClick={() => {
+                      setFilters(prev => ({ ...prev, location: city }));
+                      setShowLocationDropdown(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center"
+                  >
+                    <MapPin className="w-4 h-4 text-gray-400 mr-2" />
+                    {city}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-        {/* Check-in Field - Exactly 25% width on desktop */}
-        <div className="flex-1 p-3 border-b md:border-b-0 md:border-r border-gray-200/50 last:border-r-0">
-          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
-            <Calendar className="w-3.5 h-3.5 mr-1 text-blue-600" />
-            Check-in Date
-          </label>
-          <input
-            type="date"
-            className="w-full text-gray-900 focus:outline-none border-0 p-0"
-            value={checkIn}
-            onChange={(e) => setCheckIn(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-          />
-        </div>
+          {/* Check-in */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Calendar className="w-4 h-4 inline mr-1" />
+              Check-in
+            </label>
+            <input
+              type="date"
+              value={filters.checkIn}
+              onChange={(e) => setFilters(prev => ({ ...prev, checkIn: e.target.value }))}
+              min={new Date().toISOString().split('T')[0]}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
 
-        {/* Check-out Field - Exactly 25% width on desktop */}
-        <div className="flex-1 p-3 border-b md:border-b-0 md:border-r border-gray-200/50 last:border-r-0">
-          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
-            <Calendar className="w-3.5 h-3.5 mr-1 text-blue-600" />
-            Check-out Date
-          </label>
-          <input
-            type="date"
-            className="w-full text-gray-900 focus:outline-none border-0 p-0"
-            value={checkOut}
-            onChange={(e) => setCheckOut(e.target.value)}
-            min={checkIn || new Date().toISOString().split('T')[0]}
-          />
-        </div>
+          {/* Check-out */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Calendar className="w-4 h-4 inline mr-1" />
+              Check-out
+            </label>
+            <input
+              type="date"
+              value={filters.checkOut}
+              onChange={(e) => setFilters(prev => ({ ...prev, checkOut: e.target.value }))}
+              min={filters.checkIn || new Date().toISOString().split('T')[0]}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
 
-        {/* Guests & Search Field - Exactly 25% width on desktop */}
-        <div className="flex-1 p-3 flex flex-col justify-between">
-          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
-            <Users className="w-3.5 h-3.5 mr-1 text-blue-600" />
-            Guests
-          </label>
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center border border-gray-300 rounded-md flex-1">
-              <button
-                type="button"
-                onClick={() => setGuests(Math.max(1, guests - 1))}
-                disabled={guests <= 1}
-                className="p-1.5 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                aria-label="Decrease guests"
-              >
-                <Minus className="w-3 h-3 text-gray-600" />
-              </button>
-              <span className="flex-1 text-center py-1 text-sm font-medium">
-                {guests}
-              </span>
-              <button
-                type="button"
-                onClick={() => setGuests(Math.min(10, guests + 1))}
-                disabled={guests >= 10}
-                className="p-1.5 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                aria-label="Increase guests"
-              >
-                <Plus className="w-3 h-3 text-gray-600" />
-              </button>
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-1 shadow-lg hover:shadow-xl"
+          {/* Guests */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Users className="w-4 h-4 inline mr-1" />
+              Guests
+            </label>
+            <select
+              value={filters.guests}
+              onChange={(e) => setFilters(prev => ({ ...prev, guests: parseInt(e.target.value) }))}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <Search className="w-4 h-4" />
-              <span className="hidden lg:inline text-sm">Search</span>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                <option key={num} value={num}>{num} {num === 1 ? 'Guest' : 'Guests'}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Search Actions */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              title="More filters"
+            >
+              <Filter className="w-5 h-5" />
+            </button>
+            
+            <button
+              onClick={handleSearch}
+              className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              <Search className="w-5 h-5 mr-2" />
+              Search
             </button>
           </div>
         </div>
-      </form>
+
+        {/* Advanced Filters */}
+        {showFilters && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Property Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Property Type
+                </label>
+                <select
+                  value={filters.propertyType}
+                  onChange={(e) => setFilters(prev => ({ ...prev, propertyType: e.target.value }))}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {propertyTypes.map(type => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Price Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price Range (MAD per night)
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    value={filters.priceRange[0]}
+                    onChange={(e) => setFilters(prev => ({ 
+                      ...prev, 
+                      priceRange: [parseInt(e.target.value) || 0, prev.priceRange[1]] 
+                    }))}
+                    placeholder="Min"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <span className="text-gray-500">to</span>
+                  <input
+                    type="number"
+                    value={filters.priceRange[1]}
+                    onChange={(e) => setFilters(prev => ({ 
+                      ...prev, 
+                      priceRange: [prev.priceRange[0], parseInt(e.target.value) || 1000] 
+                    }))}
+                    placeholder="Max"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Clear Filters */}
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    setFilters({
+                      location: '',
+                      checkIn: '',
+                      checkOut: '',
+                      guests: 1,
+                      priceRange: [0, 1000],
+                      propertyType: ''
+                    });
+                    setShowFilters(false);
+                  }}
+                  className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
