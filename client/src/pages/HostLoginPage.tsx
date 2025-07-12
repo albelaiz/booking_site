@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { toast } from '../hooks/use-toast';
@@ -37,6 +36,8 @@ type HostLoginFormValues = z.infer<typeof hostLoginSchema>;
 
 const HostLoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -51,10 +52,10 @@ const HostLoginPage = () => {
 
   const onSubmit = async (data: HostLoginFormValues) => {
     setIsLoading(true);
-    
+
     try {
       const response = await authApi.login(data.username, data.password);
-      
+
       if (response.user) {
         // Check if user is a host/owner or can be upgraded
         if (response.user.role !== 'owner' && response.user.role !== 'admin') {
@@ -72,14 +73,34 @@ const HostLoginPage = () => {
         localStorage.setItem("userName", response.user.name);
         localStorage.setItem("userEmail", response.user.email);
         localStorage.setItem("loginMethod", "host-credentials");
-        
+
         toast({
           title: "Host login successful",
           description: `Welcome to your hosting dashboard, ${response.user.name}!`,
         });
-        
+
+        const handleAuthSuccess = () => {
+    const userRole = localStorage.getItem('userRole');
+    console.log('Host auth success, user role:', userRole);
+
+    // Check if there was a redirect location
+    const from = location.state?.from?.pathname;
+
+    // Navigate based on role or redirect location
+    if (from && from !== '/host-login') {
+      navigate(from);
+    } else if (userRole === 'owner') {
+      navigate('/owner-dashboard');
+    } else if (userRole === 'admin') {
+      navigate('/admin');
+    } else if (userRole === 'staff') {
+      navigate('/staff');
+    } else {
+      navigate('/dashboard');
+    }
+  };
         // Always redirect to owner dashboard for hosts
-        navigate("/owner-dashboard");
+        handleAuthSuccess();
       }
     } catch (error) {
       console.error('Host login error:', error);
@@ -117,7 +138,7 @@ const HostLoginPage = () => {
               <h1 className="text-2xl font-serif font-bold mb-2">Host Portal</h1>
               <p className="text-white/90">Access your property management dashboard</p>
             </div>
-            
+
             <div className="grid grid-cols-3 gap-4 text-center text-sm">
               <div className="bg-white/10 rounded-lg p-3">
                 <DollarSign className="w-5 h-5 text-moroccan-gold mx-auto mb-1" />
@@ -166,7 +187,7 @@ const HostLoginPage = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="password"
@@ -195,7 +216,7 @@ const HostLoginPage = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <Button 
                   type="submit" 
                   className="w-full bg-moroccan-blue hover:bg-moroccan-blue/90 text-white font-semibold py-3"
@@ -205,7 +226,7 @@ const HostLoginPage = () => {
                 </Button>
               </form>
             </Form>
-            
+
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600 mb-4">
                 Don't have a host account yet?

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
@@ -53,14 +52,14 @@ const BecomeHostPage = () => {
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    
+
     // After successful auth, upgrade user to owner role if they're not already
     const userRole = localStorage.getItem('userRole');
     if (userRole === 'user') {
       // Upgrade user to owner role since they're registering to become a host
       localStorage.setItem('userRole', 'owner');
     }
-    
+
     // Redirect to owner dashboard
     navigate('/owner-dashboard');
   };
@@ -75,7 +74,7 @@ const BecomeHostPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center text-white overflow-hidden">
@@ -86,23 +85,23 @@ const BecomeHostPage = () => {
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60" />
-          
+
           <div className="relative z-10 text-center max-w-6xl mx-auto px-4 py-20">
             <div className="inline-flex items-center px-4 py-2 bg-moroccan-gold/20 backdrop-blur-sm rounded-full text-moroccan-gold text-sm font-medium mb-6 animate-fade-in">
               <Star className="w-4 h-4 mr-2" />
               #1 Coastal Rental Platform in Morocco
             </div>
-            
+
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold mb-6 animate-fade-in">
               Turn your property into
               <span className="block text-moroccan-gold">extraordinary income</span>
             </h1>
-            
+
             <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto opacity-90 animate-fade-in animate-delay-200">
               Join thousands of successful hosts earning up to <strong className="text-moroccan-gold">$3,500/month</strong> 
               sharing their beautiful coastal properties
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in animate-delay-300">
               <Button 
                 size="lg" 
@@ -121,7 +120,7 @@ const BecomeHostPage = () => {
                 Learn How It Works
               </Button>
             </div>
-            
+
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto animate-fade-in animate-delay-500">
               <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
@@ -151,7 +150,7 @@ const BecomeHostPage = () => {
                 Start earning money from your property in just a few clicks. Our streamlined process gets you hosting in no time.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
               {/* Step 1 */}
               <div className="relative group">
@@ -271,7 +270,7 @@ const BecomeHostPage = () => {
                 Join the most trusted hosting platform in Morocco with industry-leading support and earning potential.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {/* Feature 1 */}
               <div className="text-center group bg-white rounded-2xl p-8 shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100">
@@ -399,17 +398,17 @@ const BecomeHostPage = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-6">
                 <div className="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-800 text-sm font-medium">
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Verified Success Story
                 </div>
-                
+
                 <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 leading-tight">
                   "Hosting transformed my <span className="text-moroccan-gold">riad into a goldmine</span>"
                 </h2>
-                
+
                 <div className="space-y-4 text-lg text-gray-700">
                   <p>
                     "I was skeptical about hosting at first, but after just one month on TamudaStay, 
@@ -425,7 +424,7 @@ const BecomeHostPage = () => {
                     around the world. It's not just income—it's become my passion."
                   </p>
                 </div>
-                
+
                 <div className="bg-moroccan-blue/5 border border-moroccan-blue/20 rounded-2xl p-6">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
@@ -442,7 +441,7 @@ const BecomeHostPage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <Button 
                   size="lg" 
                   className="bg-moroccan-gold hover:bg-moroccan-gold/90 text-black text-lg px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
@@ -462,7 +461,7 @@ const BecomeHostPage = () => {
             <h2 className="section-title text-center mx-auto mb-16">
               Frequently asked questions
             </h2>
-            
+
             <Accordion type="single" collapsible className="w-full space-y-4">
               <AccordionItem value="item-1" className="border border-gray-200 rounded-lg px-6">
                 <AccordionTrigger className="text-left text-lg font-semibold hover:no-underline">
@@ -562,7 +561,7 @@ const BecomeHostPage = () => {
       </main>
 
       <Footer />
-      
+
       {/* Host Auth Modal for Signup/Login */}
       <HostAuthModal 
         isOpen={showAuthModal} 

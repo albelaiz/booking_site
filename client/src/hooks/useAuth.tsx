@@ -47,12 +47,16 @@ export const useAuth = () => {
     }
   };
 
-  const handleDashboardClick = (onShowAuthModal: () => void) => {
+  const handleDashboardClick = (onShowAuthModal: () => void, isHostContext = false) => {
     if (isLoggedIn) {
       const userRole = localStorage.getItem('userRole');
       navigateByRole(userRole);
     } else {
-      onShowAuthModal();
+      if (isHostContext) {
+        navigate('/host-login');
+      } else {
+        onShowAuthModal();
+      }
     }
   };
 

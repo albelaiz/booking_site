@@ -16,7 +16,12 @@ const AuthCheck = ({ children, requiredRole }: AuthCheckProps) => {
     const userRole = localStorage.getItem('userRole');
     
     if (!isLoggedIn) {
-      navigate('/login', { state: { from: location } });
+      // Redirect hosts to host login page, others to regular login
+      if (requiredRole === 'owner' || location.pathname.includes('owner')) {
+        navigate('/host-login', { state: { from: location } });
+      } else {
+        navigate('/login', { state: { from: location } });
+      }
       return;
     }
     
