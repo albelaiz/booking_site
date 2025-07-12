@@ -1704,6 +1704,176 @@ Your response guidelines:
     }
   });
 
+  // Host property submission
+  app.post("/api/host/properties", requireAuth, async (req, res) => {
+    try {
+      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
+        ? req.headers['x-user-id'][0] 
+        : req.headers['x-user-id'];
+
+      if (!authenticatedUserId) {
+        return res.status(401).json({ error: "User ID required" });
+      }
+
+      const hostId = parseInt(authenticatedUserId);
+      if (isNaN(hostId)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
+
+      console.log(`Host ${hostId} submitting property:`, req.body.title);
+
+      // Validate required fields
+      const { title, description, price, location } = req.body;
+      if (!title || !description || !price || !location) {
+        return res.status(400).json({ 
+          error: 'Missing required fields: title, description, price, location' 
+        });
+      }
+
+      // Prepare property data with proper defaults
+      const propertyData = {
+        title: title.trim(),
+        description: description.trim(),
+        price: String(parseFloat(price)),
+        bedrooms: parseInt(req.body.bedrooms) || 1,
+        bathrooms: parseInt(req.body.bathrooms) || 1,
+        capacity: parseInt(req.body.capacity) || 1,
+        location: location.trim(),
+        amenities: Array.isArray(req.body.amenities) ? req.body.amenities : [],
+        images: Array.isArray(req.body.images) ? req.body.images : [],
+        rules: req.body.rules || '',
+        ownerId: hostId,
+        hostId: hostId,
+        status: 'pending',
+        isActive: false,
+        isVisible: false,
+        featured: req.body.featured || false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      // Create the property
+      const property = await storage.createProperty(propertyData);
+
+      if (!property) {
+        throw new Error('Failed to create property');
+      }
+
+      console.log(`Property created with ID: ${property.id}`);
+
+      // Get host information for notifications
+      const host = await storage.getUserById(hostId);
+      if (!host) {
+        return res.status(404).json({ error: "Host not found" });
+      }
+
+      // Create notifications for all admins
+      const adminUsers = await storage.getUsersByRole('admin');
+      console.log(`Found ${adminUsers.length} admin users for notifications`);
+
+      if (adminUsers.length > 0) {
+        const notificationPromises = adminUsers.map(admin => 
+          storage.createNotification({
+            userId: admin.id,
+            type: 'property_review',
+            title: 'New Property Pending Review',
+            message: `Property "${property.title}" submitted by ${host.name} requires review`,
+            propertyId: property.id,
+            isRead: false
+          })
+        );
+
+        await Promise.all(notificationPromises);
+        console.log(`Created notifications for ${adminUsers.length} admins`);
+      }
+
+      // Create confirmation notification for host
+      await storage.createNotification({
+        userId: hostId,
+        type: 'property_submitted',
+        title: 'Property Submitted Successfully',
+        message: `Your property "${property.title}" has been submitted for review. You'll be notified once it's approved.`,
+        propertyId: property.id,
+        isRead: false
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Property submitted successfully for review',
+        property: {
+          id: property.id,
+          title: property.title,
+          status: property.status,
+          createdAt: property.createdAt
+        },
+        host: {
+          id: host.id,
+          name: host.name,
+          email: host.email
+        }
+      });
+    } catch (error) {
+      console.error("Submit property error:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to submit property" 
+      });
+    }
+  });
+
+  // Get properties pending admin review
+  app.get("/api/admin/properties/pending", requireAdminRole, async (req, res) => {
+    try {
+      const adminId = Array.isArray(req.headers['x-user-id']) 
+        ? req.headers['x-user-id'][0] 
+        : req.headers['x-user-id'];
+
+      if (!adminId) {
+        return res.status(401).json({ error: 'Admin authentication required' });
+      }
+
+      const { page = 1, limit = 10 } = req.query;
+      const pageNum = parseInt(String(page));
+      const limitNum = parseInt(String(limit));
+      const offset = (pageNum - 1) * limitNum;
+
+      console.log(`Admin ${adminId} fetching pending properties`);
+
+      const pendingProperties = await storage.getPropertiesByStatus('pending', limitNum, offset);
+      const total = await storage.countPropertiesByStatus('pending');
+
+      console.log(`Found ${pendingProperties.length} pending properties`);
+
+      // Add host information to each property
+      const propertiesWithHosts = await Promise.all(
+        pendingProperties.map(async (property) => {
+          const host = await storage.getUserById(property.ownerId || property.hostId);
+          return {
+            ...property,
+            host: host ? {
+              id: host.id,
+              name: host.name,
+              email: host.email
+            } : null
+          };
+        })
+      );
+
+      res.json({
+        success: true,
+        properties: propertiesWithHosts,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          pages: Math.ceil(total / limitNum)
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching pending properties:', error);
+      res.status(500).json({ error: 'Failed to fetch pending properties' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -22,12 +22,12 @@ const OwnerDashboard = () => {
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [ownerProperties, setOwnerProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Get authenticated user data
   const userName = localStorage.getItem('userName') || 'Property Owner';
   const userRole = localStorage.getItem('userRole') || 'owner';
   const ownerId = localStorage.getItem('userId') || '3'; // Default to owner ID from database
-  
+
   // Fetch owner-specific properties directly
   useEffect(() => {
     const fetchOwnerProperties = async () => {
@@ -43,7 +43,7 @@ const OwnerDashboard = () => {
             'Content-Type': 'application/json'
           }
         });
-        
+
         if (response.ok) {
           const result = await response.json();
           const data = result.properties || [];
@@ -58,7 +58,7 @@ const OwnerDashboard = () => {
         }
       } catch (error) {
         console.error('Error fetching owner properties:', error);
-        
+
         // Handle specific authorization errors
         if (error.message?.includes('403') || error.message?.includes('Access denied')) {
           toast({
@@ -84,41 +84,82 @@ const OwnerDashboard = () => {
       fetchOwnerProperties();
     }
   }, [ownerId, userRole, toast, navigate]);
-  
+
   // Calculate dashboard stats
   const totalProperties = ownerProperties.length;
   const activeProperties = ownerProperties.filter(p => p.status === 'approved').length;
   const pendingProperties = ownerProperties.filter(p => p.status === 'pending').length;
   const rejectedProperties = ownerProperties.filter(p => p.status === 'rejected').length;
   const totalRevenue = ownerProperties.reduce((sum, p) => sum + (parseFloat(p.price.toString()) * 30), 0); // Estimated monthly
-  
+
   const handleAddProperty = async (propertyData: any) => {
     try {
-      await addProperty({
-        ...propertyData,
-        ownerId: parseInt(ownerId), // Add authenticated owner ID to the property
-        status: 'pending', // New listings start as pending
-        createdAt: new Date().toISOString(),
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+
+      if (!token || !userId) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to add properties.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Submitting property with data:', propertyData);
+
+      const response = await fetch('/api/host/properties', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'x-user-id': userId
+        },
+        body: JSON.stringify({
+          ...propertyData,
+          hostId: parseInt(userId),
+          ownerId: parseInt(userId)
+        })
       });
-      
-      // Refresh owner properties after adding
-      const data = await propertiesApi.getByOwner(ownerId);
-      setOwnerProperties(data);
-      
-      setIsAddingProperty(false);
+
+      const responseText = await response.text();
+      console.log('Server response:', responseText);
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to add property';
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = responseText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = JSON.parse(responseText);
+
       toast({
-        title: "Property submitted",
-        description: "Your property listing has been submitted for admin review and will be published once approved.",
+        title: "Property submitted successfully!",
+        description: `Your property "${data.property?.title || propertyData.title}" has been submitted for admin review. You'll be notified once it's approved.`,
       });
+
+      setShowAddForm(false);
+
+      // Refresh the properties list after a short delay
+      setTimeout(() => {
+        fetchProperties();
+      }, 1000);
+
     } catch (error) {
+      console.error('Error adding property:', error);
       toast({
-        title: "Error",
-        description: "Failed to submit property. Please try again.",
-        variant: "destructive"
+        title: "Submission failed",
+        description: error instanceof Error ? error.message : "Failed to add property. Please check all required fields and try again.",
+        variant: "destructive",
       });
     }
   };
-  
+
   const handleUpdateProperty = async (propertyData: any) => {
     if (editingProperty) {
       try {
@@ -126,11 +167,11 @@ const OwnerDashboard = () => {
           ...propertyData,
           updatedAt: new Date().toISOString(),
         });
-        
+
         // Refresh owner properties after updating
         const data = await propertiesApi.getByOwner(ownerId);
         setOwnerProperties(data);
-        
+
         setEditingProperty(null);
         toast({
           title: "Property updated",
@@ -145,16 +186,16 @@ const OwnerDashboard = () => {
       }
     }
   };
-  
+
   const handleDeleteProperty = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this property listing?")) {
       try {
         await deleteProperty(id);
-        
+
         // Refresh owner properties after deleting
         const data = await propertiesApi.getByOwner(ownerId);
         setOwnerProperties(data);
-        
+
         toast({
           title: "Property deleted",
           description: "Your property listing has been deleted.",
@@ -169,8 +210,8 @@ const OwnerDashboard = () => {
     }
   };
 
-  
-  
+
+
   // Show loading state
   if (loading) {
     return (
@@ -207,7 +248,7 @@ const OwnerDashboard = () => {
                 Back to Dashboard
               </Button>
             </div>
-            
+
             <PropertyForm
               property={editingProperty || undefined}
               onSubmit={editingProperty ? handleUpdateProperty : handleAddProperty}
@@ -222,7 +263,7 @@ const OwnerDashboard = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50">
       <Header />
@@ -239,7 +280,7 @@ const OwnerDashboard = () => {
                   <p className="text-lg text-gray-600 mb-4">
                     Manage your properties and grow your rental business
                   </p>
-                  
+
                   {/* Host Assistant Button */}
                   <Button 
                     onClick={() => {
@@ -318,7 +359,7 @@ const OwnerDashboard = () => {
               </Card>
             </div>
           </div>
-          
+
           <Tabs defaultValue="properties" className="mb-10">
             <TabsList className="grid w-full grid-cols-3 bg-white rounded-lg shadow-sm">
               <TabsTrigger value="properties" className="data-[state=active]:bg-moroccan-blue data-[state=active]:text-white">
@@ -334,7 +375,7 @@ const OwnerDashboard = () => {
                 Settings
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="properties" className="pt-8">
               <div className="mb-8 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
                 <div>
@@ -350,7 +391,7 @@ const OwnerDashboard = () => {
                   Add New Property
                 </Button>
               </div>
-              
+
               {ownerProperties.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {ownerProperties.map((property) => (
@@ -382,7 +423,7 @@ const OwnerDashboard = () => {
                           </Badge>
                         </div>
                       </div>
-                      
+
                       <CardHeader className="pb-4">
                         <div className="space-y-2">
                           <CardTitle className="text-xl group-hover:text-moroccan-blue transition-colors">{property.title}</CardTitle>
@@ -392,7 +433,7 @@ const OwnerDashboard = () => {
                           </div>
                         </div>
                       </CardHeader>
-                      
+
                       <CardContent className="pt-0">
                         <div className="space-y-4">
                           <div className="flex justify-between items-center">
@@ -411,7 +452,7 @@ const OwnerDashboard = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="grid grid-cols-3 gap-2 text-center">
                             <div className="bg-gray-50 rounded-lg p-2">
                               <div className="text-lg font-semibold text-gray-900">{property.bedrooms}</div>
@@ -428,7 +469,7 @@ const OwnerDashboard = () => {
                           </div>
                         </div>
                       </CardContent>
-                      
+
                       <CardFooter className="pt-4 border-t bg-gray-50/50">
                         <div className="flex gap-2 w-full">
                           <Button 
@@ -502,7 +543,7 @@ const OwnerDashboard = () => {
               </Card>
             </TabsContent>
 
-            
+
 
             <TabsContent value="profile" className="pt-8">
               <Card>
@@ -539,7 +580,7 @@ const OwnerDashboard = () => {
         </div>
       </main>
       <Footer />
-      
+
       {/* Host Chatbot for Property Owners */}
       <TamudaHostChatbot />
     </div>

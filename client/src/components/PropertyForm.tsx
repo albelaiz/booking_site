@@ -197,7 +197,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Simple validation
+    // Enhanced validation
     if (!formData.title || !formData.description || !selectedCity || !selectedPlace || !formData.price) {
       toast({
         title: "Missing information",
@@ -216,15 +216,33 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ property, onSubmit, onCance
       return;
     }
 
+    // Ensure price is a valid number
+    const numericPrice = parseFloat(formData.price);
+    if (isNaN(numericPrice) || numericPrice <= 0) {
+      toast({
+        title: "Invalid price",
+        description: "Please enter a valid price greater than 0.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const propertyData = {
-      ...formData,
-      price: formData.price.toString(), // Keep price as string for backend
-      priceUnit: 'night',
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      price: numericPrice.toString(),
+      location: formData.location.trim(),
+      bedrooms: Number(formData.bedrooms),
+      bathrooms: Number(formData.bathrooms),
+      capacity: Number(formData.capacity),
       amenities: selectedAmenities,
       images: images,
-      featured: formData.featured, // Included featured property data
+      featured: formData.featured || false,
+      rules: '', // Add default rules
+      status: 'pending' // Explicitly set status
     };
 
+    console.log('Submitting property data:', propertyData);
     onSubmit(propertyData);
   };
 
