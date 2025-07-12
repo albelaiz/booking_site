@@ -48,13 +48,13 @@ const Hero: React.FC = () => {
       <div className="relative z-20 container-custom">
         <div className="text-center text-gray-900 max-w-5xl mx-auto">
           {/* TamudaStay Brand Logo in Hero */}
-          {/* <div className="flex justify-center mb-8">
-            <div className="flex items-center space-x-4 bg-white/80 backdrop-blur-sm px-8 py-4 rounded-2xl shadow-xl border border-white/50 logo-glow">
+          <div className="flex justify-center mb-8">
+            <div className="flex items-center space-x-4 bg-white/90 backdrop-blur-sm px-8 py-6 rounded-2xl shadow-2xl border border-white/50 logo-glow">
               <div className="relative">
-                <div className="w-16 h-16 logo-gradient flex items-center justify-center rounded-2xl shadow-lg logo-pulse">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300">
                   <span className="text-white font-serif text-2xl font-bold tracking-wider">TS</span>
                 </div>
-                <div className="absolute inset-0 bg-blue-400 rounded-2xl blur opacity-30"></div>
+                <div className="absolute inset-0 bg-blue-400 rounded-2xl blur opacity-30 animate-pulse"></div>
               </div>
               <div className="font-serif">
                 <div className="flex items-baseline">
@@ -64,43 +64,62 @@ const Hero: React.FC = () => {
                 <span className="text-sm text-gray-600 tracking-widest uppercase font-sans">Premium Vacation Rentals • Morocco</span>
               </div>
             </div>
-          </div> */}
+          </div>
           
           {/* Professional Badge */}
-          {/* <div className="inline-flex items-center px-6 py-3 mb-8 bg-blue-50 backdrop-blur-sm rounded-full border border-blue-200 shadow-lg">
+          <div className="inline-flex items-center px-6 py-3 mb-8 bg-blue-50 backdrop-blur-sm rounded-full border border-blue-200 shadow-lg">
             <Crown className="w-4 h-4 mr-2 text-blue-600" />
             <span className="text-blue-700 font-medium text-sm tracking-wide">Premium Accommodations</span>
-          </div> */}
+          </div>
           
-          {/* <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-light mb-6 md:mb-8 leading-tight px-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-light mb-6 md:mb-8 leading-tight px-4">
             <span className="block mb-2 md:mb-4">
               <span className="text-gray-900 font-medium">
                 Discover
                 <span className="relative inline-block ml-2 md:ml-4">
-                  Martil
+                  Morocco
                   <div className="absolute -bottom-2 left-0 w-full h-0.5 bg-blue-600"></div>
                 </span>
               </span>
             </span>
             <span className="block text-gray-700 font-light">
-              Morocco's Premier Destination
+              Your Perfect Coastal Escape
             </span>
-          </h1> */}
+          </h1>
           
-          {/* <div className="mb-8 md:mb-12 px-4">
+          <div className="mb-8 md:mb-12 px-4">
             <p className="text-lg sm:text-xl md:text-2xl text-gray-700 font-light leading-relaxed max-w-3xl mx-auto">
               Experience unparalleled comfort in carefully selected accommodations 
               along Morocco's stunning Mediterranean coastline.
             </p>
-          </div> */}
+          </div>
           
-          {/* Professional Search Section */}
+          {/* Enhanced Search Section with Book Instantly */}
           <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl max-w-4xl mx-4 md:mx-auto mb-8 md:mb-16 border border-blue-100">
-            <div className="mb-4 md:mb-6">
+            <div className="mb-6 md:mb-8 text-center">
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-full mb-4">
+                <span className="text-blue-700 font-semibold text-sm tracking-wide">✨ Book Instantly, Travel Confidently ✨</span>
+              </div>
               <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">Find Your Perfect Stay</h3>
               <p className="text-gray-600">Discover exceptional properties tailored to your preferences</p>
             </div>
             <SearchBar />
+            
+            {/* Trust indicators */}
+            <div className="mt-6 flex justify-center items-center space-x-6 text-sm text-gray-600">
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <span>Instant Confirmation</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                <span>Secure Payment</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                <span>24/7 Support</span>
+              </div>
+            </div>
           </div>
           
           {/* Professional Statistics */}

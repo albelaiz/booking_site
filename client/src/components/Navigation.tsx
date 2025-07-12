@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
@@ -9,10 +8,9 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ isMobile = false, onLinkClick }) => {
   const navigationLinks = [
-    { name: "Home", path: "/" },
-    { name: "Properties", path: "/properties" },
-    { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" }
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' }
   ];
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
