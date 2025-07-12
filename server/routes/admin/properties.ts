@@ -3,8 +3,17 @@ import { db } from '../../db';
 import { properties, notifications, users } from '../../../shared/schema';
 import { eq, and } from 'drizzle-orm';
 import { notificationService } from '../../services/notificationService';
+import type { Request, Response } from 'express';
 
-export async function approveProperty(req, res) {
+// Extend Request type to include user
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    role: string;
+  };
+}
+
+export async function approveProperty(req: AuthenticatedRequest, res: Response) {
   try {
     const { propertyId } = req.params;
     const { action, rejectionReason = null } = req.body; // 'approve' or 'reject'
@@ -63,6 +72,10 @@ export async function approveProperty(req, res) {
       }
 
       const { property, host } = propertyWithHost[0];
+
+      if (!host) {
+        throw new Error('Host not found for property');
+      }
 
       // 3. Create notification for host
       const notificationData = {
@@ -125,13 +138,13 @@ export async function approveProperty(req, res) {
   } catch (error) {
     console.error(`Error ${req.body.action}ing property:`, error);
     res.status(500).json({ 
-      error: error.message || 'Failed to process property approval' 
+      error: (error as Error).message || 'Failed to process property approval' 
     });
   }
 }
 
 // Get properties pending admin review
-export async function getPendingProperties(req, res) {
+export async function getPendingProperties(req: AuthenticatedRequest, res: Response) {
   try {
     const adminId = req.user?.id;
     
@@ -140,7 +153,9 @@ export async function getPendingProperties(req, res) {
     }
 
     const { page = 1, limit = 10 } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const pageNum = parseInt(String(page));
+    const limitNum = parseInt(String(limit));
+    const offset = (pageNum - 1) * limitNum;
 
     const pendingProperties = await db.select({
       id: properties.id,
@@ -163,7 +178,7 @@ export async function getPendingProperties(req, res) {
     .leftJoin(users, eq(properties.hostId, users.id))
     .where(eq(properties.status, 'pending'))
     .orderBy(properties.createdAt)
-    .limit(parseInt(limit))
+    .limit(limitNum)
     .offset(offset);
 
     // Get total count
@@ -177,10 +192,10 @@ export async function getPendingProperties(req, res) {
       success: true,
       properties: pendingProperties,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: pageNum,
+        limit: limitNum,
         total,
-        pages: Math.ceil(total / parseInt(limit))
+        pages: Math.ceil(total / limitNum)
       }
     });
 

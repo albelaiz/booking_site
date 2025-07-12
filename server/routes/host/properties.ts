@@ -3,8 +3,17 @@ import { db } from '../../db';
 import { properties, notifications, users } from '../../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { notificationService } from '../../services/notificationService';
+import type { Request, Response } from 'express';
 
-export async function submitProperty(req, res) {
+// Extend Request type to include user
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    role: string;
+  };
+}
+
+export async function submitProperty(req: AuthenticatedRequest, res: Response) {
   try {
     const hostId = req.user?.id;
     
@@ -40,7 +49,7 @@ export async function submitProperty(req, res) {
       const propertyData = {
         title: title.trim(),
         description: description.trim(),
-        price: parseFloat(price),
+        price: String(parseFloat(price)),
         bedrooms: parseInt(bedrooms) || 1,
         bathrooms: parseInt(bathrooms) || 1,
         capacity: parseInt(capacity) || 1,
@@ -50,11 +59,9 @@ export async function submitProperty(req, res) {
         rules: rules || '',
         hostId: hostId,
         ownerId: hostId, // For backward compatibility
-        status: 'pending',
+        status: 'pending' as const,
         isActive: false,
-        isVisible: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        isVisible: false
       };
 
       const [newProperty] = await tx.insert(properties)
@@ -160,13 +167,13 @@ export async function submitProperty(req, res) {
   } catch (error) {
     console.error('Error submitting property:', error);
     res.status(500).json({ 
-      error: error.message || 'Failed to submit property' 
+      error: (error as Error).message || 'Failed to submit property' 
     });
   }
 }
 
 // Get host's properties
-export async function getHostProperties(req, res) {
+export async function getHostProperties(req: AuthenticatedRequest, res: Response) {
   try {
     const hostId = req.user?.id;
     
@@ -175,7 +182,9 @@ export async function getHostProperties(req, res) {
     }
 
     const { page = 1, limit = 10 } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const pageNum = parseInt(String(page));
+    const limitNum = parseInt(String(limit));
+    const offset = (pageNum - 1) * limitNum;
 
     const hostProperties = await db.select({
       id: properties.id,
@@ -198,7 +207,7 @@ export async function getHostProperties(req, res) {
     .from(properties)
     .where(eq(properties.hostId, hostId))
     .orderBy(properties.createdAt)
-    .limit(parseInt(limit))
+    .limit(limitNum)
     .offset(offset);
 
     // Get total count
@@ -212,10 +221,10 @@ export async function getHostProperties(req, res) {
       success: true,
       properties: hostProperties,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: pageNum,
+        limit: limitNum,
         total,
-        pages: Math.ceil(total / parseInt(limit))
+        pages: Math.ceil(total / limitNum)
       }
     });
 

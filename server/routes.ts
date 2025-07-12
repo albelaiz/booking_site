@@ -6,9 +6,9 @@ import { z } from "zod";
 import OpenAI from "openai";
 
 // Import new route handlers
-import { approveProperty, getPendingProperties } from './routes/admin/properties.js';
-import { submitProperty, getHostProperties } from './routes/host/properties.js';
-import { getHomePageProperties, getPublicProperties } from './routes/public/properties.js';
+import { approveProperty, getPendingProperties } from './routes/admin/properties';
+import { submitProperty, getHostProperties } from './routes/host/properties';
+import { getHomePageProperties, getPublicProperties } from './routes/public/properties';
 
 // Simple authentication middleware
 const requireAuth = (req: any, res: any, next: any) => {
@@ -577,7 +577,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get property and host info
       const property = await storage.getPropertyById(id);
-      const host = await storage.getUserById(property.ownerId);
+      
+      if (!property) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+
+      const host = property.ownerId ? await storage.getUserById(property.ownerId) : null;
 
       if (host) {
         // Notify host about the decision

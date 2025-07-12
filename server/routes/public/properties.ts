@@ -1,12 +1,15 @@
 // Public Home Page Properties Handler
 import { db } from '../../db';
 import { properties, users } from '../../../shared/schema';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, or } from 'drizzle-orm';
+import type { Request, Response } from 'express';
 
-export async function getHomePageProperties(req, res) {
+export async function getHomePageProperties(req: Request, res: Response) {
   try {
     const { page = 1, limit = 12, featured = false } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const pageNum = parseInt(String(page));
+    const limitNum = parseInt(String(limit));
+    const offset = (pageNum - 1) * limitNum;
 
     console.log(`Fetching home page properties: page=${page}, limit=${limit}, featured=${featured}`);
 
@@ -46,7 +49,7 @@ export async function getHomePageProperties(req, res) {
         : desc(properties.approvedAt),
       desc(properties.createdAt)
     )
-    .limit(parseInt(limit))
+    .limit(limitNum)
     .offset(offset);
 
     console.log(`Found ${homeProperties.length} properties for home page`);
@@ -68,10 +71,10 @@ export async function getHomePageProperties(req, res) {
       success: true,
       properties: homeProperties,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: pageNum,
+        limit: limitNum,
         total,
-        pages: Math.ceil(total / parseInt(limit))
+        pages: Math.ceil(total / limitNum)
       }
     });
 
@@ -82,7 +85,7 @@ export async function getHomePageProperties(req, res) {
 }
 
 // Get all approved properties with search/filter capabilities
-export async function getPublicProperties(req, res) {
+export async function getPublicProperties(req: Request, res: Response): Promise<void> {
   try {
     const { 
       page = 1, 
@@ -96,7 +99,17 @@ export async function getPublicProperties(req, res) {
       featured = false 
     } = req.query;
 
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const pageNum = parseInt(String(page));
+    const limitNum = parseInt(String(limit));
+    const searchTerm = String(search);
+    const locationTerm = String(location);
+    const minPriceNum = parseInt(String(minPrice));
+    const maxPriceNum = parseInt(String(maxPrice));
+    const bedroomsNum = parseInt(String(bedrooms));
+    const bathroomsNum = parseInt(String(bathrooms));
+    const isFeatured = featured === 'true';
+
+    const offset = (pageNum - 1) * limitNum;
 
     let whereConditions = and(
       eq(properties.status, 'approved'),
@@ -105,33 +118,33 @@ export async function getPublicProperties(req, res) {
     );
 
     // Add search filters if provided
-    if (search) {
+    if (searchTerm) {
       whereConditions = and(
         whereConditions,
         or(
-          sql`${properties.title} ILIKE ${`%${search}%`}`,
-          sql`${properties.description} ILIKE ${`%${search}%`}`,
-          sql`${properties.location} ILIKE ${`%${search}%`}`
+          sql`${properties.title} ILIKE ${`%${searchTerm}%`}`,
+          sql`${properties.description} ILIKE ${`%${searchTerm}%`}`,
+          sql`${properties.location} ILIKE ${`%${searchTerm}%`}`
         )
       );
     }
 
-    if (location) {
+    if (locationTerm) {
       whereConditions = and(
         whereConditions,
-        sql`${properties.location} ILIKE ${`%${location}%`}`
+        sql`${properties.location} ILIKE ${`%${locationTerm}%`}`
       );
     }
 
-    if (parseInt(bedrooms) > 0) {
-      whereConditions = and(whereConditions, eq(properties.bedrooms, parseInt(bedrooms)));
+    if (bedroomsNum > 0) {
+      whereConditions = and(whereConditions, eq(properties.bedrooms, bedroomsNum));
     }
 
-    if (parseInt(bathrooms) > 0) {
-      whereConditions = and(whereConditions, eq(properties.bathrooms, parseInt(bathrooms)));
+    if (bathroomsNum > 0) {
+      whereConditions = and(whereConditions, eq(properties.bathrooms, bathroomsNum));
     }
 
-    if (featured === 'true') {
+    if (isFeatured) {
       whereConditions = and(whereConditions, eq(properties.featured, true));
     }
 
@@ -165,7 +178,7 @@ export async function getPublicProperties(req, res) {
       desc(properties.rating),
       desc(properties.approvedAt)
     )
-    .limit(parseInt(limit))
+    .limit(limitNum)
     .offset(offset);
 
     // Get total count
@@ -181,10 +194,10 @@ export async function getPublicProperties(req, res) {
       success: true,
       properties: publicProperties,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: pageNum,
+        limit: limitNum,
         total,
-        pages: Math.ceil(total / parseInt(limit))
+        pages: Math.ceil(total / limitNum)
       }
     });
 

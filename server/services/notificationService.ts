@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
-import { db } from '../db.js';
-import { notifications, users, User } from '../../shared/schema.js';
+import { db } from '../db';
+import { notifications, users, User } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 
 interface ConnectedUser {
