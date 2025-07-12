@@ -9,7 +9,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  
+
   const {
     isLoggedIn,
     userName,
@@ -63,7 +63,7 @@ const Header = () => {
             {/* Enhanced TamudaStay Logo */}
             <Link 
               to="/" 
-              className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-all duration-300 group"
+              className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-all duration-300 group touch-target"
               onClick={scrollToTop}
             >
               <div className="flex items-center">
@@ -89,7 +89,7 @@ const Header = () => {
             {/* Hamburger Menu Button - Always Visible */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-              className="flex items-center p-3 text-gray-700 hover:text-gray-900 transition-all duration-200 hover:bg-gray-100 rounded-lg" 
+              className="mobile-menu-button flex items-center p-3 text-gray-700 hover:text-gray-900 transition-all duration-200 hover:bg-gray-100 rounded-lg touch-target" 
               aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (

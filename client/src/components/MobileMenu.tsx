@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
@@ -34,10 +33,46 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   if (!isOpen) return null;
 
   return (
-    <nav className="py-4 border-t bg-white/95 backdrop-blur-sm">
-      {/* Navigation Buttons */}
-      <Navigation isMobile onLinkClick={onLinkClick} />
-      
+    <nav className="py-6 border-t bg-white/98 backdrop-blur-sm shadow-lg">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col space-y-2">
+          {/* Navigation Links */}
+          <Link
+            to="/"
+            className="nav-item flex items-center px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium text-lg"
+            onClick={onLinkClick}
+          >
+            <Home className="h-6 w-6 mr-4" />
+            Home
+          </Link>
+
+          <Link
+            to="/properties"
+            className="nav-item flex items-center px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium text-lg"
+            onClick={onLinkClick}
+          >
+            <Building2 className="h-6 w-6 mr-4" />
+            Properties
+          </Link>
+
+          <Link
+            to="/about"
+            className="nav-item flex items-center px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium text-lg"
+            onClick={onLinkClick}
+          >
+            <Info className="h-6 w-6 mr-4" />
+            About
+          </Link>
+
+          <Link
+            to="/contact"
+            className="nav-item flex items-center px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium text-lg"
+            onClick={onLinkClick}
+          >
+            <Phone className="h-6 w-6 mr-4" />
+            Contact
+          </Link>
+
       {/* Dashboard/Auth Section */}
       <div className="mt-6 px-4">
         {isLoggedIn ? (
@@ -49,7 +84,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             >
               Dashboard
             </button>
-            
+
             {/* User Info Section */}
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
               <button 
