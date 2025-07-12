@@ -1,38 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { mongoStorageAdapter } from "./adapters/mongoAdapter";
 import { storage } from "./storage";
 import { z } from "zod";
 import OpenAI from "openai";
-import { mongoUserSchema, mongoPropertySchema, mongoBookingSchema, mongoMessageSchema } from "./schemas/mongo";
 import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema } from "@shared/schema";
 
 // Import new route handlers
 import { approveProperty, getPendingProperties } from './routes/admin/properties';
 import { submitProperty, getHostProperties } from './routes/host/properties';
 import { getHomePageProperties, getPublicProperties } from './routes/public/properties';
-
-// Dynamic storage selection
-let activeStorage: any = storage; // Default to PostgreSQL
-let usingMongoDB = false;
-
-export const setStorageBackend = (useMongo: boolean) => {
-  if (useMongo) {
-    activeStorage = mongoStorageAdapter;
-    usingMongoDB = true;
-    console.log('📊 Using MongoDB storage backend');
-  } else {
-    activeStorage = storage;
-    usingMongoDB = false;
-    console.log('📊 Using PostgreSQL storage backend');
-  }
-};
-
-// Dynamic schema selection
-const getPropertySchema = () => usingMongoDB ? mongoPropertySchema : insertPropertySchema;
-const getBookingSchema = () => usingMongoDB ? mongoBookingSchema : insertBookingSchema;
-const getMessageSchema = () => usingMongoDB ? mongoMessageSchema : insertMessageSchema;
-const getUserSchema = () => usingMongoDB ? mongoUserSchema : insertUserSchema;
 
 // Simple authentication middleware
 const requireAuth = (req: any, res: any, next: any) => {
@@ -92,9 +68,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Try to find user by username or email
-      let user = await activeStorage.getUserByUsername(username);
+      let user = await storage.getUserByUsername(username);
       if (!user) {
-        user = await activeStorage.getUserByUsername(username); // Try email as fallback
+        user = await storage.getUserByUsername(username); // Try email as fallback
       }
 
       if (!user || user.password !== password) {
@@ -113,23 +89,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/register", async (req, res) => {
     try {
       // Validate the request data against the schema
-      const userData = mongoUserSchema.parse(req.body);
+      const userData = insertUserSchema.parse(req.body);
       
       // Check if user already exists
-      const existingUser = await activeStorage.getUserByUsername(userData.username);
+      const existingUser = await storage.getUserByUsername(userData.username);
       if (existingUser) {
         return res.status(409).json({ error: "Username already exists" });
       }
 
       if (userData.email) {
-        const existingEmailUser = await activeStorage.getUserByEmail(userData.email);
+        const existingEmailUser = await storage.getUserByEmail(userData.email);
         if (existingEmailUser) {
           return res.status(409).json({ error: "Email already exists" });
         }
       }
 
       // If validation passes, create the user
-      const user = await activeStorage.createUser(userData);
+      const user = await storage.createUser(userData);
       const { password: _, ...userWithoutPassword } = user;
       res.status(201).json({ success: true, user: userWithoutPassword });
     } catch (error) {
@@ -156,7 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
   app.get("/api/users", async (req, res) => {
     try {
-      const users = await activeStorage.getAllUsers();
+      const users = await storage.getAllUsers();
       const usersWithoutPasswords = users.map(({ password: _, ...user }) => user);
       res.json(usersWithoutPasswords);
     } catch (error) {
@@ -172,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user ID" });
       }
 
-      const user = await activeStorage.getUser(id);
+      const user = await storage.getUser(id);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -200,12 +176,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user already exists
-      const existingUser = await activeStorage.getUserByUsername(req.body.username);
+      const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
         return res.status(409).json({ error: "Username already exists" });
       }
 
-      const existingEmailUser = await activeStorage.getUserByEmail(req.body.email);
+      const existingEmailUser = await storage.getUserByEmail(req.body.email);
       if (existingEmailUser) {
         return res.status(409).json({ error: "Email already exists" });
       }
@@ -223,7 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("Validated user data:", userData);
       
-      const user = await activeStorage.createUser(userData);
+      const user = await storage.createUser(userData);
       const { password: _, ...userWithoutPassword } = user;
       
       console.log("User created successfully:", userWithoutPassword);
@@ -252,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         delete updateData.password;
       }
 
-      const user = await activeStorage.updateUser(id, updateData);
+      const user = await storage.updateUser(id, updateData);
       
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -275,7 +251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("Deleting user with ID:", id);
 
-      const deleted = await activeStorage.deleteUser(id);
+      const deleted = await storage.deleteUser(id);
       if (!deleted) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -303,7 +279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Existing property routes...
   app.get("/api/properties", requireAdminRole, async (req, res) => {
     try {
-      const properties = await activeStorage.getAllProperties();
+      const properties = await storage.getAllProperties();
       res.json(properties);
     } catch (error) {
       console.error("Get properties error:", error);
@@ -318,7 +294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const property = await activeStorage.getProperty(id);
+      const property = await storage.getProperty(id);
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -332,7 +308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/properties", requireAuth, async (req, res) => {
     try {
-      const propertyData = getPropertySchema().parse(req.body);
+      const propertyData = insertPropertySchema.parse(req.body);
       
       // Extract user info from token (in a real app, you'd decode the JWT)
       // For now, we'll get it from the request body or headers
@@ -347,7 +323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
       };
       
-      const property = await activeStorage.createProperty(finalPropertyData);
+      const property = await storage.createProperty(finalPropertyData);
       res.status(201).json(property);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -366,7 +342,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updateData = req.body;
-      const property = await activeStorage.updateProperty(id, updateData);
+      const property = await storage.updateProperty(id, updateData);
       
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
@@ -386,7 +362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const deleted = await activeStorage.deleteProperty(id);
+      const deleted = await storage.deleteProperty(id);
       if (!deleted) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -406,7 +382,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const updatedProperty = await activeStorage.updateProperty(id, { status: 'approved' });
+      const updatedProperty = await storage.updateProperty(id, { status: 'approved' });
       if (!updatedProperty) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -425,7 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const updatedProperty = await activeStorage.updateProperty(id, { status: 'rejected' });
+      const updatedProperty = await storage.updateProperty(id, { status: 'rejected' });
       if (!updatedProperty) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -440,7 +416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin route - get all pending properties (similar to pending messages)
   app.get("/api/admin/properties/pending", requireAdminRole, async (req, res) => {
     try {
-      const pendingProperties = await activeStorage.getPropertiesByStatus('pending');
+      const pendingProperties = await storage.getPropertiesByStatus('pending');
       res.json(pendingProperties);
     } catch (error) {
       console.error("Get pending properties error:", error);
@@ -477,7 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const properties = await activeStorage.getPropertiesByOwner(targetOwnerId);
+      const properties = await storage.getPropertiesByOwner(targetOwnerId);
       res.json(properties);
     } catch (error) {
       console.error("Get properties by owner error:", error);
@@ -503,7 +479,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get ALL properties owned by this user (regardless of status)
-      const properties = await activeStorage.getPropertiesByOwner(ownerId);
+      const properties = await storage.getPropertiesByOwner(ownerId);
       res.json(properties);
     } catch (error) {
       console.error("Get owner properties error:", error);
@@ -530,25 +506,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate property data
-      const propertyData = getPropertySchema().parse({
+      const propertyData = insertPropertySchema.parse({
         ...req.body,
         ownerId: hostId,
         status: 'pending'
       });
 
       // Create the property
-      const property = await activeStorage.createProperty(propertyData);
+      const property = await storage.createProperty(propertyData);
 
       // Get host information for notifications
-      const host = await activeStorage.getUserById(hostId);
+      const host = await storage.getUserById(hostId);
       if (!host) {
         return res.status(404).json({ error: "Host not found" });
       }
 
       // Create notifications for all admins
-      const adminUsers = await activeStorage.getUsersByRole('admin');
+      const adminUsers = await storage.getUsersByRole('admin');
       const notificationPromises = adminUsers.map(admin => 
-        activeStorage.createNotification({
+        storage.createNotification({
           userId: admin.id,
           type: 'property_review',
           title: 'New Property Pending Review',
@@ -605,7 +581,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update property status
-      const updatedProperty = await activeStorage.updateProperty(id, {
+      const updatedProperty = await storage.updateProperty(id, {
         status,
         reviewedAt: new Date(),
         reviewedBy: adminId,
@@ -617,17 +593,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get property and host info
-      const property = await activeStorage.getPropertyById(id);
+      const property = await storage.getPropertyById(id);
       
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
 
-      const host = property.ownerId ? await activeStorage.getUserById(property.ownerId.toString()) : null;
+      const host = property.ownerId ? await storage.getUserById(property.ownerId) : null;
 
       if (host) {
         // Notify host about the decision
-        await activeStorage.createNotification({
+        await storage.createNotification({
           userId: host.id,
           type: status === 'approved' ? 'property_approved' : 'property_rejected',
           title: `Property ${status === 'approved' ? 'Approved' : 'Rejected'}`,
@@ -669,7 +645,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const limit = parseInt(req.query.limit as string) || 50;
-      const notifications = await activeStorage.getUserNotifications(userId, limit);
+      const notifications = await storage.getUserNotifications(userId, limit);
       
       res.json({ notifications });
     } catch (error) {
@@ -697,7 +673,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid IDs" });
       }
 
-      await activeStorage.markNotificationAsRead(id, userId);
+      await storage.markNotificationAsRead(id, userId);
       
       res.json({ success: true, message: "Notification marked as read" });
     } catch (error) {
@@ -709,7 +685,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Booking routes
   app.get("/api/bookings", async (req, res) => {
     try {
-      const bookings = await activeStorage.getAllBookings();
+      const bookings = await storage.getAllBookings();
       res.json(bookings);
     } catch (error) {
       console.error("Get bookings error:", error);
@@ -724,7 +700,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid booking ID" });
       }
 
-      const booking = await activeStorage.getBooking(id);
+      const booking = await storage.getBooking(id);
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
       }
@@ -738,16 +714,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/bookings", async (req, res) => {
     try {
-      const bookingData = getBookingSchema().parse(req.body);
+      const bookingData = insertBookingSchema.parse(req.body);
       
       // Check if this is an authenticated user booking
       if (bookingData.userId) {
         // Use createOrUpdateBooking for authenticated users
-        const booking = await activeStorage.createOrUpdateBooking(bookingData);
+        const booking = await storage.createOrUpdateBooking(bookingData);
         res.status(201).json(booking);
       } else {
         // For guest bookings, always create new
-        const booking = await activeStorage.createBooking(bookingData);
+        const booking = await storage.createBooking(bookingData);
         res.status(201).json(booking);
       }
     } catch (error) {
@@ -770,7 +746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updateData = req.body;
-      const booking = await activeStorage.updateBooking(id, updateData);
+      const booking = await storage.updateBooking(id, updateData);
       
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
@@ -786,7 +762,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Message routes
   app.get("/api/messages", async (req, res) => {
     try {
-      const messages = await activeStorage.getAllMessages();
+      const messages = await storage.getAllMessages();
       res.json(messages);
     } catch (error) {
       console.error("Get messages error:", error);
@@ -801,7 +777,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid message ID" });
       }
 
-      const message = await activeStorage.getMessage(id);
+      const message = await storage.getMessage(id);
       if (!message) {
         return res.status(404).json({ error: "Message not found" });
       }
@@ -815,8 +791,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/messages", async (req, res) => {
     try {
-      const messageData = getMessageSchema().parse(req.body);
-      const message = await activeStorage.createMessage(messageData);
+      const messageData = insertMessageSchema.parse(req.body);
+      const message = await storage.createMessage(messageData);
       res.status(201).json(message);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -835,7 +811,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updateData = req.body;
-      const message = await activeStorage.updateMessage(id, updateData);
+      const message = await storage.updateMessage(id, updateData);
       
       if (!message) {
         return res.status(404).json({ error: "Message not found" });
@@ -855,7 +831,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid message ID" });
       }
 
-      const deleted = await activeStorage.deleteMessage(id);
+      const deleted = await storage.deleteMessage(id);
       if (!deleted) {
         return res.status(404).json({ error: "Message not found" });
       }
@@ -892,7 +868,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Check-in date must be before check-out date" });
       }
 
-      const isAvailable = await activeStorage.checkBookingAvailability(
+      const isAvailable = await storage.checkBookingAvailability(
         propertyId,
         checkInDate,
         checkOutDate
@@ -900,7 +876,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!isAvailable) {
         // Get booked dates to show user what's already taken
-        const bookedDates = await activeStorage.getBookedDatesForProperty(propertyId);
+        const bookedDates = await storage.getBookedDatesForProperty(propertyId);
         return res.json({ 
           available: false, 
           bookedDates,
@@ -924,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property ID" });
       }
 
-      const bookedDates = await activeStorage.getBookedDatesForProperty(propertyId);
+      const bookedDates = await storage.getBookedDatesForProperty(propertyId);
       res.json(bookedDates);
     } catch (error) {
       console.error("Get booked dates error:", error);
@@ -941,7 +917,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user ID" });
       }
 
-      const userBookings = await activeStorage.getBookingsByUser(userId);
+      const userBookings = await storage.getBookingsByUser(userId);
       res.json(userBookings);
     } catch (error) {
       console.error("Get user bookings error:", error);
@@ -960,11 +936,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get host properties
-      const hostProperties = await activeStorage.getPropertiesByOwner(ownerId);
+      const hostProperties = await storage.getPropertiesByOwner(ownerId);
       const propertyIds = hostProperties.map(p => p.id);
 
       // Get all bookings for host properties
-      const allBookings = await activeStorage.getAllBookings();
+      const allBookings = await storage.getAllBookings();
       const hostBookings = allBookings.filter(booking => 
         propertyIds.includes(booking.propertyId)
       );
@@ -981,7 +957,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate stats
       const totalRevenue = hostBookings
         .filter(b => b.status === 'confirmed' || b.status === 'completed')
-        .reduce((sum, booking) => sum + parseFloat(booking.totalPrice.toString()), 0);
+        .reduce((sum, booking) => sum + parseFloat(booking.amount.toString()), 0);
 
       const totalBookings = hostBookings.length;
       const confirmedBookings = hostBookings.filter(b => b.status === 'confirmed').length;
@@ -1026,11 +1002,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get host properties
-      const hostProperties = await activeStorage.getPropertiesByOwner(ownerId);
+      const hostProperties = await storage.getPropertiesByOwner(ownerId);
       const propertyIds = hostProperties.map(p => p.id);
 
       // Get all bookings for host properties
-      const allBookings = await activeStorage.getAllBookings();
+      const allBookings = await storage.getAllBookings();
       const hostBookings = allBookings
         .filter(booking => propertyIds.includes(booking.propertyId))
         .map(booking => {
@@ -1051,7 +1027,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (propertyId) {
         const propId = parseInt(propertyId as string);
-        filteredBookings = filteredBookings.filter(booking => booking.propertyId.toString() === propId.toString());
+        filteredBookings = filteredBookings.filter(booking => booking.propertyId === propId);
       }
 
       if (startDate) {
@@ -1082,7 +1058,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all messages (in a real app, you'd filter by property owner)
-      const messages = await activeStorage.getAllMessages();
+      const messages = await storage.getAllMessages();
       
       // Apply status filter
       const { status } = req.query;
@@ -1109,10 +1085,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get host properties and bookings
-      const hostProperties = await activeStorage.getPropertiesByOwner(ownerId);
+      const hostProperties = await storage.getPropertiesByOwner(ownerId);
       const propertyIds = hostProperties.map(p => p.id);
       
-      const allBookings = await activeStorage.getAllBookings();
+      const allBookings = await storage.getAllBookings();
       const hostBookings = allBookings.filter(booking => 
         propertyIds.includes(booking.propertyId)
       );
@@ -1133,7 +1109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         analyticsData.push({
           date: date.toISOString().split('T')[0],
           revenue: dayBookings.reduce((sum, booking) => 
-            sum + parseFloat(booking.totalPrice.toString()), 0
+            sum + parseFloat(booking.amount.toString()), 0
           ),
           bookings: dayBookings.length,
           views: Math.floor(Math.random() * 50) + 10,
@@ -1158,7 +1134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get bookings for the property within the date range
-      const bookings = await activeStorage.getBookingsByProperty(propertyId);
+      const bookings = await storage.getBookingsByProperty(propertyId);
       const startDate = new Date(start as string);
       const endDate = new Date(end as string);
 
@@ -1203,7 +1179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       filters.page = parseInt(page as string);
       filters.limit = parseInt(limit as string);
 
-      const auditLogs = await activeStorage.getAuditLogs(filters);
+      const auditLogs = await storage.getAuditLogs(filters);
       res.json(auditLogs);
     } catch (error) {
       console.error("Get audit logs error:", error);
@@ -1214,7 +1190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/audit-logs/recent", async (req, res) => {
     try {
       const { limit = 20 } = req.query;
-      const recentLogs = await activeStorage.getRecentAuditLogs(parseInt(limit as string));
+      const recentLogs = await storage.getRecentAuditLogs(parseInt(limit as string));
       res.json(recentLogs);
     } catch (error) {
       console.error("Get recent audit logs error:", error);
@@ -1229,7 +1205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user ID" });
       }
 
-      const userAuditLogs = await activeStorage.getAuditLogsByUser(userId);
+      const userAuditLogs = await storage.getAuditLogsByUser(userId);
       res.json(userAuditLogs);
     } catch (error) {
       console.error("Get user audit logs error:", error);
@@ -1240,7 +1216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/audit-logs", async (req, res) => {
     try {
       const auditLogData = req.body;
-      const auditLog = await activeStorage.createAuditLog(auditLogData);
+      const auditLog = await storage.createAuditLog(auditLogData);
       res.status(201).json(auditLog);
     } catch (error) {
       console.error("Create audit log error:", error);
@@ -1653,7 +1629,7 @@ Your response guidelines:
         comments: reason || "Dates blocked by host"
       };
 
-      const booking = await activeStorage.createBooking(blockingData);
+      const booking = await storage.createBooking(blockingData);
       res.status(201).json(booking);
     } catch (error) {
       console.error("Block dates error:", error);
