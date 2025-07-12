@@ -40,11 +40,23 @@ const OwnerDashboard = () => {
         console.log('OwnerDashboard - Fetched owner properties:', data.length);
       } catch (error) {
         console.error('Error fetching owner properties:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load your properties. Please try again.",
-          variant: "destructive"
-        });
+        
+        // Handle specific authorization errors
+        if (error.message?.includes('403') || error.message?.includes('Access denied')) {
+          toast({
+            title: "Access Denied",
+            description: "You can only view your own properties. Please contact support if this is an error.",
+            variant: "destructive"
+          });
+          // Redirect to login or user dashboard
+          navigate('/login');
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to load your properties. Please try again.",
+            variant: "destructive"
+          });
+        }
       } finally {
         setLoading(false);
       }
@@ -53,7 +65,7 @@ const OwnerDashboard = () => {
     if (ownerId) {
       fetchOwnerProperties();
     }
-  }, [ownerId, toast]);
+  }, [ownerId, toast, navigate]);
   
   // Calculate dashboard stats
   const totalProperties = ownerProperties.length;

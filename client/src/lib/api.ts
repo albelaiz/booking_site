@@ -51,7 +51,7 @@ export const propertiesApi = {
     try {
       // Get auth token from localStorage
       const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
-      
+
       const response = await fetch(`${API_BASE_URL}/properties`, {
         headers: {
           'Authorization': token,
@@ -69,7 +69,7 @@ export const propertiesApi = {
   getByIdAdmin: async (id: string) => {
     try {
       const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
-      
+
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         headers: {
           'Authorization': token,
@@ -89,7 +89,7 @@ export const propertiesApi = {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
       const userId = localStorage.getItem('userId');
       const userRole = localStorage.getItem('userRole');
-      
+
       const response = await fetch(`${API_BASE_URL}/properties`, {
         method: 'POST',
         headers: {
@@ -111,7 +111,7 @@ export const propertiesApi = {
   update: async (id: string, property: any) => {
     try {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
-      
+
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'PUT',
         headers: {
@@ -131,7 +131,7 @@ export const propertiesApi = {
   delete: async (id: string) => {
     try {
       const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
-      
+
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'DELETE',
         headers: {
@@ -146,13 +146,12 @@ export const propertiesApi = {
     }
   },
 
-  // Get properties by owner (for host dashboard)
   getByOwner: async (ownerId: string) => {
     try {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
       const userId = localStorage.getItem('userId') || ownerId;
       const userRole = localStorage.getItem('userRole') || 'user';
-      
+
       const response = await fetch(`${API_BASE_URL}/properties/owner/${ownerId}`, {
         headers: {
           'Authorization': token,
@@ -161,11 +160,18 @@ export const propertiesApi = {
           'Content-Type': 'application/json'
         }
       });
-      if (!response.ok) throw new Error('Failed to fetch owner properties');
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Access denied: You can only view your own properties');
+        }
+        throw new Error(`Failed to fetch owner properties (${response.status})`);
+      }
+
       return response.json();
     } catch (error) {
-      console.warn('API not available');
-      return [];
+      console.warn('Properties API error:', error);
+      throw error; // Re-throw to let the component handle the error properly
     }
   },
 
@@ -175,11 +181,11 @@ export const propertiesApi = {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
       const userId = localStorage.getItem('userId');
       const userRole = localStorage.getItem('userRole') || 'user';
-      
+
       if (!userId) {
         throw new Error('User ID not found');
       }
-      
+
       const response = await fetch(`${API_BASE_URL}/owner/properties`, {
         headers: {
           'Authorization': token,
@@ -200,7 +206,7 @@ export const propertiesApi = {
   approve: async (id: string) => {
     try {
       const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
-      
+
       const response = await fetch(`${API_BASE_URL}/properties/${id}/approve`, {
         method: 'PATCH',
         headers: {
@@ -219,7 +225,7 @@ export const propertiesApi = {
   reject: async (id: string) => {
     try {
       const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
-      
+
       const response = await fetch(`${API_BASE_URL}/properties/${id}/reject`, {
         method: 'PATCH',
         headers: {
@@ -623,7 +629,7 @@ export const auditLogsApi = {
           }
         });
       }
-      
+
       const response = await fetch(`${API_BASE_URL}/audit-logs?${params}`);
       if (!response.ok) throw new Error('Failed to fetch audit logs');
       return response.json();
@@ -680,7 +686,7 @@ export const hostApi = {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
       const userId = localStorage.getItem('userId') || ownerId;
       const userRole = localStorage.getItem('userRole') || 'user';
-      
+
       const response = await fetch(`${API_BASE_URL}/hosts/${ownerId}/stats?period=${period}`, {
         headers: {
           'Authorization': token,
@@ -702,16 +708,16 @@ export const hostApi = {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
       const userId = localStorage.getItem('userId') || ownerId;
       const userRole = localStorage.getItem('userRole') || 'user';
-      
+
       const queryParams = new URLSearchParams();
       Object.keys(filters).forEach(key => {
         if (filters[key]) {
           queryParams.append(key, filters[key]);
         }
       });
-      
+
       const url = `${API_BASE_URL}/hosts/${ownerId}/bookings${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-      
+
       const response = await fetch(url, {
         headers: {
           'Authorization': token,
@@ -733,11 +739,11 @@ export const hostApi = {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
       const userId = localStorage.getItem('userId') || ownerId;
       const userRole = localStorage.getItem('userRole') || 'user';
-      
+
       const url = status 
         ? `${API_BASE_URL}/hosts/${ownerId}/messages?status=${status}`
         : `${API_BASE_URL}/hosts/${ownerId}/messages`;
-      
+
       const response = await fetch(url, {
         headers: {
           'Authorization': token,
@@ -759,7 +765,7 @@ export const hostApi = {
       const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
       const userId = localStorage.getItem('userId') || ownerId;
       const userRole = localStorage.getItem('userRole') || 'user';
-      
+
       const response = await fetch(`${API_BASE_URL}/hosts/${ownerId}/analytics?period=${period}`, {
         headers: {
           'Authorization': token,

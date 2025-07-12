@@ -15,17 +15,17 @@ const requireAuth = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
   const userId = req.headers['x-user-id'];
   const userRole = req.headers['x-user-role'];
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  
+
   // Set user data from headers (in a real app, you'd decode from JWT)
   req.user = {
     id: parseInt(userId as string) || 1,
     role: userRole as string || 'user'
   };
-  
+
   next();
 };
 
@@ -34,21 +34,21 @@ const requireAdminRole = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
   const userId = req.headers['x-user-id'];
   const userRole = req.headers['x-user-role'];
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: "Admin authentication required" });
   }
-  
+
   if (!userRole || !['admin', 'staff'].includes(userRole)) {
     return res.status(403).json({ error: "Admin role required" });
   }
-  
+
   // Set user data from headers
   req.user = {
     id: parseInt(userId as string) || 1,
     role: userRole as string
   };
-  
+
   next();
 };
 
@@ -62,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = req.body;
-      
+
       if (!username || !password) {
         return res.status(400).json({ error: "Username and password are required" });
       }
@@ -90,7 +90,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Validate the request data against the schema
       const userData = insertUserSchema.parse(req.body);
-      
+
       // Check if user already exists
       const existingUser = await storage.getUserByUsername(userData.username);
       if (existingUser) {
@@ -115,7 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           field: err.path.join('.'),
           message: err.message
         }));
-        
+
         // Return the first validation error for better UX
         const firstError = validationErrors[0];
         return res.status(400).json({ 
@@ -164,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/users", async (req, res) => {
     try {
       console.log("Creating user with data:", req.body);
-      
+
       // Validate required fields
       if (!req.body.username || !req.body.name || !req.body.email) {
         return res.status(400).json({ error: "Username, name, and email are required" });
@@ -198,10 +198,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       console.log("Validated user data:", userData);
-      
+
       const user = await storage.createUser(userData);
       const { password: _, ...userWithoutPassword } = user;
-      
+
       console.log("User created successfully:", userWithoutPassword);
       res.status(201).json(userWithoutPassword);
     } catch (error) {
@@ -229,7 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const user = await storage.updateUser(id, updateData);
-      
+
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -309,12 +309,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/properties", requireAuth, async (req, res) => {
     try {
       const propertyData = insertPropertySchema.parse(req.body);
-      
+
       // Extract user info from token (in a real app, you'd decode the JWT)
       // For now, we'll get it from the request body or headers
       const userId = req.body.ownerId || req.headers['x-user-id'];
       const userRole = req.headers['x-user-role'] || 'user';
-      
+
       // Force status based on user role
       const finalPropertyData = {
         ...propertyData,
@@ -322,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hostId: String(userId),
         status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
       };
-      
+
       const property = await storage.createProperty(finalPropertyData);
       res.status(201).json(property);
     } catch (error) {
@@ -343,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updateData = req.body;
       const property = await storage.updateProperty(id, updateData);
-      
+
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -434,7 +434,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userRole = Array.isArray(req.headers['x-user-role']) 
         ? req.headers['x-user-role'][0] 
         : req.headers['x-user-role'] || 'user';
-      
+
       if (!authenticatedUserId) {
         return res.status(401).json({ error: "User ID required" });
       }
@@ -462,13 +462,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Owner Dashboard route - get ALL owner's properties (pending, approved, rejected)
-  app.get("/api/owner/properties", requireAuth, async (req, res) => {
+  // Get properties by owner ID (for owner dashboard) - SECURED
+  app.get('/api/owner/properties', requireAuth, async (req, res) => {
     try {
       // Get authenticated user's ID from headers
-      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
-        ? req.headers['x-user-id'][0] 
+      const authenticatedUserId = Array.isArray(req.headers['x-user-id'])
+        ? req.headers['x-user-id'][0]
         : req.headers['x-user-id'];
-      
+
       if (!authenticatedUserId) {
         return res.status(401).json({ error: "User ID required for owner dashboard" });
       }
@@ -478,9 +479,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user ID" });
       }
 
+      const requestingUser = req.user;
+
+      console.log(`Owner properties request - Owner ID: ${ownerId}, Requesting User: ${requestingUser?.id} (${requestingUser?.role})`);
+
+      // SECURITY CHECK: Only allow access if:
+      // 1. User is admin or staff (can see any owner's properties)
+      // 2. User is requesting their own properties
+      const canAccess =
+        requestingUser?.role === 'admin' ||
+        requestingUser?.role === 'staff' ||
+        requestingUser?.id === ownerId;
+
+      if (!canAccess) {
+        console.log(`SECURITY BLOCKED: User ${requestingUser?.id} (${requestingUser?.role}) tried to access owner ${ownerId}'s properties`);
+        return res.status(403).json({
+          error: 'Access denied. You can only view your own properties.',
+          code: 'INSUFFICIENT_PERMISSIONS'
+        });
+      }
+
       // Get ALL properties owned by this user (regardless of status)
       const properties = await storage.getPropertiesByOwner(ownerId);
       res.json(properties);
+
+      console.log(`AUTHORIZED ACCESS: Found ${properties.length} properties for owner ${ownerId}`);
     } catch (error) {
       console.error("Get owner properties error:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -495,7 +518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
         ? req.headers['x-user-id'][0] 
         : req.headers['x-user-id'];
-      
+
       if (!authenticatedUserId) {
         return res.status(401).json({ error: "User ID required" });
       }
@@ -557,11 +580,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { propertyId } = req.params;
       const { status, rejectionReason } = req.body;
-      
+
       const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
         ? req.headers['x-user-id'][0] 
         : req.headers['x-user-id'];
-      
+
       if (!authenticatedUserId) {
         return res.status(401).json({ error: "Admin ID required" });
       }
@@ -594,7 +617,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get property and host info
       const property = await storage.getPropertyById(id);
-      
+
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -634,7 +657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
         ? req.headers['x-user-id'][0] 
         : req.headers['x-user-id'];
-      
+
       if (!authenticatedUserId) {
         return res.status(401).json({ error: "User ID required" });
       }
@@ -646,7 +669,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const limit = parseInt(req.query.limit as string) || 50;
       const notifications = await storage.getUserNotifications(userId, limit);
-      
+
       res.json({ notifications });
     } catch (error) {
       console.error("Get notifications error:", error);
@@ -661,20 +684,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
         ? req.headers['x-user-id'][0] 
         : req.headers['x-user-id'];
-      
+
       if (!authenticatedUserId) {
         return res.status(401).json({ error: "User ID required" });
       }
 
       const userId = parseInt(authenticatedUserId);
       const id = parseInt(notificationId);
-      
+
       if (isNaN(userId) || isNaN(id)) {
         return res.status(400).json({ error: "Invalid IDs" });
       }
 
       await storage.markNotificationAsRead(id, userId);
-      
+
       res.json({ success: true, message: "Notification marked as read" });
     } catch (error) {
       console.error("Mark notification read error:", error);
@@ -715,7 +738,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/bookings", async (req, res) => {
     try {
       const bookingData = insertBookingSchema.parse(req.body);
-      
+
       // Check if this is an authenticated user booking
       if (bookingData.userId) {
         // Use createOrUpdateBooking for authenticated users
@@ -747,7 +770,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updateData = req.body;
       const booking = await storage.updateBooking(id, updateData);
-      
+
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
       }
@@ -812,7 +835,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updateData = req.body;
       const message = await storage.updateMessage(id, updateData);
-      
+
       if (!message) {
         return res.status(404).json({ error: "Message not found" });
       }
@@ -836,7 +859,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Message not found" });
       }
 
-      res.status(204).send();
+      ```text
+res.status(204).send();
     } catch (error) {
       console.error("Delete message error:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -895,7 +919,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/properties/:id/booked-dates", async (req, res) => {
     try {
       const propertyId = parseInt(req.params.id);
-      
+
       if (isNaN(propertyId)) {
         return res.status(400).json({ error: "Invalid property ID" });
       }
@@ -912,7 +936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users/:id/bookings", async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      
+
       if (isNaN(userId)) {
         return res.status(400).json({ error: "Invalid user ID" });
       }
@@ -930,7 +954,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const ownerId = parseInt(req.params.ownerId);
       const period = req.query.period || '30';
-      
+
       if (isNaN(ownerId)) {
         return res.status(400).json({ error: "Invalid owner ID" });
       }
@@ -962,7 +986,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalBookings = hostBookings.length;
       const confirmedBookings = hostBookings.filter(b => b.status === 'confirmed').length;
       const pendingBookings = hostBookings.filter(b => b.status === 'pending').length;
-      
+
       const totalRating = hostProperties.reduce((sum, property) => 
         sum + (parseFloat(property.rating?.toString() || '0') * (property.reviewCount || 0)), 0
       );
@@ -996,7 +1020,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/hosts/:ownerId/bookings", async (req, res) => {
     try {
       const ownerId = parseInt(req.params.ownerId);
-      
+
       if (isNaN(ownerId)) {
         return res.status(400).json({ error: "Invalid owner ID" });
       }
@@ -1052,14 +1076,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/hosts/:ownerId/messages", async (req, res) => {
     try {
       const ownerId = parseInt(req.params.ownerId);
-      
+
       if (isNaN(ownerId)) {
         return res.status(400).json({ error: "Invalid owner ID" });
       }
 
       // Get all messages (in a real app, you'd filter by property owner)
       const messages = await storage.getAllMessages();
-      
+
       // Apply status filter
       const { status } = req.query;
       let filteredMessages = messages;
@@ -1079,7 +1103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const ownerId = parseInt(req.params.ownerId);
       const period = req.query.period || '30';
-      
+
       if (isNaN(ownerId)) {
         return res.status(400).json({ error: "Invalid owner ID" });
       }
@@ -1087,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get host properties and bookings
       const hostProperties = await storage.getPropertiesByOwner(ownerId);
       const propertyIds = hostProperties.map(p => p.id);
-      
+
       const allBookings = await storage.getAllBookings();
       const hostBookings = allBookings.filter(booking => 
         propertyIds.includes(booking.propertyId)
@@ -1096,11 +1120,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate mock analytics data for the period
       const periodDays = parseInt(period as string);
       const analyticsData = [];
-      
+
       for (let i = periodDays - 1; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
-        
+
         const dayBookings = hostBookings.filter(booking => {
           const bookingDate = new Date(booking.createdAt);
           return bookingDate.toDateString() === date.toDateString();
@@ -1128,7 +1152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const propertyId = parseInt(req.params.id);
       const { start, end } = req.query;
-      
+
       if (isNaN(propertyId)) {
         return res.status(400).json({ error: "Invalid property ID" });
       }
@@ -1168,14 +1192,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } = req.query;
 
       const filters: any = {};
-      
+
       if (userId) filters.userId = parseInt(userId as string);
       if (action) filters.action = action as string;
       if (entity) filters.entity = entity as string;
       if (severity) filters.severity = severity as string;
       if (startDate) filters.startDate = startDate as string;
       if (endDate) filters.endDate = endDate as string;
-      
+
       filters.page = parseInt(page as string);
       filters.limit = parseInt(limit as string);
 
@@ -1299,7 +1323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const messageLC = message.toLowerCase();
         const responses = smartResponses[language as 'en' | 'ar'];
-        
+
         let responseCategory = 'default';
         if (messageLC.includes('beach') || messageLC.includes('شاطئ') || messageLC.includes('ocean')) responseCategory = 'beach';
         else if (messageLC.includes('apartment') || messageLC.includes('شقة') || messageLC.includes('people') || messageLC.includes('أشخاص')) responseCategory = 'apartments';
@@ -1397,7 +1421,7 @@ Be helpful, polite, and enthusiastic. Use appropriate emojis. Provide useful inf
       const errorMessage = req.body.language === 'ar'
         ? "حدث خطأ في معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً."
         : "An error occurred processing your request. Please try again later.";
-      
+
       res.status(500).json({ 
         error: "Internal server error",
         response: errorMessage 
@@ -1465,7 +1489,7 @@ Be helpful, polite, and enthusiastic. Use appropriate emojis. Provide useful inf
 
         const messageLC = message.toLowerCase();
         const responses = hostFallbackResponses[language as 'en' | 'ar'];
-        
+
         let responseCategory = 'default';
         if (messageLC.includes('listing') || messageLC.includes('create') || messageLC.includes('إعلان') || messageLC.includes('قائمة')) responseCategory = 'listing';
         else if (messageLC.includes('pricing') || messageLC.includes('price') || messageLC.includes('تسعير') || messageLC.includes('سعر')) responseCategory = 'pricing';
@@ -1598,7 +1622,7 @@ Your response guidelines:
       const errorMessage = req.body.language === 'ar'
         ? "حدث خطأ في معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً أو الاتصال بدعم المضيفين."
         : "An error occurred processing your request. Please try again later or contact host support.";
-      
+
       res.status(500).json({ 
         error: "Internal server error",
         response: errorMessage 
@@ -1610,7 +1634,7 @@ Your response guidelines:
     try {
       const propertyId = parseInt(req.params.id);
       const { start, end, reason } = req.body;
-      
+
       if (isNaN(propertyId)) {
         return res.status(400).json({ error: "Invalid property ID" });
       }
@@ -1719,7 +1743,7 @@ Your response guidelines:
           3. Areas needing improvement
           4. Pricing and market positioning recommendations
           5. Specific action items for the host
-          
+
           Focus on properties in the Martil/Tamuda Bay area of Morocco.`;
 
           const aiResponse = await openai.chat.completions.create({
