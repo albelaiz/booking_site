@@ -31,6 +31,10 @@ const Header: React.FC = () => {
     setIsMobileMenuOpen(prev => !prev);
   }, []);
 
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
+
   return (
     <>
       <header 
@@ -64,21 +68,23 @@ const Header: React.FC = () => {
             {/* Hamburger Menu on the right */}
             <button
               onClick={toggleMobileMenu}
-              className="flex items-center justify-center w-12 h-12 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200 border border-gray-200 z-50"
+              className="relative flex items-center justify-center w-12 h-12 rounded-lg bg-white hover:bg-gray-50 transition-all duration-200 border border-gray-200 shadow-sm z-[70]"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? (
-                <X className="w-6 h-6 text-gray-700" />
-              ) : (
-                <Menu className="w-6 h-6 text-gray-700" />
-              )}
+              <div className="relative w-6 h-6 flex items-center justify-center">
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5 text-gray-700 transition-transform duration-200" />
+                ) : (
+                  <Menu className="w-5 h-5 text-gray-700 transition-transform duration-200" />
+                )}
+              </div>
             </button>
           </div>
         </div>
       </header>
 
       {/* Mobile Menu */}
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
     </>
   );
 };

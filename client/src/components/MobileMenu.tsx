@@ -31,47 +31,60 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   return (
-    <div className={`fixed inset-0 z-[60] bg-white transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-      {/* Close Button */}
-      <div className="p-4 flex justify-end">
-        <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-          <X className="w-6 h-6" />
-        </button>
-      </div>
+    <>
+      {/* Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-[65] bg-black bg-opacity-50 transition-opacity duration-300"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Menu Panel */}
+      <div className={`fixed inset-0 z-[70] bg-white transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Close Button */}
+        <div className="p-4 flex justify-end border-b border-gray-100">
+          <button 
+            onClick={onClose} 
+            className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors duration-200"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
 
-      <div className="flex flex-col h-full">
-        {/* Navigation Links */}
-        <div className="space-y-2">
+      <div className="flex flex-col h-full overflow-y-auto">
+          {/* Navigation Links */}
+          <div className="flex-1 p-6 space-y-3">
           <Link
             to="/"
-            className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg font-medium transition-colors duration-200 group"
+            className="flex items-center px-4 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl font-medium transition-all duration-200 group border border-transparent hover:border-blue-100"
             onClick={onClose}
           >
-            <Home className="w-5 h-5 mr-3 group-hover:text-blue-600" />
-            Home
+            <Home className="w-5 h-5 mr-4 group-hover:text-blue-600 transition-colors duration-200" />
+            <span className="text-base">Home</span>
           </Link>
 
           <Link
             to="/about"
-            className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg font-medium transition-colors duration-200 group"
+            className="flex items-center px-4 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl font-medium transition-all duration-200 group border border-transparent hover:border-blue-100"
             onClick={onClose}
           >
-            <Info className="w-5 h-5 mr-3 group-hover:text-blue-600" />
-            About
+            <Info className="w-5 h-5 mr-4 group-hover:text-blue-600 transition-colors duration-200" />
+            <span className="text-base">About</span>
           </Link>
 
           <Link
             to="/contact"
-            className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg font-medium transition-colors duration-200 group"
+            className="flex items-center px-4 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl font-medium transition-all duration-200 group border border-transparent hover:border-blue-100"
             onClick={onClose}
           >
-            <Phone className="w-5 h-5 mr-3 group-hover:text-blue-600" />
-            Contact
+            <Phone className="w-5 h-5 mr-4 group-hover:text-blue-600 transition-colors duration-200" />
+            <span className="text-base">Contact</span>
           </Link>
         </div>
 
-        {/* Authentication Links */}
-        <div className="mt-auto p-4 space-y-2 border-t border-gray-200">
+          {/* Authentication Links */}
+          <div className="mt-auto p-6 space-y-3 border-t border-gray-100 bg-gray-50">
           {isAuthenticated ? (
             <>
               <Link
@@ -110,9 +123,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               </Link>
             </>
           )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
