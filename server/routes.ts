@@ -4,30 +4,50 @@ import { storage } from "./storage";
 import { z } from "zod";
 import OpenAI from "openai";
 import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema } from "@shared/schema";
+import { eq, and, desc } from "drizzle-orm";
+import { db } from "./db";
+import { users, properties, bookings, messages, stories, testimonials, auditLogs } from "@shared/schema";
+import type { Request, Response } from "express";
+import bcrypt from "bcryptjs";
+import { notificationService } from "./services/notificationService";
 
 // Import new route handlers
 import { approveProperty, getPendingProperties } from './routes/admin/properties';
 import { submitProperty, getHostProperties } from './routes/host/properties';
 import { getHomePageProperties, getPublicProperties } from './routes/public/properties';
 
-// Simple authentication middleware
-const requireAuth = (req: any, res: any, next: any) => {
-  const authHeader = req.headers.authorization;
-  const userId = req.headers['x-user-id'];
-  const userRole = req.headers['x-user-role'];
+// Enhanced authentication middleware
+async function authenticateUser(req: Request, res: Response, next: Function) {
+  try {
+    const authHeader = req.headers.authorization;
+    const userId = req.headers['x-user-id'] as string;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: "Authentication required" });
+    console.log('Auth check:', { authHeader: !!authHeader, userId });
+
+    if (!authHeader || !userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    // Verify user exists in database
+    const user = await db.select().from(users).where(eq(users.id, parseInt(userId))).limit(1);
+
+    if (!user || user.length === 0) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    // Store user info in request for later use
+    req.user = { 
+      id: user[0].id, 
+      role: user[0].role,
+      username: user[0].username
+    };
+
+    next();
+  } catch (error) {
+    console.error('Auth middleware error:', error);
+    return res.status(401).json({ error: "Authentication failed" });
   }
-
-  // Set user data from headers (in a real app, you'd decode from JWT)
-  req.user = {
-    id: parseInt(userId as string) || 1,
-    role: userRole as string || 'user'
-  };
-
-  next();
-};
+}
 
 // Admin/Staff role middleware
 const requireAdminRole = (req: any, res: any, next: any) => {
@@ -269,8 +289,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/properties/public", getPublicProperties);
 
   // Host routes - property management
-  app.post("/api/host/properties", requireAuth, submitProperty);
-  app.get("/api/host/properties", requireAuth, getHostProperties);
+  app.post("/api/host/properties", (req: any, res: any, next: any) => {
+    const userId = req.headers['x-user-id'];
+    const authToken = req.headers.authorization;
+
+    if (!userId || !authToken) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Add user to request for downstream handlers
+    req.user = { id: parseInt(userId as string), role: req.headers['x-user-role'] as string };
+    next();
+  }, submitProperty);
+  
+  // Host properties endpoint - only show host's own properties
+  app.get("/api/host/properties", authenticateUser, async (req, res) => {
+    try {
+      const user = req.user;
+
+      // Only allow owners/hosts to access this endpoint
+      if (!user || (user.role !== 'owner' && user.role !== 'host')) {
+        return res.status(403).json({ error: "Access denied. Owner role required." });
+      }
+
+      console.log(`Fetching properties for host ${user.id}`);
+
+      // Query properties where ownerId matches the authenticated user's ID
+      const hostProperties = await db.select().from(properties)
+        .where(eq(properties.ownerId, user.id))
+        .orderBy(desc(properties.createdAt));
+
+      console.log(`Found ${hostProperties.length} properties for host ${user.id}`);
+
+      res.json({
+        success: true,
+        properties: hostProperties
+      });
+    } catch (error) {
+      console.error("Error fetching host properties:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch properties",
+        details: error.message 
+      });
+    }
+  });
 
   // Admin routes - property approval
   app.get("/api/admin/properties/pending", requireAdminRole, getPendingProperties);
@@ -306,31 +369,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/properties", requireAuth, async (req, res) => {
+  // Create property endpoint
+  app.post("/api/properties", authenticateUser, async (req, res) => {
     try {
-      const propertyData = insertPropertySchema.parse(req.body);
+      const user = req.user;
 
-      // Extract user info from token (in a real app, you'd decode the JWT)
-      // For now, we'll get it from the request body or headers
-      const userId = req.body.ownerId || req.headers['x-user-id'];
-      const userRole = req.headers['x-user-role'] || 'user';
+      // Only allow owners and admins to create properties
+      if (!user || (user.role !== 'owner' && user.role !== 'admin')) {
+        return res.status(403).json({ error: "Access denied. Owner role required." });
+      }
 
-      // Force status based on user role
-      const finalPropertyData = {
-        ...propertyData,
-        ownerId: String(userId),
-        hostId: String(userId),
-        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
+      const propertyData = {
+        ...req.body,
+        ownerId: user.id, // Always set ownerId to the authenticated user
+        status: user.role === 'admin' ? 'approved' : 'pending', // Auto-approve for admins
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
-      const property = await storage.createProperty(finalPropertyData);
-      res.status(201).json(property);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid property data", details: error.errors });
+      console.log('Creating property with data:', propertyData);
+
+      const newProperty = await storage.createProperty(propertyData);
+
+      // Send notification for pending properties
+      if (newProperty.status === 'pending') {
+        try {
+          await notificationService.notifyPropertySubmitted(newProperty);
+        } catch (notificationError) {
+          console.error('Notification error:', notificationError);
+          // Don't fail the property creation if notification fails
+        }
       }
-      console.error("Create property error:", error);
-      res.status(500).json({ error: "Internal server error" });
+
+      res.status(201).json({
+        success: true,
+        property: newProperty,
+        message: user.role === 'admin' ? 'Property created and approved' : 'Property created and pending approval'
+      });
+    } catch (error) {
+      console.error("Error creating property:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to create property",
+        details: error.message 
+      });
     }
   });
 
@@ -1445,8 +1527,7 @@ Be helpful, polite, and enthusiastic. Use appropriate emojis. Provide useful inf
             ],
             communication: [
               "🌍 للضيوف الناطقين بالإنجليزية: استخدم Google Translate للعبارات الأساسية، تعلم التحيات الإنجليزية الأساسية (Welcome = أهلاً وسهلاً)، قدم التعليمات المكتوبة بالإنجليزية، وكن صبوراً مع الاختلافات الثقافية. كثير من الضيوف يقدرون جهد التواصل بلغتهم!",
-              "📱 نصائح التواصل: استخدم تطبيقات الترجمة، استعن بمساعد محلي للدعم الإنجليزي، قدم أدلة ترحيب ثنائية اللغة، وتذكر أن الضيافة المغربية تقدر الدفء الشخصي والاهتمام بالتفاصيل."
-            ],
+              "📱 نصائح التواصل: استخدم تطبيقات الترجمة، استعن بمساعد محلي للدعم الإنجليزي، قدم أدلة ترحيب ثنائية اللغة، وتذكر أن الضيافة المغربية تقدر الدفء الشخصي والاهتمام بالتفاصيل."            ],
             amenities: [
               "🎯 أهم المرافق التي يتوقعها الضيوف في المغرب: الواي فاي (أساسي)، التكييف (ضروري في الصيف)، الديكور المغربي التقليدي، مطبخ مجهز بالكامل، مناشف/أغطية نظيفة، أدلة المنطقة المحلية، وموقف سيارات إن أمكن. الوصول للشاطئ ميزة كبيرة في مارتيل!",
               "⭐ المرافق الضرورية: إنترنت موثوق، تكييف هواء، لمسات مغربية أصيلة، أساسيات المطبخ، فراش عالي الجودة، دليل التوصيات المحلية، وميزات الأمان. فكر في إضافة خدمة الشاي التقليدية للحصول على تجربة أصيلة!"
@@ -1705,20 +1786,15 @@ Your response guidelines:
   });
 
   // Host property submission
-  app.post("/api/host/properties", requireAuth, async (req, res) => {
+  app.post("/api/host/properties", authenticateUser, async (req, res) => {
     try {
-      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
-        ? req.headers['x-user-id'][0] 
-        : req.headers['x-user-id'];
+      const user = req.user;
 
-      if (!authenticatedUserId) {
+      if (!user) {
         return res.status(401).json({ error: "User ID required" });
       }
 
-      const hostId = parseInt(authenticatedUserId);
-      if (isNaN(hostId)) {
-        return res.status(400).json({ error: "Invalid user ID" });
-      }
+      const hostId = user.id;
 
       console.log(`Host ${hostId} submitting property:`, req.body.title);
 
@@ -1873,33 +1949,6 @@ Your response guidelines:
       res.status(500).json({ error: 'Failed to fetch pending properties' });
     }
   });
-
-  // Host property routes with simple auth check
-  app.get('/api/host/properties', (req: any, res: any, next: any) => {
-    const userId = req.headers['x-user-id'];
-    const authToken = req.headers.authorization;
-
-    if (!userId || !authToken) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    // Add user to request for downstream handlers
-    req.user = { id: parseInt(userId as string), role: req.headers['x-user-role'] as string };
-    next();
-  }, getHostProperties);
-
-  app.post('/api/host/properties', (req: any, res: any, next: any) => {
-    const userId = req.headers['x-user-id'];
-    const authToken = req.headers.authorization;
-
-    if (!userId || !authToken) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    // Add user to request for downstream handlers
-    req.user = { id: parseInt(userId as string), role: req.headers['x-user-role'] as string };
-    next();
-  }, submitProperty);
 
   const httpServer = createServer(app);
   return httpServer;

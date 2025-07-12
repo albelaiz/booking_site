@@ -237,19 +237,32 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async createProperty(insertProperty: any): Promise<Property> {
+  async createProperty(propertyData: any) {
     try {
+      console.log('Storage: Creating property with data:', propertyData);
+
       const result = await db.insert(properties).values({
-        ...insertProperty,
-        updatedAt: new Date(),
+        title: propertyData.title,
+        description: propertyData.description,
+        price: propertyData.price,
+        priceUnit: propertyData.priceUnit || 'night',
+        images: propertyData.images || [],
+        location: propertyData.location,
+        bedrooms: parseInt(propertyData.bedrooms) || 1,
+        bathrooms: parseInt(propertyData.bathrooms) || 1,
+        capacity: parseInt(propertyData.capacity) || 2,
+        amenities: propertyData.amenities || [],
+        featured: propertyData.featured || false,
+        ownerId: propertyData.ownerId,
+        status: propertyData.status || 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date()
       }).returning();
 
-      if (!result[0]) {
-        throw new Error('Failed to create property');
-      }
+      console.log('Storage: Property created successfully:', result[0]);
       return result[0];
     } catch (error) {
-      console.error('Error creating property:', error);
+      console.error('Storage: Error creating property:', error);
       throw error;
     }
   }

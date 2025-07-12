@@ -33,7 +33,7 @@ const OwnerDashboard = () => {
     const fetchOwnerProperties = async () => {
       try {
         setLoading(true);
-        
+
         // Check authentication first
         const token = localStorage.getItem('authToken') || localStorage.getItem('token');
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -50,7 +50,7 @@ const OwnerDashboard = () => {
         }
 
         console.log('Fetching properties for owner:', userId);
-        
+
         // Make direct API call with proper authentication headers
         const response = await fetch(`/api/host/properties`, {
           headers: {
@@ -163,7 +163,7 @@ const OwnerDashboard = () => {
         try {
           const token = localStorage.getItem('authToken') || localStorage.getItem('token');
           const userId = localStorage.getItem('userId');
-          
+
           if (token && userId) {
             const response = await fetch(`/api/host/properties`, {
               headers: {
