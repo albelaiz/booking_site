@@ -13,7 +13,7 @@ interface Message {
 }
 
 interface HostChatbotProps {
-  language?: 'en' | 'ar';
+  language?: 'en';
   position?: 'bottom-right' | 'bottom-left';
 }
 
@@ -27,42 +27,26 @@ const TamudaHostChatbot: React.FC<HostChatbotProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const welcomeMessages = {
-    en: "🏠 Welcome to TamudaStay Host Support! I'm here to help you succeed as a host in Morocco. Whether you're just starting out or looking to optimize your listings, I can assist with everything from pricing strategies to guest communication. What can I help you with today?",
-    ar: "🏠 مرحباً بك في دعم مضيفي تاموداستاي! أنا هنا لمساعدتك على النجاح كمضيف في المغرب. سواء كنت بدأت للتو أو تتطلع لتحسين قوائمك، يمكنني المساعدة في كل شيء من استراتيجيات التسعير إلى التواصل مع الضيوف. بماذا يمكنني مساعدتك اليوم؟"
-  };
-
-  const placeholders = {
-    en: "Ask about listing, pricing, guest management...",
-    ar: "اسأل عن القوائم، التسعير، إدارة الضيوف..."
-  };
-
-  const quickSuggestions = {
-    en: [
-      "How do I create my first listing?",
-      "What pricing strategy works best in Morocco?",
-      "How to communicate with Arabic-speaking guests?",
-      "What amenities do guests expect most?"
-    ],
-    ar: [
-      "كيف أنشئ قائمتي الأولى؟",
-      "ما هي استراتيجية التسعير الأفضل في المغرب؟",
-      "كيف أتواصل مع الضيوف الناطقين بالإنجليزية؟",
-      "ما هي المرافق التي يتوقعها الضيوف أكثر؟"
-    ]
-  };
+  const welcomeMessage = "🏠 Welcome to TamudaStay Host Support! I'm here to help you succeed as a host in Morocco. Whether you're just starting out or looking to optimize your listings, I can assist with everything from pricing strategies to guest communication. What can I help you with today?";
+  const placeholder = "Ask about listing, pricing, guest management...";
+  const quickSuggestions = [
+    "How do I create my first listing?",
+    "What pricing strategy works best in Morocco?",
+    "How to communicate with guests effectively?",
+    "What amenities do guests expect most?"
+  ];
 
   // Initialize with welcome message
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([{
         id: '1',
-        text: welcomeMessages[language],
+        text: welcomeMessage,
         isUser: false,
         timestamp: new Date()
       }]);
     }
-  }, [language]);
+  }, []);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -92,13 +76,8 @@ const TamudaHostChatbot: React.FC<HostChatbotProps> = ({
     } catch (error) {
       console.error('Error getting AI response:', error);
       
-      // Smart fallback responses for hosts
-      const hostFallbackResponses = {
-        en: "Thank you for your question! For detailed host support, please visit our Host Dashboard or contact our host support team directly. We're here to help you succeed as a TamudaStay host in Morocco! 📞 Host Support: +212 XXX-XXXXXX",
-        ar: "شكراً لك على سؤالك! للحصول على دعم مفصل للمضيفين، يرجى زيارة لوحة تحكم المضيف أو الاتصال بفريق دعم المضيفين مباشرة. نحن هنا لمساعدتك على النجاح كمضيف في تاموداستاي في المغرب! 📞 دعم المضيفين: +212 XXX-XXXXXX"
-      };
-
-      return hostFallbackResponses[language];
+      // Fallback response for hosts
+      return "Thank you for your question! For detailed host support, please visit our Host Dashboard or contact our host support team directly. We're here to help you succeed as a TamudaStay host in Morocco! 📞 Host Support: +212 XXX-XXXXXX";
     }
   };
 
@@ -195,7 +174,7 @@ const TamudaHostChatbot: React.FC<HostChatbotProps> = ({
           <Home className="h-6 w-6 text-white group-hover:scale-110 transition-transform" />
         </Button>
         <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-          {language === 'ar' ? 'مساعد المضيفين' : 'Host Assistant'}
+          Host Assistant
         </div>
       </div>
     );
@@ -212,7 +191,7 @@ const TamudaHostChatbot: React.FC<HostChatbotProps> = ({
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Home className="h-5 w-5" />
-              {language === 'ar' ? 'مساعد المضيفين' : 'Host Assistant'}
+              Host Assistant
             </CardTitle>
             <Button
               variant="ghost"

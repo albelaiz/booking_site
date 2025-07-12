@@ -13,7 +13,7 @@ interface Message {
 }
 
 interface ChatbotProps {
-  language?: 'en' | 'ar';
+  language?: 'en';
   position?: 'bottom-right' | 'bottom-left';
 }
 
@@ -27,47 +27,27 @@ const TamudaChatbot: React.FC<ChatbotProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const welcomeMessages = {
-    en: "👋 Hi! I'm your TamudaStay assistant. How can I help you find the perfect vacation rental in Morocco today?",
-    ar: "👋 مرحباً! أنا مساعدك في تاموداستاي. كيف يمكنني مساعدتك في العثور على الإيجار المثالي لعطلتك في المغرب اليوم؟"
-  };
+  const welcomeMessage = "👋 Hi! I'm your TamudaStay assistant. How can I help you find the perfect vacation rental in Morocco today?";
+  const placeholder = "Ask me about properties, locations, booking...";
 
-  const placeholders = {
-    en: "Ask me about properties, locations, booking...",
-    ar: "اسألني عن العقارات، المواقع، الحجز..."
-  };
-
-  const sendButtonText = {
-    en: "Send",
-    ar: "إرسال"
-  };
-
-  const quickSuggestions = {
-    en: [
-      "Which properties are near the beach?",
-      "Do you have any apartments for 4 people in Martil?",
-      "How can I become a host?",
-      "What are the check-in and check-out times?"
-    ],
-    ar: [
-      "أي عقارات قريبة من الشاطئ؟",
-      "هل لديكم شقق لـ 4 أشخاص في مارتيل؟",
-      "كيف يمكنني أن أصبح مضيفاً؟",
-      "ما هي أوقات تسجيل الوصول والمغادرة؟"
-    ]
-  };
+  const quickSuggestions = [
+    "Which properties are near the beach?",
+    "Do you have any apartments for 4 people in Martil?",
+    "How can I become a host?",
+    "What are the check-in and check-out times?"
+  ];
 
   // Initialize with welcome message
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([{
         id: '1',
-        text: welcomeMessages[language],
+        text: welcomeMessage,
         isUser: false,
         timestamp: new Date()
       }]);
     }
-  }, [language]);
+  }, []);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -97,13 +77,8 @@ const TamudaChatbot: React.FC<ChatbotProps> = ({
     } catch (error) {
       console.error('Error getting AI response:', error);
       
-      // Fallback responses based on common questions
-      const fallbackResponses = {
-        en: "I'm sorry, I'm having trouble connecting right now. For immediate assistance, please contact us at +212 XXX-XXXXXX or visit our contact page.",
-        ar: "أعتذر، أواجه مشكلة في الاتصال الآن. للحصول على المساعدة الفورية، يرجى الاتصال بنا على +212 XXX-XXXXXX أو زيارة صفحة الاتصال."
-      };
-
-      return fallbackResponses[language];
+      // Fallback response
+      return "I'm sorry, I'm having trouble connecting right now. For immediate assistance, please contact us at +212 XXX-XXXXXX or visit our contact page.";
     }
   };
 
@@ -178,7 +153,7 @@ const TamudaChatbot: React.FC<ChatbotProps> = ({
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString(language === 'ar' ? 'ar-MA' : 'en-US', {
+    return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -306,10 +281,9 @@ const TamudaChatbot: React.FC<ChatbotProps> = ({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={placeholders[language]}
+                placeholder={placeholder}
                 disabled={isLoading}
                 className="flex-1 border-gray-200 focus:border-blue-500"
-                dir={language === 'ar' ? 'rtl' : 'ltr'}
               />
               <Button
                 onClick={handleSendMessage}
