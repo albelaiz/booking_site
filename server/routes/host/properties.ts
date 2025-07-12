@@ -15,17 +15,9 @@ interface AuthenticatedRequest extends Request {
 
 export async function submitProperty(req: AuthenticatedRequest, res: Response) {
   try {
-    const hostId = req.user?.id || parseInt(req.headers['x-user-id'] as string);
-    const authHeader = req.headers.authorization;
-    
-    console.log('Property submission request:', {
-      hostId,
-      hasAuth: !!authHeader,
-      bodyKeys: Object.keys(req.body)
-    });
+    const hostId = req.user?.id;
     
     if (!hostId) {
-      console.log('Missing host ID for property submission');
       return res.status(401).json({ error: 'Host authentication required' });
     }
 
@@ -182,26 +174,16 @@ export async function submitProperty(req: AuthenticatedRequest, res: Response) {
 // Get host's properties
 export async function getHostProperties(req: AuthenticatedRequest, res: Response) {
   try {
-    const hostId = req.user?.id || parseInt(req.headers['x-user-id'] as string);
-    const authHeader = req.headers.authorization;
-    
-    console.log('Host properties request:', {
-      hostId,
-      hasAuth: !!authHeader,
-      userAgent: req.headers['user-agent']
-    });
+    const hostId = req.user?.id;
     
     if (!hostId) {
-      console.log('Missing host ID in request');
       return res.status(401).json({ error: 'Host authentication required' });
     }
 
-    const { page = 1, limit = 100 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
     const pageNum = parseInt(String(page));
     const limitNum = parseInt(String(limit));
     const offset = (pageNum - 1) * limitNum;
-
-    console.log(`Fetching properties for hostId: ${hostId}`);
 
     const hostProperties = await db.select({
       id: properties.id,
@@ -212,13 +194,9 @@ export async function getHostProperties(req: AuthenticatedRequest, res: Response
       images: properties.images,
       bedrooms: properties.bedrooms,
       bathrooms: properties.bathrooms,
-      capacity: properties.capacity,
       location: properties.location,
-      amenities: properties.amenities,
       isActive: properties.isActive,
       isVisible: properties.isVisible,
-      hostId: properties.hostId,
-      ownerId: properties.ownerId,
       createdAt: properties.createdAt,
       updatedAt: properties.updatedAt,
       reviewedAt: properties.reviewedAt,
@@ -230,8 +208,6 @@ export async function getHostProperties(req: AuthenticatedRequest, res: Response
     .orderBy(properties.createdAt)
     .limit(limitNum)
     .offset(offset);
-
-    console.log(`Found ${hostProperties.length} properties for host ${hostId}`);
 
     // Get total count
     const totalResult = await db.select({ count: properties.id })

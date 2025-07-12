@@ -12,7 +12,7 @@ export interface IStorage {
   updateUser(id: number, user: any): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
   getAllUsers(): Promise<User[]>;
-
+  
   // Property methods
   getProperty(id: number): Promise<Property | undefined>;
   getApprovedProperty(id: number): Promise<Property | undefined>;
@@ -23,7 +23,7 @@ export interface IStorage {
   createProperty(property: any): Promise<Property>;
   updateProperty(id: number, property: any): Promise<Property | undefined>;
   deleteProperty(id: number): Promise<boolean>;
-
+  
   // Booking methods
   getBooking(id: number): Promise<Booking | undefined>;
   getAllBookings(): Promise<Booking[]>;
@@ -35,7 +35,7 @@ export interface IStorage {
   createBooking(booking: any): Promise<Booking>;
   updateBooking(id: number, booking: any): Promise<Booking | undefined>;
   createOrUpdateBooking(booking: any): Promise<Booking>;
-
+  
   // Message methods
   getMessage(id: number): Promise<Message | undefined>;
   getAllMessages(): Promise<Message[]>;
@@ -111,7 +111,7 @@ export class DatabaseStorage implements IStorage {
         ...insertUser,
         updatedAt: new Date(),
       }).returning();
-
+      
       if (!result[0]) {
         throw new Error('Failed to create user');
       }
@@ -131,7 +131,7 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(users.id, id))
         .returning();
-
+      
       return result[0] || undefined;
     } catch (error) {
       console.error('Error updating user:', error);
@@ -199,32 +199,12 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getPropertiesByStatus(status: string, limit = 10, offset = 0): Promise<Property[]> {
+  async getPropertiesByStatus(status: string): Promise<Property[]> {
     try {
-      const result = await db
-        .select()
-        .from(properties)
-        .where(eq(properties.status, status))
-        .orderBy(properties.createdAt)
-        .limit(limit)
-        .offset(offset);
-      return result;
+      return await db.select().from(properties).where(eq(properties.status, status));
     } catch (error) {
       console.error('Error fetching properties by status:', error);
       return [];
-    }
-  }
-
-  async countPropertiesByStatus(status: string): Promise<number> {
-    try {
-      const result = await db
-        .select({ count: properties.id })
-        .from(properties)
-        .where(eq(properties.status, status));
-      return result.length;
-    } catch (error) {
-      console.error('Error counting properties by status:', error);
-      return 0;
     }
   }
 
@@ -237,32 +217,19 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async createProperty(propertyData: any) {
+  async createProperty(insertProperty: any): Promise<Property> {
     try {
-      console.log('Storage: Creating property with data:', propertyData);
-
       const result = await db.insert(properties).values({
-        title: propertyData.title,
-        description: propertyData.description,
-        price: propertyData.price,
-        priceUnit: propertyData.priceUnit || 'night',
-        images: propertyData.images || [],
-        location: propertyData.location,
-        bedrooms: parseInt(propertyData.bedrooms) || 1,
-        bathrooms: parseInt(propertyData.bathrooms) || 1,
-        capacity: parseInt(propertyData.capacity) || 2,
-        amenities: propertyData.amenities || [],
-        featured: propertyData.featured || false,
-        ownerId: propertyData.ownerId,
-        status: propertyData.status || 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        ...insertProperty,
+        updatedAt: new Date(),
       }).returning();
-
-      console.log('Storage: Property created successfully:', result[0]);
+      
+      if (!result[0]) {
+        throw new Error('Failed to create property');
+      }
       return result[0];
     } catch (error) {
-      console.error('Storage: Error creating property:', error);
+      console.error('Error creating property:', error);
       throw error;
     }
   }
@@ -276,7 +243,7 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(properties.id, id))
         .returning();
-
+      
       return result[0] || undefined;
     } catch (error) {
       console.error('Error updating property:', error);
@@ -360,7 +327,7 @@ export class DatabaseStorage implements IStorage {
           gte(bookings.checkOut, new Date()) // Only future or current bookings
         ))
         .orderBy(bookings.checkIn);
-
+      
       return result.map(booking => ({
         checkIn: new Date(booking.checkIn),
         checkOut: new Date(booking.checkOut)
@@ -430,7 +397,7 @@ export class DatabaseStorage implements IStorage {
         createdAt: new Date(),
         updatedAt: new Date(),
       }).returning();
-
+      
       if (!result[0]) {
         throw new Error('Failed to create booking');
       }
@@ -472,7 +439,7 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(bookings.id, id))
         .returning();
-
+      
       return result[0] || undefined;
     } catch (error) {
       console.error('Error updating booking:', error);
@@ -534,7 +501,7 @@ export class DatabaseStorage implements IStorage {
         createdAt: new Date(),
         updatedAt: new Date(),
       }).returning();
-
+      
       if (!result[0]) {
         throw new Error('Failed to create message');
       }
@@ -554,7 +521,7 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(messages.id, id))
         .returning();
-
+      
       return result[0] || undefined;
     } catch (error) {
       console.error('Error updating message:', error);
@@ -579,7 +546,7 @@ export class DatabaseStorage implements IStorage {
         ...auditLog,
         createdAt: new Date(),
       }).returning();
-
+      
       if (!result[0]) {
         throw new Error('Failed to create audit log');
       }
@@ -739,7 +706,7 @@ export class DatabaseStorage implements IStorage {
           eq(notifications.userId, userId)
         ))
         .returning();
-
+      
       return result.length > 0;
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -754,7 +721,7 @@ export class DatabaseStorage implements IStorage {
           eq(notifications.userId, userId),
           eq(notifications.isRead, false)
         ));
-
+      
       return result.length;
     } catch (error) {
       console.error('Error fetching unread notification count:', error);
@@ -767,7 +734,7 @@ export class DatabaseStorage implements IStorage {
       const result = await db.delete(notifications)
         .where(eq(notifications.id, notificationId))
         .returning();
-
+      
       return result.length > 0;
     } catch (error) {
       console.error('Error deleting notification:', error);

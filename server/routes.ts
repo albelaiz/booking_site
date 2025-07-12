@@ -4,75 +4,54 @@ import { storage } from "./storage";
 import { z } from "zod";
 import OpenAI from "openai";
 import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
-import { db } from "./db";
-import { users, properties, bookings, messages, stories, testimonials, auditLogs } from "@shared/schema";
-import type { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import { notificationService } from "./services/notificationService";
 
 // Import new route handlers
 import { approveProperty, getPendingProperties } from './routes/admin/properties';
 import { submitProperty, getHostProperties } from './routes/host/properties';
 import { getHomePageProperties, getPublicProperties } from './routes/public/properties';
 
-// Enhanced authentication middleware
-async function authenticateUser(req: Request, res: Response, next: Function) {
-  try {
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Simple authentication middleware
+  const requireAuth = (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
-    const userId = req.headers['x-user-id'] as string;
+    const userId = req.headers['x-user-id'];
+    const userRole = req.headers['x-user-role'];
 
-    console.log('Auth check:', { authHeader: !!authHeader, userId });
-
-    if (!authHeader || !userId) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    // Verify user exists in database
-    const user = await db.select().from(users).where(eq(users.id, parseInt(userId))).limit(1);
-
-    if (!user || user.length === 0) {
-      return res.status(401).json({ error: "User not found" });
-    }
-
-    // Store user info in request for later use
-    req.user = { 
-      id: user[0].id, 
-      role: user[0].role,
-      username: user[0].username
+    // Set user data from headers (in a real app, you'd decode from JWT)
+    req.user = {
+      id: parseInt(userId as string) || 1,
+      role: userRole as string || 'user'
     };
 
     next();
-  } catch (error) {
-    console.error('Auth middleware error:', error);
-    return res.status(401).json({ error: "Authentication failed" });
-  }
-}
-
-// Admin/Staff role middleware
-const requireAdminRole = (req: any, res: any, next: any) => {
-  const authHeader = req.headers.authorization;
-  const userId = req.headers['x-user-id'];
-  const userRole = req.headers['x-user-role'];
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: "Admin authentication required" });
-  }
-
-  if (!userRole || !['admin', 'staff'].includes(userRole)) {
-    return res.status(403).json({ error: "Admin role required" });
-  }
-
-  // Set user data from headers
-  req.user = {
-    id: parseInt(userId as string) || 1,
-    role: userRole as string
   };
 
-  next();
-};
+  // Admin/Staff role middleware
+  const requireAdminRole = (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization;
+    const userId = req.headers['x-user-id'];
+    const userRole = req.headers['x-user-role'];
 
-export async function registerRoutes(app: Express): Promise<Server> {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: "Admin authentication required" });
+    }
+
+    if (!userRole || !['admin', 'staff'].includes(userRole)) {
+      return res.status(403).json({ error: "Admin role required" });
+    }
+
+    // Set user data from headers
+    req.user = {
+      id: parseInt(userId as string) || 1,
+      role: userRole as string
+    };
+
+    next();
+  };
   // Health check route
   app.get("/api/health", async (req, res) => {
     res.json({ status: "healthy", timestamp: new Date().toISOString() });
@@ -289,51 +268,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/properties/public", getPublicProperties);
 
   // Host routes - property management
-  app.post("/api/host/properties", (req: any, res: any, next: any) => {
-    const userId = req.headers['x-user-id'];
-    const authToken = req.headers.authorization;
-
-    if (!userId || !authToken) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    // Add user to request for downstream handlers
-    req.user = { id: parseInt(userId as string), role: req.headers['x-user-role'] as string };
-    next();
-  }, submitProperty);
-  
-  // Host properties endpoint - only show host's own properties
-  app.get("/api/host/properties", authenticateUser, async (req, res) => {
-    try {
-      const user = req.user;
-
-      // Only allow owners/hosts to access this endpoint
-      if (!user || (user.role !== 'owner' && user.role !== 'host')) {
-        return res.status(403).json({ error: "Access denied. Owner role required." });
-      }
-
-      console.log(`Fetching properties for host ${user.id}`);
-
-      // Query properties where ownerId matches the authenticated user's ID
-      const hostProperties = await db.select().from(properties)
-        .where(eq(properties.ownerId, user.id))
-        .orderBy(desc(properties.createdAt));
-
-      console.log(`Found ${hostProperties.length} properties for host ${user.id}`);
-
-      res.json({
-        success: true,
-        properties: hostProperties
-      });
-    } catch (error) {
-      console.error("Error fetching host properties:", error);
-      res.status(500).json({ 
-        success: false, 
-        error: "Failed to fetch properties",
-        details: error.message 
-      });
-    }
-  });
+  app.post("/api/host/properties", requireAuth, submitProperty);
+  app.get("/api/host/properties", requireAuth, getHostProperties);
 
   // Admin routes - property approval
   app.get("/api/admin/properties/pending", requireAdminRole, getPendingProperties);
@@ -369,50 +305,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create property endpoint
-  app.post("/api/properties", authenticateUser, async (req, res) => {
+  app.post("/api/properties", requireAuth, async (req, res) => {
     try {
-      const user = req.user;
+      const propertyData = insertPropertySchema.parse(req.body);
 
-      // Only allow owners and admins to create properties
-      if (!user || (user.role !== 'owner' && user.role !== 'admin')) {
-        return res.status(403).json({ error: "Access denied. Owner role required." });
-      }
+      // Extract user info from token (in a real app, you'd decode the JWT)
+      // For now, we'll get it from the request body or headers
+      const userId = req.body.ownerId || req.headers['x-user-id'];
+      const userRole = req.headers['x-user-role'] || 'user';
 
-      const propertyData = {
-        ...req.body,
-        ownerId: user.id, // Always set ownerId to the authenticated user
-        status: user.role === 'admin' ? 'approved' : 'pending', // Auto-approve for admins
-        createdAt: new Date(),
-        updatedAt: new Date()
+      // Force status based on user role
+      const finalPropertyData = {
+        ...propertyData,
+        ownerId: String(userId),
+        hostId: String(userId),
+        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
       };
 
-      console.log('Creating property with data:', propertyData);
-
-      const newProperty = await storage.createProperty(propertyData);
-
-      // Send notification for pending properties
-      if (newProperty.status === 'pending') {
-        try {
-          await notificationService.notifyPropertySubmitted(newProperty);
-        } catch (notificationError) {
-          console.error('Notification error:', notificationError);
-          // Don't fail the property creation if notification fails
-        }
-      }
-
-      res.status(201).json({
-        success: true,
-        property: newProperty,
-        message: user.role === 'admin' ? 'Property created and approved' : 'Property created and pending approval'
-      });
+      const property = await storage.createProperty(finalPropertyData);
+      res.status(201).json(property);
     } catch (error) {
-      console.error("Error creating property:", error);
-      res.status(500).json({ 
-        success: false, 
-        error: "Failed to create property",
-        details: error.message 
-      });
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid property data", details: error.errors });
+      }
+      console.error("Create property error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
@@ -1527,7 +1444,8 @@ Be helpful, polite, and enthusiastic. Use appropriate emojis. Provide useful inf
             ],
             communication: [
               "🌍 للضيوف الناطقين بالإنجليزية: استخدم Google Translate للعبارات الأساسية، تعلم التحيات الإنجليزية الأساسية (Welcome = أهلاً وسهلاً)، قدم التعليمات المكتوبة بالإنجليزية، وكن صبوراً مع الاختلافات الثقافية. كثير من الضيوف يقدرون جهد التواصل بلغتهم!",
-              "📱 نصائح التواصل: استخدم تطبيقات الترجمة، استعن بمساعد محلي للدعم الإنجليزي، قدم أدلة ترحيب ثنائية اللغة، وتذكر أن الضيافة المغربية تقدر الدفء الشخصي والاهتمام بالتفاصيل."            ],
+              "📱 نصائح التواصل: استخدم تطبيقات الترجمة، استعن بمساعد محلي للدعم الإنجليزي، قدم أدلة ترحيب ثنائية اللغة، وتذكر أن الضيافة المغربية تقدر الدفء الشخصي والاهتمام بالتفاصيل."
+            ],
             amenities: [
               "🎯 أهم المرافق التي يتوقعها الضيوف في المغرب: الواي فاي (أساسي)، التكييف (ضروري في الصيف)، الديكور المغربي التقليدي، مطبخ مجهز بالكامل، مناشف/أغطية نظيفة، أدلة المنطقة المحلية، وموقف سيارات إن أمكن. الوصول للشاطئ ميزة كبيرة في مارتيل!",
               "⭐ المرافق الضرورية: إنترنت موثوق، تكييف هواء، لمسات مغربية أصيلة، أساسيات المطبخ، فراش عالي الجودة، دليل التوصيات المحلية، وميزات الأمان. فكر في إضافة خدمة الشاي التقليدية للحصول على تجربة أصيلة!"
@@ -1561,7 +1479,7 @@ Be helpful, polite, and enthusiastic. Use appropriate emojis. Provide useful inf
         ? `You are the TamudaStay Host Assistant. Help property owners and hosts in Morocco with listing management, pricing strategies, guest communication, and property optimization. Be professional, supportive, and provide practical advice.`
         : `You are the TamudaStay Host Assistant, a specialized AI chatbot designed to help property owners and hosts on the TamudaStay vacation rental platform in Morocco.
 
-Your role is to guide,support, and assist hosts in listing and managing their properties, optimizing guest experience, and understanding the local market.
+Your role is to guide, support, and assist hosts in listing and managing their properties, optimizing guest experience, and understanding the local market.
 
 Your personality is:
 - Professional yet friendly
@@ -1782,171 +1700,6 @@ Your response guidelines:
     } catch (error) {
       console.error("Review analysis error:", error);
       res.status(500).json({ error: "Failed to generate review analysis" });
-    }
-  });
-
-  // Host property submission
-  app.post("/api/host/properties", authenticateUser, async (req, res) => {
-    try {
-      const user = req.user;
-
-      if (!user) {
-        return res.status(401).json({ error: "User ID required" });
-      }
-
-      const hostId = user.id;
-
-      console.log(`Host ${hostId} submitting property:`, req.body.title);
-
-      // Validate required fields
-      const { title, description, price, location } = req.body;
-      if (!title || !description || !price || !location) {
-        return res.status(400).json({ 
-          error: 'Missing required fields: title, description, price, location' 
-        });
-      }
-
-      // Prepare property data with proper defaults
-      const propertyData = {
-        title: title.trim(),
-        description: description.trim(),
-        price: String(parseFloat(price)),
-        bedrooms: parseInt(req.body.bedrooms) || 1,
-        bathrooms: parseInt(req.body.bathrooms) || 1,
-        capacity: parseInt(req.body.capacity) || 1,
-        location: location.trim(),
-        amenities: Array.isArray(req.body.amenities) ? req.body.amenities : [],
-        images: Array.isArray(req.body.images) ? req.body.images : [],
-        rules: req.body.rules || '',
-        ownerId: hostId,
-        hostId: hostId,
-        status: 'pending',
-        isActive: false,
-        isVisible: false,
-        featured: req.body.featured || false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-
-      // Create the property
-      const property = await storage.createProperty(propertyData);
-
-      if (!property) {
-        throw new Error('Failed to create property');
-      }
-
-      console.log(`Property created with ID: ${property.id}`);
-
-      // Get host information for notifications
-      const host = await storage.getUserById(hostId);
-      if (!host) {
-        return res.status(404).json({ error: "Host not found" });
-      }
-
-      // Create notifications for all admins
-      const adminUsers = await storage.getUsersByRole('admin');
-      console.log(`Found ${adminUsers.length} admin users for notifications`);
-
-      if (adminUsers.length > 0) {
-        const notificationPromises = adminUsers.map(admin => 
-          storage.createNotification({
-            userId: admin.id,
-            type: 'property_review',
-            title: 'New Property Pending Review',
-            message: `Property "${property.title}" submitted by ${host.name} requires review`,
-            propertyId: property.id,
-            isRead: false
-          })
-        );
-
-        await Promise.all(notificationPromises);
-        console.log(`Created notifications for ${adminUsers.length} admins`);
-      }
-
-      // Create confirmation notification for host
-      await storage.createNotification({
-        userId: hostId,
-        type: 'property_submitted',
-        title: 'Property Submitted Successfully',
-        message: `Your property "${property.title}" has been submitted for review. You'll be notified once it's approved.`,
-        propertyId: property.id,
-        isRead: false
-      });
-
-      res.status(201).json({
-        success: true,
-        message: 'Property submitted successfully for review',
-        property: {
-          id: property.id,
-          title: property.title,
-          status: property.status,
-          createdAt: property.createdAt
-        },
-        host: {
-          id: host.id,
-          name: host.name,
-          email: host.email
-        }
-      });
-    } catch (error) {
-      console.error("Submit property error:", error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : "Failed to submit property" 
-      });
-    }
-  });
-
-  // Get properties pending admin review
-  app.get("/api/admin/properties/pending", requireAdminRole, async (req, res) => {
-    try {
-      const adminId = Array.isArray(req.headers['x-user-id']) 
-        ? req.headers['x-user-id'][0] 
-        : req.headers['x-user-id'];
-
-      if (!adminId) {
-        return res.status(401).json({ error: 'Admin authentication required' });
-      }
-
-      const { page = 1, limit = 10 } = req.query;
-      const pageNum = parseInt(String(page));
-      const limitNum = parseInt(String(limit));
-      const offset = (pageNum - 1) * limitNum;
-
-      console.log(`Admin ${adminId} fetching pending properties`);
-
-      const pendingProperties = await storage.getPropertiesByStatus('pending', limitNum, offset);
-      const total = await storage.countPropertiesByStatus('pending');
-
-      console.log(`Found ${pendingProperties.length} pending properties`);
-
-      // Add host information to each property
-      const propertiesWithHosts = await Promise.all(
-        pendingProperties.map(async (property) => {
-          const host = await storage.getUserById(property.ownerId || property.hostId);
-          return {
-            ...property,
-            host: host ? {
-              id: host.id,
-              name: host.name,
-              email: host.email
-            } : null
-          };
-        })
-      );
-
-      res.json({
-        success: true,
-        properties: propertiesWithHosts,
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total,
-          pages: Math.ceil(total / limitNum)
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching pending properties:', error);
-      res.status(500).json({ error: 'Failed to fetch pending properties' });
     }
   });
 
