@@ -5,6 +5,11 @@ import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMess
 import { z } from "zod";
 import OpenAI from "openai";
 
+// Import new route handlers
+import { approveProperty, getPendingProperties } from './routes/admin/properties.js';
+import { submitProperty, getHostProperties } from './routes/host/properties.js';
+import { getHomePageProperties, getPublicProperties } from './routes/public/properties.js';
+
 // Simple authentication middleware
 const requireAuth = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
@@ -244,37 +249,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Property routes
   // Public route - only returns approved properties
-  app.get("/api/properties/public", async (req, res) => {
-    try {
-      const properties = await storage.getApprovedProperties();
-      res.json(properties);
-    } catch (error) {
-      console.error("Get public properties error:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
+  app.get("/api/properties/home", getHomePageProperties);
+  app.get("/api/properties/public", getPublicProperties);
 
-  // Public route - only returns approved property by ID
-  app.get("/api/properties/public/:id", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid property ID" });
-      }
+  // Host routes - property management
+  app.post("/api/host/properties", requireAuth, submitProperty);
+  app.get("/api/host/properties", requireAuth, getHostProperties);
 
-      const property = await storage.getApprovedProperty(id);
-      if (!property) {
-        return res.status(404).json({ error: "Property not found" });
-      }
+  // Admin routes - property approval
+  app.get("/api/admin/properties/pending", requireAdminRole, getPendingProperties);
+  app.post("/api/admin/properties/:propertyId/review", requireAdminRole, approveProperty);
 
-      res.json(property);
-    } catch (error) {
-      console.error("Get public property error:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  // Admin route - returns all properties (for admin dashboard)
+  // Existing property routes...
   app.get("/api/properties", requireAdminRole, async (req, res) => {
     try {
       const properties = await storage.getAllProperties();

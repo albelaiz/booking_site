@@ -32,10 +32,16 @@ export const properties = pgTable("properties", {
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
   reviewCount: integer("review_count").default(0),
   ownerId: integer("owner_id").references(() => users.id),
+  hostId: integer("host_id").references(() => users.id), // Add hostId field
   status: text("status").notNull().default("pending"), // pending, approved, rejected, draft
+  isActive: boolean("is_active").default(false), // Controls if property is active
+  isVisible: boolean("is_visible").default(false), // Controls if property appears on home page
+  approvedAt: timestamp("approved_at"), // When property was approved
   reviewedAt: timestamp("reviewed_at"),
   reviewedBy: integer("reviewed_by").references(() => users.id),
   rejectionReason: text("rejection_reason"),
+  rules: text("rules"), // House rules
+  sortOrder: integer("sort_order").default(0), // For custom ordering
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -98,6 +104,7 @@ export const auditLogs = pgTable("audit_logs", {
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   properties: many(properties),
+  hostedProperties: many(properties, { relationName: "host" }),
   bookings: many(bookings),
   auditLogs: many(auditLogs),
   notifications: many(notifications),
@@ -108,6 +115,11 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   owner: one(users, {
     fields: [properties.ownerId],
     references: [users.id],
+  }),
+  host: one(users, {
+    fields: [properties.hostId],
+    references: [users.id],
+    relationName: "host",
   }),
   reviewer: one(users, {
     fields: [properties.reviewedBy],

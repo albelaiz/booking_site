@@ -106,6 +106,21 @@ class NotificationService {
   getConnectedUserCount(): number {
     return this.connectedUsers.size;
   }
+}
+
+  async sendToHost(hostId: number, notification: NotificationData) {
+    const hostConnection = this.connectedUsers.get(hostId);
+    
+    if (hostConnection && hostConnection.ws.readyState === WebSocket.OPEN) {
+      hostConnection.ws.send(JSON.stringify({
+        type: 'PROPERTY_STATUS_UPDATE',
+        data: notification
+      }));
+      console.log(`Sent notification to host ${hostId}`);
+    } else {
+      console.log(`Host ${hostId} not connected to WebSocket`);
+    }
+  }
 
   async createNotification(userId: number, type: string, title: string, message: string, propertyId?: number, metadata?: any) {
     try {
@@ -144,9 +159,10 @@ class NotificationService {
 
       if (adminNotifications.length > 0) {
         await db.insert(notifications).values(adminNotifications);
+        console.log(`Created ${adminNotifications.length} admin notifications`);
       }
 
-      return adminNotifications.length;
+      return adminUsers;
     } catch (error) {
       console.error('Error creating admin notifications:', error);
       throw error;
@@ -159,27 +175,35 @@ class NotificationService {
         .set({ isRead: true })
         .where(eq(notifications.id, notificationId));
       
-      return true;
+      console.log(`Notification ${notificationId} marked as read by user ${userId}`);
     } catch (error) {
       console.error('Error marking notification as read:', error);
       throw error;
     }
   }
 
-  async getUserNotifications(userId: number, isRead?: boolean) {
+  async getUserNotifications(userId: number, limit = 50) {
     try {
-      let query = db.select().from(notifications).where(eq(notifications.userId, userId));
-      
-      if (typeof isRead === 'boolean') {
-        query = query.where(eq(notifications.isRead, isRead));
-      }
-      
-      const userNotifications = await query.orderBy(notifications.createdAt);
+      const userNotifications = await db.select()
+        .from(notifications)
+        .where(eq(notifications.userId, userId))
+        .orderBy(notifications.createdAt)
+        .limit(limit);
+
       return userNotifications;
     } catch (error) {
       console.error('Error fetching user notifications:', error);
       throw error;
     }
+  }
+
+  getConnectedUsersCount() {
+    return this.connectedUsers.size;
+  }
+
+  getConnectedAdminsCount() {
+    return Array.from(this.connectedUsers.values())
+      .filter(user => user.role === 'admin' || user.role === 'staff').length;
   }
 }
 
