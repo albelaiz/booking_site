@@ -33,12 +33,29 @@ const OwnerDashboard = () => {
     const fetchOwnerProperties = async () => {
       try {
         setLoading(true);
+        
+        // Check authentication first
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const userId = localStorage.getItem('userId');
+
+        if (!isLoggedIn || !userId || !token) {
+          toast({
+            title: "Authentication Required",
+            description: "Please log in to view your properties.",
+            variant: "destructive"
+          });
+          navigate('/login');
+          return;
+        }
+
+        console.log('Fetching properties for owner:', userId);
+        
         // Make direct API call with proper authentication headers
-        const token = localStorage.getItem('authToken');
         const response = await fetch(`/api/host/properties`, {
           headers: {
-            'Authorization': token || '',
-            'x-user-id': ownerId,
+            'Authorization': `Bearer ${token}`,
+            'x-user-id': userId,
             'x-user-role': userRole,
             'Content-Type': 'application/json'
           }
@@ -47,34 +64,27 @@ const OwnerDashboard = () => {
         if (response.ok) {
           const result = await response.json();
           const data = result.properties || [];
-          // Double-check filtering on frontend
-          const filteredData = data.filter(property => 
-            property.hostId === parseInt(ownerId) || property.ownerId === parseInt(ownerId)
-          );
-          setOwnerProperties(filteredData);
-          console.log('OwnerDashboard - Fetched owner properties:', filteredData.length);
+          setOwnerProperties(data);
+          console.log('OwnerDashboard - Fetched owner properties:', data.length);
         } else {
-          throw new Error(`Failed to fetch properties: ${response.status}`);
+          if (response.status === 401) {
+            toast({
+              title: "Session Expired",
+              description: "Please log in again to view your properties.",
+              variant: "destructive"
+            });
+            navigate('/login');
+          } else {
+            throw new Error(`Failed to fetch properties: ${response.status}`);
+          }
         }
       } catch (error) {
         console.error('Error fetching owner properties:', error);
-
-        // Handle specific authorization errors
-        if (error.message?.includes('403') || error.message?.includes('Access denied')) {
-          toast({
-            title: "Access Denied",
-            description: "You can only view your own properties. Please contact support if this is an error.",
-            variant: "destructive"
-          });
-          // Redirect to login or user dashboard
-          navigate('/login');
-        } else {
-          toast({
-            title: "Error",
-            description: "Failed to load your properties. Please try again.",
-            variant: "destructive"
-          });
-        }
+        toast({
+          title: "Error",
+          description: "Failed to load your properties. Please try again.",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
@@ -94,15 +104,17 @@ const OwnerDashboard = () => {
 
   const handleAddProperty = async (propertyData: any) => {
     try {
-      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       const userId = localStorage.getItem('userId');
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-      if (!token || !userId) {
+      if (!isLoggedIn || !token || !userId) {
         toast({
           title: "Authentication required",
           description: "Please log in to add properties.",
           variant: "destructive",
         });
+        navigate('/login');
         return;
       }
 
@@ -149,23 +161,24 @@ const OwnerDashboard = () => {
       // Refresh the properties list after a short delay
       setTimeout(async () => {
         try {
-          const token = localStorage.getItem('authToken');
-          const response = await fetch(`/api/host/properties`, {
-            headers: {
-              'Authorization': token || '',
-              'x-user-id': ownerId,
-              'x-user-role': userRole,
-              'Content-Type': 'application/json'
-            }
-          });
+          const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+          const userId = localStorage.getItem('userId');
+          
+          if (token && userId) {
+            const response = await fetch(`/api/host/properties`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'x-user-id': userId,
+                'x-user-role': userRole,
+                'Content-Type': 'application/json'
+              }
+            });
 
-          if (response.ok) {
-            const result = await response.json();
-            const data = result.properties || [];
-            const filteredData = data.filter(property => 
-              property.hostId === parseInt(ownerId) || property.ownerId === parseInt(ownerId)
-            );
-            setOwnerProperties(filteredData);
+            if (response.ok) {
+              const result = await response.json();
+              const data = result.properties || [];
+              setOwnerProperties(data);
+            }
           }
         } catch (error) {
           console.error('Error refreshing properties:', error);

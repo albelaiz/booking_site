@@ -15,9 +15,17 @@ interface AuthenticatedRequest extends Request {
 
 export async function submitProperty(req: AuthenticatedRequest, res: Response) {
   try {
-    const hostId = req.user?.id;
+    const hostId = req.user?.id || parseInt(req.headers['x-user-id'] as string);
+    const authHeader = req.headers.authorization;
+    
+    console.log('Property submission request:', {
+      hostId,
+      hasAuth: !!authHeader,
+      bodyKeys: Object.keys(req.body)
+    });
     
     if (!hostId) {
+      console.log('Missing host ID for property submission');
       return res.status(401).json({ error: 'Host authentication required' });
     }
 
@@ -175,8 +183,16 @@ export async function submitProperty(req: AuthenticatedRequest, res: Response) {
 export async function getHostProperties(req: AuthenticatedRequest, res: Response) {
   try {
     const hostId = req.user?.id || parseInt(req.headers['x-user-id'] as string);
+    const authHeader = req.headers.authorization;
+    
+    console.log('Host properties request:', {
+      hostId,
+      hasAuth: !!authHeader,
+      userAgent: req.headers['user-agent']
+    });
     
     if (!hostId) {
+      console.log('Missing host ID in request');
       return res.status(401).json({ error: 'Host authentication required' });
     }
 

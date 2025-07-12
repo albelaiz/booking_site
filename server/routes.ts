@@ -1480,7 +1480,7 @@ Be helpful, polite, and enthusiastic. Use appropriate emojis. Provide useful inf
         ? `You are the TamudaStay Host Assistant. Help property owners and hosts in Morocco with listing management, pricing strategies, guest communication, and property optimization. Be professional, supportive, and provide practical advice.`
         : `You are the TamudaStay Host Assistant, a specialized AI chatbot designed to help property owners and hosts on the TamudaStay vacation rental platform in Morocco.
 
-Your role is to guide, support, and assist hosts in listing and managing their properties, optimizing guest experience, and understanding the local market.
+Your role is to guide,support, and assist hosts in listing and managing their properties, optimizing guest experience, and understanding the local market.
 
 Your personality is:
 - Professional yet friendly
@@ -1873,6 +1873,33 @@ Your response guidelines:
       res.status(500).json({ error: 'Failed to fetch pending properties' });
     }
   });
+
+  // Host property routes with simple auth check
+  app.get('/api/host/properties', (req: any, res: any, next: any) => {
+    const userId = req.headers['x-user-id'];
+    const authToken = req.headers.authorization;
+
+    if (!userId || !authToken) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Add user to request for downstream handlers
+    req.user = { id: parseInt(userId as string), role: req.headers['x-user-role'] as string };
+    next();
+  }, getHostProperties);
+
+  app.post('/api/host/properties', (req: any, res: any, next: any) => {
+    const userId = req.headers['x-user-id'];
+    const authToken = req.headers.authorization;
+
+    if (!userId || !authToken) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Add user to request for downstream handlers
+    req.user = { id: parseInt(userId as string), role: req.headers['x-user-role'] as string };
+    next();
+  }, submitProperty);
 
   const httpServer = createServer(app);
   return httpServer;
