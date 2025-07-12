@@ -55,9 +55,9 @@ const Header: React.FC = () => {
                   <span className="text-gray-900 text-2xl font-bold tracking-wide">Tamuda</span>
                   <span className="text-blue-600 text-2xl font-bold ml-1 tracking-wide">Stay</span>
                 </div>
-                <span className="text-xs text-gray-600 tracking-widest uppercase font-sans hidden sm:block">
+                {/* <span className="text-xs text-gray-600 tracking-widest uppercase font-sans hidden sm:block">
                   Premium Vacation Rentals
-                </span>
+                </span> */}
               </div>
             </Link>
 
