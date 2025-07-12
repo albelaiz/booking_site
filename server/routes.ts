@@ -484,6 +484,196 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Enhanced Property Management Routes with Notifications
+
+  // Submit property for review (with admin notifications)
+  app.post("/api/properties/submit", requireAuth, async (req, res) => {
+    try {
+      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
+        ? req.headers['x-user-id'][0] 
+        : req.headers['x-user-id'];
+      
+      if (!authenticatedUserId) {
+        return res.status(401).json({ error: "User ID required" });
+      }
+
+      const hostId = parseInt(authenticatedUserId);
+      if (isNaN(hostId)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
+
+      // Validate property data
+      const propertyData = insertPropertySchema.parse({
+        ...req.body,
+        ownerId: hostId,
+        status: 'pending'
+      });
+
+      // Create the property
+      const property = await storage.createProperty(propertyData);
+
+      // Get host information for notifications
+      const host = await storage.getUserById(hostId);
+      if (!host) {
+        return res.status(404).json({ error: "Host not found" });
+      }
+
+      // Create notifications for all admins
+      const adminUsers = await storage.getUsersByRole('admin');
+      const notificationPromises = adminUsers.map(admin => 
+        storage.createNotification({
+          userId: admin.id,
+          type: 'property_review',
+          title: 'New Property Pending Review',
+          message: `Property "${property.title}" submitted by ${host.name} requires review`,
+          propertyId: property.id
+        })
+      );
+
+      await Promise.all(notificationPromises);
+
+      // Send real-time notifications via WebSocket
+      // Note: WebSocket implementation would go here
+
+      res.status(201).json({
+        success: true,
+        message: 'Property submitted for review',
+        property
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid property data", details: error.errors });
+      }
+      console.error("Submit property error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Admin property review handler
+  app.post("/api/admin/properties/:propertyId/review", requireAdminRole, async (req, res) => {
+    try {
+      const { propertyId } = req.params;
+      const { status, rejectionReason } = req.body;
+      
+      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
+        ? req.headers['x-user-id'][0] 
+        : req.headers['x-user-id'];
+      
+      if (!authenticatedUserId) {
+        return res.status(401).json({ error: "Admin ID required" });
+      }
+
+      const adminId = parseInt(authenticatedUserId);
+      if (isNaN(adminId)) {
+        return res.status(400).json({ error: "Invalid admin ID" });
+      }
+
+      const id = parseInt(propertyId);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid property ID" });
+      }
+
+      if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: "Status must be 'approved' or 'rejected'" });
+      }
+
+      // Update property status
+      const updatedProperty = await storage.updateProperty(id, {
+        status,
+        reviewedAt: new Date(),
+        reviewedBy: adminId,
+        rejectionReason: status === 'rejected' ? rejectionReason : null
+      });
+
+      if (!updatedProperty) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+
+      // Get property and host info
+      const property = await storage.getPropertyById(id);
+      const host = await storage.getUserById(property.ownerId);
+
+      if (host) {
+        // Notify host about the decision
+        await storage.createNotification({
+          userId: host.id,
+          type: status === 'approved' ? 'property_approved' : 'property_rejected',
+          title: `Property ${status === 'approved' ? 'Approved' : 'Rejected'}`,
+          message: status === 'approved' 
+            ? `Your property "${property.title}" has been approved!`
+            : `Your property "${property.title}" was rejected. Reason: ${rejectionReason}`,
+          propertyId: property.id
+        });
+
+        // Send real-time notification to host
+        // Note: WebSocket implementation would go here
+      }
+
+      res.json({
+        success: true,
+        message: `Property ${status} successfully`,
+        property: updatedProperty
+      });
+    } catch (error) {
+      console.error("Review property error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Get user notifications
+  app.get("/api/notifications", requireAuth, async (req, res) => {
+    try {
+      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
+        ? req.headers['x-user-id'][0] 
+        : req.headers['x-user-id'];
+      
+      if (!authenticatedUserId) {
+        return res.status(401).json({ error: "User ID required" });
+      }
+
+      const userId = parseInt(authenticatedUserId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
+
+      const limit = parseInt(req.query.limit as string) || 50;
+      const notifications = await storage.getUserNotifications(userId, limit);
+      
+      res.json({ notifications });
+    } catch (error) {
+      console.error("Get notifications error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Mark notification as read
+  app.put("/api/notifications/:notificationId/read", requireAuth, async (req, res) => {
+    try {
+      const { notificationId } = req.params;
+      const authenticatedUserId = Array.isArray(req.headers['x-user-id']) 
+        ? req.headers['x-user-id'][0] 
+        : req.headers['x-user-id'];
+      
+      if (!authenticatedUserId) {
+        return res.status(401).json({ error: "User ID required" });
+      }
+
+      const userId = parseInt(authenticatedUserId);
+      const id = parseInt(notificationId);
+      
+      if (isNaN(userId) || isNaN(id)) {
+        return res.status(400).json({ error: "Invalid IDs" });
+      }
+
+      await storage.markNotificationAsRead(id, userId);
+      
+      res.json({ success: true, message: "Notification marked as read" });
+    } catch (error) {
+      console.error("Mark notification read error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Booking routes
   app.get("/api/bookings", async (req, res) => {
     try {

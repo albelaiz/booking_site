@@ -1,7 +1,7 @@
 import { db } from "./db";
-import { users, properties, bookings, messages, auditLogs } from "@shared/schema";
+import { users, properties, bookings, messages, auditLogs, notifications } from "@shared/schema";
 import { eq, and, desc, or, gte, lte, ne } from "drizzle-orm";
-import type { User, Property, Booking, Message, AuditLog } from "@shared/schema";
+import type { User, Property, Booking, Message, AuditLog, Notification } from "@shared/schema";
 
 export interface IStorage {
   // User methods
@@ -57,6 +57,20 @@ export interface IStorage {
   }): Promise<AuditLog[]>;
   getAuditLogsByUser(userId: number): Promise<AuditLog[]>;
   getRecentAuditLogs(limit?: number): Promise<AuditLog[]>;
+
+  // Notification methods
+  createNotification(notification: any): Promise<Notification>;
+  getUserNotifications(userId: number, limit?: number): Promise<Notification[]>;
+  markNotificationAsRead(notificationId: number, userId: number): Promise<boolean>;
+  getUnreadNotificationCount(userId: number): Promise<number>;
+  deleteNotification(notificationId: number): Promise<boolean>;
+
+  // Enhanced user methods
+  getUserById(id: number): Promise<User | undefined>;
+  getUsersByRole(role: string): Promise<User[]>;
+
+  // Enhanced property methods
+  getPropertyById(id: number): Promise<Property | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -658,6 +672,93 @@ export class DatabaseStorage implements IStorage {
       console.error('Error fetching recent audit logs:', error);
       return [];
     }
+  }
+
+  // Notification methods
+  async createNotification(notification: any): Promise<Notification> {
+    try {
+      const result = await db.insert(notifications).values(notification).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      throw error;
+    }
+  }
+
+  async getUserNotifications(userId: number, limit?: number): Promise<Notification[]> {
+    try {
+      return await db.select().from(notifications)
+        .where(eq(notifications.userId, userId))
+        .orderBy(desc(notifications.createdAt))
+        .limit(limit || 50);
+    } catch (error) {
+      console.error('Error fetching user notifications:', error);
+      return [];
+    }
+  }
+
+  async markNotificationAsRead(notificationId: number, userId: number): Promise<boolean> {
+    try {
+      const result = await db.update(notifications)
+        .set({ isRead: true })
+        .where(and(
+          eq(notifications.id, notificationId),
+          eq(notifications.userId, userId)
+        ))
+        .returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      return false;
+    }
+  }
+
+  async getUnreadNotificationCount(userId: number): Promise<number> {
+    try {
+      const result = await db.select().from(notifications)
+        .where(and(
+          eq(notifications.userId, userId),
+          eq(notifications.isRead, false)
+        ));
+      
+      return result.length;
+    } catch (error) {
+      console.error('Error fetching unread notification count:', error);
+      return 0;
+    }
+  }
+
+  async deleteNotification(notificationId: number): Promise<boolean> {
+    try {
+      const result = await db.delete(notifications)
+        .where(eq(notifications.id, notificationId))
+        .returning();
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      return false;
+    }
+  }
+
+  // Enhanced user methods
+  async getUserById(id: number): Promise<User | undefined> {
+    return this.getUser(id);
+  }
+
+  async getUsersByRole(role: string): Promise<User[]> {
+    try {
+      return await db.select().from(users).where(eq(users.role, role));
+    } catch (error) {
+      console.error('Error fetching users by role:', error);
+      return [];
+    }
+  }
+
+  // Enhanced property methods
+  async getPropertyById(id: number): Promise<Property | undefined> {
+    return this.getProperty(id);
   }
 }
 

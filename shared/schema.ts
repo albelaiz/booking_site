@@ -32,7 +32,10 @@ export const properties = pgTable("properties", {
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
   reviewCount: integer("review_count").default(0),
   ownerId: integer("owner_id").references(() => users.id),
-  status: text("status").notNull().default("pending"), // pending, approved, rejected
+  status: text("status").notNull().default("pending"), // pending, approved, rejected, draft
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: integer("reviewed_by").references(() => users.id),
+  rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -65,6 +68,18 @@ export const messages = pgTable("messages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  type: text("type").notNull(), // 'property_review', 'property_approved', 'property_rejected', etc.
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false),
+  propertyId: integer("property_id").references(() => properties.id),
+  metadata: text("metadata"), // JSON string for additional data
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const auditLogs = pgTable("audit_logs", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(), // Who performed the action
@@ -85,6 +100,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   properties: many(properties),
   bookings: many(bookings),
   auditLogs: many(auditLogs),
+  notifications: many(notifications),
+  reviewedProperties: many(properties, { relationName: "reviewer" }),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -92,7 +109,13 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
     fields: [properties.ownerId],
     references: [users.id],
   }),
+  reviewer: one(users, {
+    fields: [properties.reviewedBy],
+    references: [users.id],
+    relationName: "reviewer",
+  }),
   bookings: many(bookings),
+  notifications: many(notifications),
 }));
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({
@@ -103,6 +126,17 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
   user: one(users, {
     fields: [bookings.userId],
     references: [users.id],
+  }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+  property: one(properties, {
+    fields: [notifications.propertyId],
+    references: [properties.id],
   }),
 }));
 
@@ -148,6 +182,11 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   updatedAt: true,
 });
 
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
   id: true,
   createdAt: true,
@@ -162,5 +201,7 @@ export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Message = typeof messages.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Notification = typeof notifications.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
