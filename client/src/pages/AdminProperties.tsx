@@ -19,8 +19,9 @@ const AdminProperties = () => {
   const [isAddingProperty, setIsAddingProperty] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
-  // Filter properties based on search term
-  const filteredProperties = properties.filter(property => 
+  // Ensure properties is an array and filter based on search term
+  const propertiesArray = Array.isArray(properties) ? properties : [];
+  const filteredProperties = propertiesArray.filter(property => 
     property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.id.toString().includes(searchTerm.toLowerCase())
@@ -167,7 +168,7 @@ const AdminProperties = () => {
                 Featured Properties Management
               </span>
               <div className="text-sm text-gray-500">
-                {properties.filter(p => p.featured && p.status === 'approved').length} of {properties.filter(p => p.status === 'approved').length} approved properties featured
+                {propertiesArray.filter(p => p.featured && p.status === 'approved').length} of {propertiesArray.filter(p => p.status === 'approved').length} approved properties featured
               </div>
             </CardTitle>
             <CardDescription>

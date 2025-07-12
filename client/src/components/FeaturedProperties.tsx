@@ -9,8 +9,9 @@ const FeaturedProperties: React.FC = () => {
   const { properties, loading } = useProperties();
   const navigate = useNavigate();
   
-  // Filter for featured properties that are approved
-  const featuredProperties = properties.filter(property => 
+  // Ensure properties is an array and filter for featured properties that are approved
+  const propertiesArray = Array.isArray(properties) ? properties : [];
+  const featuredProperties = propertiesArray.filter(property => 
     property.featured && property.status === 'approved'
   );
   

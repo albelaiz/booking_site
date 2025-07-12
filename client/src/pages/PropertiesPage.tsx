@@ -22,13 +22,16 @@ const PropertiesPage = () => {
   const guests = guestsParam ? parseInt(guestsParam, 10) : undefined;
 
   useEffect(() => {
+    // Ensure properties is an array
+    const propertiesArray = Array.isArray(properties) ? properties : [];
+    
     // Debug logging
-    console.log('PropertiesPage: Properties data:', properties);
-    console.log('PropertiesPage: Properties length:', properties.length);
+    console.log('PropertiesPage: Properties data:', propertiesArray);
+    console.log('PropertiesPage: Properties length:', propertiesArray.length);
     console.log('PropertiesPage: Search params:', { location, checkIn, checkOut, guests });
     
     // Filter properties based on search params
-    let filtered = [...properties];
+    let filtered = [...propertiesArray];
 
     if (location) {
       filtered = filtered.filter(property => 

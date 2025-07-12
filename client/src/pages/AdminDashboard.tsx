@@ -12,10 +12,13 @@ const AdminDashboard = () => {
   const { bookings } = useBookings();
   const { messages } = useMessages();
 
+  // Ensure properties is an array
+  const propertiesArray = Array.isArray(properties) ? properties : [];
+  
   // Calculate stats
-  const totalProperties = properties.length;
-  const pendingProperties = properties.filter(p => p.status === 'pending').length;
-  const approvedProperties = properties.filter(p => p.status === 'approved').length;
+  const totalProperties = propertiesArray.length;
+  const pendingProperties = propertiesArray.filter(p => p.status === 'pending').length;
+  const approvedProperties = propertiesArray.filter(p => p.status === 'approved').length;
   const totalBookings = bookings.length;
   const pendingBookings = bookings.filter(b => b.status === 'pending').length;
   const totalRevenue = bookings
@@ -271,14 +274,14 @@ const AdminDashboard = () => {
               <div className="bg-green-50 p-4 rounded-lg">
                 <h4 className="font-medium text-green-900 mb-1">Recent Activities</h4>
                 <p className="text-2xl font-bold text-green-700">
-                  {properties.filter(p => p.updatedAt && new Date(p.updatedAt).getTime() > Date.now() - 24 * 60 * 60 * 1000).length}
+                  {propertiesArray.filter(p => p.updatedAt && new Date(p.updatedAt).getTime() > Date.now() - 24 * 60 * 60 * 1000).length}
                 </p>
                 <p className="text-sm text-green-600">Last 24 hours</p>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg">
                 <h4 className="font-medium text-blue-900 mb-1">Featured Properties</h4>
                 <p className="text-2xl font-bold text-blue-700">
-                  {properties.filter(p => p.featured && p.status === 'approved').length}
+                  {propertiesArray.filter(p => p.featured && p.status === 'approved').length}
                 </p>
                 <p className="text-sm text-blue-600">Currently featured</p>
               </div>

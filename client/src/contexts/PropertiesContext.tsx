@@ -56,10 +56,14 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         data = await propertiesApi.getByOwner(userId);
       } else {
         // Public sees only approved properties
-        data = await propertiesApi.getAll();
+        const response = await propertiesApi.getAll();
+        // Extract properties array from the response object
+        data = response.properties || response || [];
       }
       
-      setPropertiesList(data);
+      // Ensure data is always an array
+      const propertiesArray = Array.isArray(data) ? data : (data.properties || []);
+      setPropertiesList(propertiesArray);
     } catch (error) {
       console.error('Error fetching properties:', error);
     } finally {
