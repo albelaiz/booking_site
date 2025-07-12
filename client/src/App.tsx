@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BookingsProvider } from "./contexts/BookingsContext";
 import { PropertiesProvider } from "./contexts/PropertiesContext";
 import { MessagesProvider } from "./contexts/MessagesContext";
-import { TestimonialsProvider } from "./contexts/TestimonialsProvider";
+import { TestimonialsProvider } from "./contexts/TestimonialsContext";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import PropertyPage from "./pages/PropertyPage";
