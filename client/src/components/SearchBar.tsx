@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, MapPin, Calendar, Users, Filter, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -55,7 +54,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   // Handle location input and suggestions
   const handleLocationChange = useCallback((value: string) => {
     setFilters(prev => ({ ...prev, location: value }));
-    
+
     if (value.length > 0) {
       const suggestions = moroccanCities.filter(city =>
         city.toLowerCase().includes(value.toLowerCase())
@@ -126,7 +125,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               placeholder="Search destinations"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            
+
             {/* Location Suggestions Dropdown */}
             {showLocationDropdown && locationSuggestions.length > 0 && (
               <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -183,15 +182,29 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <Users className="w-4 h-4 inline mr-1" />
               Guests
             </label>
-            <select
-              value={filters.guests}
-              onChange={(e) => setFilters(prev => ({ ...prev, guests: parseInt(e.target.value) }))}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                <option key={num} value={num}>{num} {num === 1 ? 'Guest' : 'Guests'}</option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between border border-gray-300 rounded-lg bg-white px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => setFilters(prev => ({ ...prev, guests: Math.max(1, prev.guests - 1) }))}
+                  className="guest-counter-button w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={filters.guests <= 1}
+                >
+                  <span className="text-lg font-bold">-</span>
+                </button>
+                <div className="guest-counter-display flex items-center justify-center">
+                  <span className="text-base font-medium text-gray-900">
+                    {filters.guests} {filters.guests === 1 ? 'Guest' : 'Guests'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFilters(prev => ({ ...prev, guests: Math.min(8, prev.guests + 1) }))}
+                  className="guest-counter-button w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={filters.guests >= 8}
+                >
+                  <span className="text-lg font-bold">+</span>
+                </button>
+              </div>
           </div>
 
           {/* Search Actions */}
@@ -203,7 +216,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             >
               <Filter className="w-5 h-5" />
             </button>
-            
+
             <button
               onClick={handleSearch}
               className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
