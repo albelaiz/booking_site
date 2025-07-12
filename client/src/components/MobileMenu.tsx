@@ -81,6 +81,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <Phone className="w-5 h-5 mr-4 group-hover:text-blue-600 transition-colors duration-200" />
             <span className="text-base">Contact</span>
           </Link>
+
+          <Link
+            to="/become-host"
+            className="flex items-center px-4 py-4 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-xl font-medium transition-all duration-200 group border border-transparent hover:border-green-100"
+            onClick={onClose}
+          >
+            <Building2 className="w-5 h-5 mr-4 group-hover:text-green-600 transition-colors duration-200" />
+            <span className="text-base">Become Host</span>
+          </Link>
         </div>
 
           {/* Authentication Links */}
