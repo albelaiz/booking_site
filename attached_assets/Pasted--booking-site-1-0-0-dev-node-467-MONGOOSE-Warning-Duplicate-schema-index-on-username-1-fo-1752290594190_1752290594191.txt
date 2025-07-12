@@ -1,0 +1,60 @@
+> booking-site@1.0.0 dev
+(node:467) [MONGOOSE] Warning: Duplicate schema index on {"username":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+❌ MongoDB connection error: connect ECONNREFUSED 127.0.0.1:27017
+⚠️  MongoDB not available, using original PostgreSQL system
+   To use MongoDB: Set MONGODB_URI environment variable or start local MongoDB
+📊 Using PostgreSQL storage backend
+Setting up Vite middleware...
+4:29:04 AM [express] serving on port 5000
+(!) Failed to run dependency scan. Skipping dependency pre-bundling. Error:   Failed to scan for dependencies from entries:
+  /home/runner/workspace/client/index.html
+
+  ✘ [ERROR] Unexpected closing "nav" tag does not match opening "div" tag
+
+    client/src/components/MobileMenu.tsx:131:6:
+      131 │     </nav>
+          │       ~~~
+          ╵       div
+
+  The opening "div" tag is here:
+
+    client/src/components/MobileMenu.tsx:38:9:
+      38 │         <div className="flex flex-col space-y-2">
+         ╵          ~~~
+
+
+✘ [ERROR] The character "}" is not valid inside a JSX element
+
+    client/src/components/MobileMenu.tsx:133:0:
+      133 │ };
+          │ ^
+          ╵ {'}'}
+
+  Did you mean to escape it as "{'}'}" instead?
+
+
+✘ [ERROR] Unexpected end of file before a closing "div" tag
+
+    client/src/components/MobileMenu.tsx:135:26:
+      135 │ export default MobileMenu;
+          │                           ^
+          ╵                           </div>
+
+  The opening "div" tag is here:
+
+    client/src/components/MobileMenu.tsx:37:7:
+      37 │       <div className="container mx-auto px-4">
+         ╵        ~~~
+
+
+    at failureErrorWithLog (/home/runner/workspace/node_modules/esbuild/lib/main.js:1463:15)
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:924:25
+    at runOnEndCallbacks (/home/runner/workspace/node_modules/esbuild/lib/main.js:1303:45)
+    at buildResponseToResult (/home/runner/workspace/node_modules/esbuild/lib/main.js:922:7)
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:934:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/home/runner/workspace/node_modules/esbuild/lib/main.js:933:54)
+    at handleRequest (/home/runner/workspace/node_modules/esbuild/lib/main.js:626:17)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/esbuild/lib/main.js:651:7)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/esbuild/lib/main.js:579:7)
