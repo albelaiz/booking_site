@@ -5,7 +5,7 @@ import { Sun, Waves, Umbrella, Ship, Star, MapPin, Calendar, Crown } from 'lucid
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100">
+    <div className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 pt-20">
       {/* Beautiful Multi-layer Background */}
       <div className="absolute inset-0 z-0">
         {/* Main Background Image with better overlay */}
@@ -47,24 +47,7 @@ const Hero: React.FC = () => {
       Main Content
       <div className="relative z-20 container-custom">
         <div className="text-center text-gray-900 max-w-5xl mx-auto">
-          {/* TamudaStay Brand Logo in Hero */}
-          <div className="flex justify-center mb-8">
-            <div className="flex items-center space-x-4 bg-white/90 backdrop-blur-sm px-8 py-6 rounded-2xl shadow-2xl border border-white/50 logo-glow">
-              <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300">
-                  <span className="text-white font-serif text-2xl font-bold tracking-wider">TS</span>
-                </div>
-                <div className="absolute inset-0 bg-blue-400 rounded-2xl blur opacity-30 animate-pulse"></div>
-              </div>
-              <div className="font-serif">
-                <div className="flex items-baseline">
-                  <span className="text-gray-900 text-4xl font-bold tracking-wide">Tamuda</span>
-                  <span className="text-blue-600 text-4xl font-bold ml-2 tracking-wide">Stay</span>
-                </div>
-                <span className="text-sm text-gray-600 tracking-widest uppercase font-sans">Premium Vacation Rentals • Morocco</span>
-              </div>
-            </div>
-          </div>
+          
           
           {/* Professional Badge */}
           <div className="inline-flex items-center px-6 py-3 mb-8 bg-blue-50 backdrop-blur-sm rounded-full border border-blue-200 shadow-lg">
