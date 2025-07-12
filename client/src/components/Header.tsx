@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { List, X } from "lucide-react";
+import { List, X, Mail, Github } from "lucide-react";
 import AuthModal from "./AuthModal";
 import MobileMenu from "./MobileMenu";
 import { useAuth } from "../hooks/useAuth";

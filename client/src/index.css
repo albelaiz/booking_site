@@ -4,6 +4,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Moroccan Theme Colors */
+:root {
+  --moroccan-blue: #2563eb;
+  --moroccan-gold: #f59e0b;
+}
+
+.bg-moroccan-blue {
+  background-color: var(--moroccan-blue);
+}
+
+.text-moroccan-blue {
+  color: var(--moroccan-blue);
+}
+
+.bg-moroccan-gold {
+  background-color: var(--moroccan-gold);
+}
+
+.text-moroccan-gold {
+  color: var(--moroccan-gold);
+}
+
+.border-moroccan-blue {
+  border-color: var(--moroccan-blue);
+}
+
+.border-moroccan-gold {
+  border-color: var(--moroccan-gold);
+}
+
+.hover\:bg-moroccan-gold\/90:hover {
+  background-color: rgb(245 158 11 / 0.9);
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
