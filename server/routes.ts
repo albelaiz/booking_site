@@ -859,8 +859,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Message not found" });
       }
 
-      ```text
-res.status(204).send();
+      res.status(204).send();
     } catch (error) {
       console.error("Delete message error:", error);
       res.status(500).json({ error: "Internal server error" });
