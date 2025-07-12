@@ -13,25 +13,41 @@ import { getHomePageProperties, getPublicProperties } from './routes/public/prop
 // Simple authentication middleware
 const requireAuth = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
+  const userId = req.headers['x-user-id'];
+  const userRole = req.headers['x-user-role'];
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: "Authentication required" });
   }
   
-  // In a real app, you'd verify the JWT token here
-  // For now, we'll just check if it exists
+  // Set user data from headers (in a real app, you'd decode from JWT)
+  req.user = {
+    id: parseInt(userId as string) || 1,
+    role: userRole as string || 'user'
+  };
+  
   next();
 };
 
 // Admin/Staff role middleware
 const requireAdminRole = (req: any, res: any, next: any) => {
-  // This would typically check the user's role from the JWT token
-  // For now, we'll implement basic protection
   const authHeader = req.headers.authorization;
+  const userId = req.headers['x-user-id'];
+  const userRole = req.headers['x-user-role'];
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: "Admin authentication required" });
   }
+  
+  if (!userRole || !['admin', 'staff'].includes(userRole)) {
+    return res.status(403).json({ error: "Admin role required" });
+  }
+  
+  // Set user data from headers
+  req.user = {
+    id: parseInt(userId as string) || 1,
+    role: userRole as string
+  };
   
   next();
 };

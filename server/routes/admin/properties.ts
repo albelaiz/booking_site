@@ -29,75 +29,72 @@ export async function approveProperty(req: AuthenticatedRequest, res: Response) 
 
     console.log(`Admin ${adminId} ${action}ing property ${propertyId}`);
 
-    // Start transaction
-    const result = await db.transaction(async (tx) => {
-      // 1. Update property status and visibility
-      const updateData = {
-        status: action === 'approve' ? 'approved' : 'rejected',
-        reviewedAt: new Date(),
-        reviewedBy: adminId,
-        rejectionReason: action === 'reject' ? rejectionReason : null,
-        // CRITICAL: Make property visible on home page when approved
-        isActive: action === 'approve' ? true : false,
-        isVisible: action === 'approve' ? true : false,
-        approvedAt: action === 'approve' ? new Date() : null,
-        updatedAt: new Date()
-      };
+    // Update property status and visibility
+    const updateData = {
+      status: action === 'approve' ? ('approved' as const) : ('rejected' as const),
+      reviewedAt: new Date(),
+      reviewedBy: adminId,
+      rejectionReason: action === 'reject' ? rejectionReason : null,
+      // CRITICAL: Make property visible on home page when approved
+      isActive: action === 'approve' ? true : false,
+      isVisible: action === 'approve' ? true : false,
+      approvedAt: action === 'approve' ? new Date() : null,
+      updatedAt: new Date()
+    };
 
-      const [updatedProperty] = await tx.update(properties)
-        .set(updateData)
-        .where(eq(properties.id, parseInt(propertyId)))
-        .returning();
+    const [updatedProperty] = await db.update(properties)
+      .set(updateData)
+      .where(eq(properties.id, parseInt(propertyId)))
+      .returning();
 
-      if (!updatedProperty) {
-        throw new Error('Property not found');
+    if (!updatedProperty) {
+      throw new Error('Property not found');
+    }
+
+    // Get property with host details
+    const propertyWithHost = await db.select({
+      property: properties,
+      host: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role
       }
+    })
+    .from(properties)
+    .leftJoin(users, eq(properties.hostId, users.id))
+    .where(eq(properties.id, parseInt(propertyId)));
 
-      // 2. Get property with host details
-      const propertyWithHost = await tx.select({
-        property: properties,
-        host: {
-          id: users.id,
-          name: users.name,
-          email: users.email,
-          role: users.role
-        }
-      })
-      .from(properties)
-      .leftJoin(users, eq(properties.hostId, users.id))
-      .where(eq(properties.id, parseInt(propertyId)));
+    if (!propertyWithHost.length) {
+      throw new Error('Property or host not found');
+    }
 
-      if (!propertyWithHost.length) {
-        throw new Error('Property or host not found');
-      }
+    const { property, host } = propertyWithHost[0];
 
-      const { property, host } = propertyWithHost[0];
+    if (!host) {
+      throw new Error('Host not found for property');
+    }
 
-      if (!host) {
-        throw new Error('Host not found for property');
-      }
+    // Create notification for host
+    const notificationData = {
+      userId: host.id,
+      type: action === 'approve' ? ('property_approved' as const) : ('property_rejected' as const),
+      title: `Property ${action === 'approve' ? 'Approved' : 'Rejected'}`,
+      message: action === 'approve' 
+        ? `Congratulations! Your property "${property.title}" has been approved and is now live on the platform.`
+        : `Your property "${property.title}" has been rejected. ${rejectionReason ? `Reason: ${rejectionReason}` : 'Please review and resubmit.'}`,
+      propertyId: property.id,
+      isRead: false
+    };
 
-      // 3. Create notification for host
-      const notificationData = {
-        userId: host.id,
-        type: action === 'approve' ? 'property_approved' : 'property_rejected',
-        title: `Property ${action === 'approve' ? 'Approved' : 'Rejected'}`,
-        message: action === 'approve' 
-          ? `Congratulations! Your property "${property.title}" has been approved and is now live on the platform.`
-          : `Your property "${property.title}" has been rejected. ${rejectionReason ? `Reason: ${rejectionReason}` : 'Please review and resubmit.'}`,
-        propertyId: property.id,
-        isRead: false
-      };
+    await db.insert(notifications).values(notificationData);
 
-      await tx.insert(notifications).values(notificationData);
-
-      return {
-        success: true,
-        message: `Property ${action}ed successfully`,
-        property: updatedProperty,
-        host: host
-      };
-    });
+    const result = {
+      success: true,
+      message: `Property ${action}ed successfully`,
+      property: updatedProperty,
+      host: host
+    };
 
     // 4. Send real-time notification to host (after transaction)
     setTimeout(async () => {
