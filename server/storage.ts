@@ -359,8 +359,23 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log('Storage: Creating booking with data:', insertBooking);
       
+      // Validate required fields
+      if (!insertBooking.propertyId) {
+        throw new Error('Property ID is required');
+      }
+      if (!insertBooking.guestName) {
+        throw new Error('Guest name is required');
+      }
+      if (!insertBooking.guestEmail) {
+        throw new Error('Guest email is required');
+      }
+      if (!insertBooking.checkIn || !insertBooking.checkOut) {
+        throw new Error('Check-in and check-out dates are required');
+      }
+      
       // Check availability first (skip for blocked dates)
       if (insertBooking.status !== 'blocked') {
+        console.log('Storage: Checking availability...');
         const isAvailable = await this.checkBookingAvailability(
           insertBooking.propertyId,
           new Date(insertBooking.checkIn),
@@ -370,6 +385,7 @@ export class DatabaseStorage implements IStorage {
         if (!isAvailable) {
           throw new Error('Property is not available for the selected dates');
         }
+        console.log('Storage: Availability check passed');
       }
 
       const bookingToInsert = {

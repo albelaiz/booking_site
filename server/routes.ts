@@ -491,13 +491,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Booking creation request received:', {
         body: req.body,
-        headers: {
-          'content-type': req.headers['content-type'],
-          'user-agent': req.headers['user-agent']
-        }
+        bodyType: typeof req.body,
+        contentType: req.headers['content-type']
       });
 
+      // Ensure body is properly parsed
+      if (!req.body || typeof req.body !== 'object') {
+        console.error('Invalid request body:', req.body);
+        return res.status(400).json({ 
+          error: "Invalid request body",
+          details: "Request body must be a valid JSON object"
+        });
+      }
+
       // Validate the booking data
+      console.log('Validating booking data with schema...');
       const bookingData = insertBookingSchema.parse(req.body);
       
       console.log('Validated booking data:', bookingData);

@@ -76,6 +76,46 @@ const BookingForm: React.FC<BookingFormProps> = ({
     return true;
   };
 
+  const handleBookingSubmission = async (bookingData: any) => {
+    try {
+        // Send booking to API (Neon database)
+        console.log('Sending booking request to API:', bookingData);
+
+        const response = await fetch('/api/bookings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bookingData),
+        });
+
+        console.log('API response status:', response.status);
+
+        let errorData;
+        try {
+            if (!response.ok) {
+                errorData = await response.json();
+                console.error('API error response:', errorData);
+                throw new Error(errorData.error || `Server error: ${response.status}`);
+            }
+
+            const savedBooking = await response.json();
+            console.log('Booking successfully saved:', savedBooking);
+
+            return savedBooking;
+        } catch (parseError) {
+            console.error('Error parsing response:', parseError);
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+            }
+            throw parseError;
+        }
+    } catch (error) {
+        console.error('Error submitting booking:', error);
+        throw error;
+    }
+};
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -102,25 +142,11 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
       console.log('Submitting booking to API:', bookingData);
 
-      // Send booking to API (Neon database)
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bookingData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit booking');
-      }
-
-      const savedBooking = await response.json();
-      console.log('Booking saved to database:', savedBooking);
+      const savedBooking = await handleBookingSubmission(bookingData);
 
       // Also add to local context for immediate UI update
       addBooking({
+        id: savedBooking.id?.toString() || Date.now().toString(),
         propertyId,
         propertyName: propertyTitle,
         guestName: name,
@@ -130,7 +156,9 @@ const BookingForm: React.FC<BookingFormProps> = ({
         guests,
         phone,
         comments,
-        amount: finalTotal
+        amount: finalTotal,
+        status: 'pending',
+        createdAt: new Date().toISOString()
       });
 
       // Show success toast notification
