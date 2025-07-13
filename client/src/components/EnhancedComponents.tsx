@@ -151,12 +151,12 @@ export const PropertyCardEnhanced: React.FC<PropertyCardEnhancedProps> = ({
             <span className="text-gray-600 text-sm">/{property.priceUnit}</span>
           </div>
           <div className="flex space-x-2">
-            <button 
+            {/* <button 
               onClick={() => onViewDetails?.(property.id)}
               className="btn-outline text-sm px-4 py-2"
             >
               View Details
-            </button>
+            </button> */}
             <button 
               onClick={() => onBookNow?.(property.id)}
               className="btn-primary text-sm px-4 py-2"
