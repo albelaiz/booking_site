@@ -4,10 +4,15 @@ import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
 
 const app = express();
-// Increase payload limit for property images and data
+
+// ✅ السماح بـ HTTPS الحقيقي من Nginx
+app.set('trust proxy', true);
+
+// ⬆️ رفع الحد الأقصى للبيانات (مثلاً صور العقارات)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// 🪵 Middleware لتسجيل الطلبات
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -39,11 +44,13 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Seed the database with initial data
+  // 🌱 إدخال بيانات أولية في قاعدة البيانات
   await seedDatabase();
 
+  // 📦 إعداد المسارات
   const server = await registerRoutes(app);
 
+  // 🛠️ Middleware لمعالجة الأخطاء
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -52,23 +59,20 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // 🧪 Vite فقط في بيئة التطوير
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // Serve the app on port 80 for Replit environment
-  // this serves both the API and the client.
+  // 🚀 تشغيل الخادم
   const port = process.env.PORT || (app.get("env") === "development" ? 5000 : 80);
   server.listen({
     port,
     host: "0.0.0.0",
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`✅ Server is running on port ${port}`);
   });
 })();
