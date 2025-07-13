@@ -312,7 +312,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         bodyKeys: Object.keys(req.body)
       });
       
-      const propertyData = insertPropertySchema.parse(req.body);
+      // Transform rating to string if it exists and is a number
+      const bodyData = { ...req.body };
+      if (bodyData.rating && typeof bodyData.rating === 'number') {
+        bodyData.rating = bodyData.rating.toString();
+      }
+      
+      const propertyData = insertPropertySchema.parse(bodyData);
       
       // Extract user info from token (in a real app, you'd decode the JWT)
       const userId = req.body.ownerId || req.headers['x-user-id'] || '1';

@@ -134,6 +134,8 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  rating: z.union([z.string(), z.number()]).optional().transform(val => val ? val.toString() : undefined),
 });
 
 export const insertBookingSchema = createInsertSchema(bookings).omit({
