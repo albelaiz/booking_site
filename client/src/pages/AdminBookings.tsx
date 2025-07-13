@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Building, Filter, Search, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -57,7 +56,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
 const AdminBookings = () => {
   const { toast } = useToast();
-  const { bookings, updateBookingStatus, loading } = useBookings();
+  const { bookings, updateBookingStatus, loading, error, api, setBookings, setLoading, setError } = useBookings();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
@@ -68,10 +67,10 @@ const AdminBookings = () => {
       booking.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.propertyName.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     // Filter by status
     const matchesStatus = filterStatus === 'all' || booking.status === filterStatus;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -110,7 +109,7 @@ const AdminBookings = () => {
 
   const handleStatusChange = (id: string, newStatus: string) => {
     updateBookingStatus(id, newStatus as any);
-    
+
     toast({
       title: "Booking Status Updated",
       description: `Booking #${id} has been marked as ${newStatus}.`,
@@ -124,6 +123,29 @@ const AdminBookings = () => {
       day: 'numeric'
     });
   };
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        console.log('Admin: Fetching all bookings from database');
+        const response = await api.get('/bookings');
+        console.log('Admin: Received bookings:', response.data.length, 'total bookings');
+        setBookings(response.data);
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+        setError('Failed to fetch bookings');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+
+    // Refresh bookings every 30 seconds to catch new visitor bookings
+    const interval = setInterval(fetchBookings, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <AdminLayout title="Bookings">
@@ -159,7 +181,7 @@ const AdminBookings = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <Filter className="h-5 w-5 text-gray-500" />
           <span className="text-sm text-gray-500">Status:</span>
@@ -176,7 +198,7 @@ const AdminBookings = () => {
           </select>
         </div>
       </div>
-      
+
       {/* Bookings Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
@@ -248,7 +270,7 @@ const AdminBookings = () => {
             </TableBody>
           </Table>
         </div>
-        
+
         {/* Empty state */}
         {filteredBookings.length === 0 && (
           <div className="py-12 text-center">

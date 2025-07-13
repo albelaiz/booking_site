@@ -357,29 +357,45 @@ export class DatabaseStorage implements IStorage {
 
   async createBooking(insertBooking: any): Promise<Booking> {
     try {
-      // Check availability first
-      const isAvailable = await this.checkBookingAvailability(
-        insertBooking.propertyId,
-        new Date(insertBooking.checkIn),
-        new Date(insertBooking.checkOut)
-      );
+      console.log('Storage: Creating booking with data:', insertBooking);
+      
+      // Check availability first (skip for blocked dates)
+      if (insertBooking.status !== 'blocked') {
+        const isAvailable = await this.checkBookingAvailability(
+          insertBooking.propertyId,
+          new Date(insertBooking.checkIn),
+          new Date(insertBooking.checkOut)
+        );
 
-      if (!isAvailable) {
-        throw new Error('Property is not available for the selected dates');
+        if (!isAvailable) {
+          throw new Error('Property is not available for the selected dates');
+        }
       }
 
-      const result = await db.insert(bookings).values({
+      const bookingToInsert = {
         ...insertBooking,
         createdAt: new Date(),
         updatedAt: new Date(),
-      }).returning();
+      };
+
+      console.log('Storage: Inserting booking into Neon database:', bookingToInsert);
+
+      const result = await db.insert(bookings).values(bookingToInsert).returning();
       
       if (!result[0]) {
-        throw new Error('Failed to create booking');
+        throw new Error('Failed to create booking in database');
       }
+
+      console.log('Storage: ✅ Booking successfully saved to Neon database:', {
+        id: result[0].id,
+        guestName: result[0].guestName,
+        propertyId: result[0].propertyId,
+        status: result[0].status
+      });
+
       return result[0];
     } catch (error) {
-      console.error('Error creating booking:', error);
+      console.error('Storage: Error creating booking:', error);
       throw error;
     }
   }

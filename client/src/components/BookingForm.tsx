@@ -76,7 +76,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -85,8 +85,41 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
     setIsSubmitting(true);
 
-    // Add the booking to our context
     try {
+      // Create booking data for API
+      const bookingData = {
+        propertyId: parseInt(propertyId),
+        guestName: name,
+        guestEmail: email,
+        guestPhone: phone,
+        checkIn,
+        checkOut,
+        guests,
+        amount: finalTotal,
+        comments,
+        status: 'pending'
+      };
+
+      console.log('Submitting booking to API:', bookingData);
+
+      // Send booking to API (Neon database)
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit booking');
+      }
+
+      const savedBooking = await response.json();
+      console.log('Booking saved to database:', savedBooking);
+
+      // Also add to local context for immediate UI update
       addBooking({
         propertyId,
         propertyName: propertyTitle,
@@ -102,8 +135,8 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
       // Show success toast notification
       toast({
-        title: "Booking Request Submitted",
-        description: "We'll contact you shortly to confirm your reservation.",
+        title: "Booking Request Submitted Successfully",
+        description: "Your booking has been saved and sent to admin. We'll contact you shortly to confirm your reservation.",
       });
 
       // Reset form
@@ -120,9 +153,10 @@ const BookingForm: React.FC<BookingFormProps> = ({
         navigate('/');
       }, 2000);
     } catch (error) {
+      console.error('Booking submission error:', error);
       toast({
         title: "Booking Error",
-        description: "There was an error processing your booking. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error processing your booking. Please try again.",
         variant: "destructive"
       });
     } finally {

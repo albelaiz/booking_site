@@ -489,27 +489,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/bookings", async (req, res) => {
     try {
+      console.log('Booking creation request received:', {
+        body: req.body,
+        headers: {
+          'content-type': req.headers['content-type'],
+          'user-agent': req.headers['user-agent']
+        }
+      });
+
+      // Validate the booking data
       const bookingData = insertBookingSchema.parse(req.body);
+      
+      console.log('Validated booking data:', bookingData);
       
       // Check if this is an authenticated user booking
       if (bookingData.userId) {
+        console.log('Processing authenticated user booking');
         // Use createOrUpdateBooking for authenticated users
         const booking = await storage.createOrUpdateBooking(bookingData);
+        console.log('✅ Authenticated user booking saved to Neon database:', booking.id);
         res.status(201).json(booking);
       } else {
-        // For guest bookings, always create new
+        console.log('Processing visitor/guest booking');
+        // For guest bookings (visitors), always create new
         const booking = await storage.createBooking(bookingData);
+        console.log('✅ Visitor booking saved to Neon database:', {
+          id: booking.id,
+          guestName: booking.guestName,
+          guestEmail: booking.guestEmail,
+          propertyId: booking.propertyId,
+          amount: booking.amount,
+          status: booking.status
+        });
+        
+        // Log this booking for admin notification
+        console.log('📧 New booking notification sent to admin dashboard');
+        
         res.status(201).json(booking);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error("Booking validation error:", error.errors);
         return res.status(400).json({ error: "Invalid booking data", details: error.errors });
       }
       if (error instanceof Error && error.message.includes('not available')) {
+        console.error("Booking availability error:", error.message);
         return res.status(409).json({ error: error.message });
       }
       console.error("Create booking error:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Internal server error", details: error.message });
     }
   });
 

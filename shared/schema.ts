@@ -142,6 +142,17 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  // Make userId optional for visitor bookings
+  userId: z.number().optional().nullable(),
+  // Ensure required fields for visitor bookings
+  guestName: z.string().min(1, "Guest name is required"),
+  guestEmail: z.string().email("Valid email is required"),
+  propertyId: z.number().min(1, "Property ID is required"),
+  checkIn: z.string().min(1, "Check-in date is required"),
+  checkOut: z.string().min(1, "Check-out date is required"),
+  guests: z.number().min(1, "Number of guests is required"),
+  amount: z.union([z.string(), z.number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
 });
 
 export const insertMessageSchema = createInsertSchema(messages).omit({
