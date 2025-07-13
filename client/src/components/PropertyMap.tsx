@@ -248,10 +248,10 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                   </div>
                 </div>
                 
-                <p className="text-gray-500 text-xs mb-3 flex items-center">
+                {/* <p className="text-gray-500 text-xs mb-3 flex items-center">
                   <MapPin className="w-3 h-3 mr-1 text-moroccan-terracotta" />
                   {selectedProperty.location}
-                </p>
+                </p> */}
                 
                 <div className="flex items-center justify-between text-xs text-gray-700 pt-2 border-t border-gray-100 mb-3">
                   <div className="flex items-center">
