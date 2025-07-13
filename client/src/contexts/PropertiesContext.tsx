@@ -45,9 +45,9 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const userId = localStorage.getItem('userId') || '';
       const isAdminUser = userRole === 'admin' || userRole === 'staff';
       const isOwner = userRole === 'owner';
-      
+
       let data;
-      
+
       if (isAdminUser) {
         // Admin/staff sees all properties
         data = await propertiesApi.getAllAdmin();
@@ -58,7 +58,7 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         // Public sees only approved properties
         data = await propertiesApi.getAll();
       }
-      
+
       setPropertiesList(data);
     } catch (error) {
       console.error('Error fetching properties:', error);
@@ -69,19 +69,19 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     fetchProperties();
-    
+
     // Set up periodic refresh to sync properties across devices
     const interval = setInterval(() => {
       fetchProperties();
     }, 30000); // Refresh every 30 seconds
-    
+
     // Listen for storage changes (like logout)
     const handleStorageChange = () => {
       fetchProperties();
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
@@ -92,34 +92,34 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       const userId = parseInt(localStorage.getItem('userId') || '1');
       const userRole = localStorage.getItem('userRole') || '';
-      
+
       // Auto-approve properties created by admin or staff
       const propertyToCreate = {
         ...newProperty,
         status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : (newProperty.status || 'pending')
       };
-      
+
       console.log(`Creating property with status: ${propertyToCreate.status} for role: ${userRole}`);
-      
+
       // First try to save to the API
       const savedProperty = await propertiesApi.create(propertyToCreate);
-      
+
       // Log the audit action
       await auditLogger.logPropertyAction(
         'property_created',
         savedProperty,
         userId
       );
-      
+
       // If successful, refresh the properties list to get all properties from the database
       await fetchProperties();
-      
+
       console.log(`✅ Property created: ${savedProperty.title} (Status: ${savedProperty.status})`);
-      
+
       return savedProperty;
     } catch (error) {
       console.error('Error adding property:', error);
-      
+
       // Fallback: add to local state only if API fails
       const userRole = localStorage.getItem('userRole') || '';
       const property: Property = {
@@ -138,14 +138,14 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       // Get current property for audit logging
       const currentProperty = propertiesList.find(p => p.id === id);
       const userId = parseInt(localStorage.getItem('userId') || '1');
-      
+
       // Try to update via API first
       await propertiesApi.update(id, updatedFields);
-      
+
       // Log the audit action
       if (currentProperty) {
         const updatedProperty = { ...currentProperty, ...updatedFields };
-        
+
         // Determine specific action based on what changed
         let action = 'property_updated';
         if (updatedFields.status && updatedFields.status !== currentProperty.status) {
@@ -159,7 +159,7 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         } else if (updatedFields.featured !== undefined && updatedFields.featured !== currentProperty.featured) {
           action = updatedFields.featured ? 'property_featured' : 'property_unfeatured';
         }
-        
+
         await auditLogger.logPropertyAction(
           action,
           updatedProperty,
@@ -167,12 +167,12 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           currentProperty
         );
       }
-      
+
       // If successful, refresh the properties list
       await fetchProperties();
     } catch (error) {
       console.error('Error updating property:', error);
-      
+
       // Fallback: update local state only
       setPropertiesList(prevProperties => 
         prevProperties.map(property => 
@@ -187,10 +187,10 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       // Get current property for audit logging
       const currentProperty = propertiesList.find(p => p.id === id);
       const userId = parseInt(localStorage.getItem('userId') || '1');
-      
+
       // Try to delete via API first
       await propertiesApi.delete(id);
-      
+
       // Log the audit action
       if (currentProperty) {
         await auditLogger.logPropertyAction(
@@ -199,12 +199,12 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           userId
         );
       }
-      
+
       // If successful, refresh the properties list
       await fetchProperties();
     } catch (error) {
       console.error('Error deleting property:', error);
-      
+
       // Fallback: update local state only
       setPropertiesList(prevProperties => 
         prevProperties.filter(property => property.id !== id)
@@ -216,10 +216,10 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       const currentProperty = propertiesList.find(p => p.id === id);
       const userId = parseInt(localStorage.getItem('userId') || '1');
-      
+
       // Call API to approve property
       await propertiesApi.approve(id);
-      
+
       // Log the audit action
       if (currentProperty) {
         await auditLogger.logPropertyAction(
@@ -228,12 +228,12 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           userId
         );
       }
-      
+
       // Refresh properties to get updated data
       await fetchProperties();
     } catch (error) {
       console.error('Error approving property:', error);
-      
+
       // Fallback: update local state only
       setPropertiesList(prevProperties => 
         prevProperties.map(property => 
@@ -247,10 +247,10 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       const currentProperty = propertiesList.find(p => p.id === id);
       const userId = parseInt(localStorage.getItem('userId') || '1');
-      
+
       // Call API to reject property
       await propertiesApi.reject(id);
-      
+
       // Log the audit action
       if (currentProperty) {
         await auditLogger.logPropertyAction(
@@ -259,12 +259,12 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           userId
         );
       }
-      
+
       // Refresh properties to get updated data
       await fetchProperties();
     } catch (error) {
       console.error('Error rejecting property:', error);
-      
+
       // Fallback: update local state only
       setPropertiesList(prevProperties => 
         prevProperties.map(property => 

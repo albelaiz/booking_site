@@ -306,11 +306,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/properties", requireAuth, async (req, res) => {
     try {
+      console.log('Property creation request received:', {
+        userId: req.headers['x-user-id'],
+        userRole: req.headers['x-user-role'],
+        bodyKeys: Object.keys(req.body)
+      });
+      
       const propertyData = insertPropertySchema.parse(req.body);
       
       // Extract user info from token (in a real app, you'd decode the JWT)
-      // For now, we'll get it from the request body or headers
-      const userId = req.body.ownerId || req.headers['x-user-id'];
+      const userId = req.body.ownerId || req.headers['x-user-id'] || '1';
       const userRole = req.headers['x-user-role'] || 'user';
       
       // Force status based on user role - admin properties are auto-approved
@@ -320,22 +325,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
       };
       
-      console.log(`Creating property with status: ${finalPropertyData.status} for role: ${userRole}`);
+      console.log(`Creating property with status: ${finalPropertyData.status} for role: ${userRole}, user: ${userId}`);
       
       const property = await storage.createProperty(finalPropertyData);
       
       // Log approval for admin properties
       if (finalPropertyData.status === 'approved') {
-        console.log(`✅ Admin property auto-approved: ${property.title} (ID: ${property.id})`);
+        console.log(`✅ Admin property auto-approved: ${property.title} (ID: ${property.id}) - Now visible to all visitors`);
+      } else {
+        console.log(`⏳ Property pending approval: ${property.title} (ID: ${property.id})`);
       }
       
       res.status(201).json(property);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error("Property validation error:", error.errors);
         return res.status(400).json({ error: "Invalid property data", details: error.errors });
       }
       console.error("Create property error:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Internal server error", details: error.message });
     }
   });
 

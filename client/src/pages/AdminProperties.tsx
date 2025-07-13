@@ -185,7 +185,7 @@ const AdminProperties = () => {
                   <li>• Choose properties with high-quality images and complete information</li>
                 </ul>
               </div>
-              
+
               {approvedProperties.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {approvedProperties.map(property => (
@@ -219,7 +219,7 @@ const AdminProperties = () => {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-1 text-xs">
                           <span className="px-2 py-1 bg-gray-100 rounded">{property.bedrooms} bed</span>
                           <span className="px-2 py-1 bg-gray-100 rounded">{property.bathrooms} bath</span>

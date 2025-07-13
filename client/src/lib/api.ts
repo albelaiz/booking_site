@@ -86,29 +86,42 @@ export const propertiesApi = {
 
   create: async (property: any) => {
     try {
-      const token = localStorage.getItem('authToken') || 'Bearer user-mock-token';
-      const userId = localStorage.getItem('userId');
-      const userRole = localStorage.getItem('userRole');
+      const token = localStorage.getItem('authToken') || 'Bearer admin-mock-token';
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      const userId = user?.id || localStorage.getItem('userId') || '1';
+      const userRole = user?.role || localStorage.getItem('userRole') || 'admin';
 
       console.log(`API: Creating property for user ${userId} with role ${userRole}`);
+
+      const propertyData = {
+        ...property,
+        ownerId: parseInt(userId)
+      };
 
       const response = await fetch(`${API_BASE_URL}/properties`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
-          'x-user-id': userId || '1',
-          'x-user-role': userRole || 'user'
+          'x-user-id': userId,
+          'x-user-role': userRole
         },
-        body: JSON.stringify(property),
+        body: JSON.stringify(propertyData),
       });
-      if (!response.ok) throw new Error('Failed to create property');
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Property creation failed:', response.status, errorText);
+        throw new Error(`Failed to create property: ${response.status}`);
+      }
+      
       const result = await response.json();
       console.log(`API: Property created with status: ${result.status}`);
       return result;
     } catch (error) {
-      console.warn('API not available');
-      throw new Error('Failed to create property - server not available');
+      console.error('Property creation error:', error);
+      throw error;
     }
   },
 
