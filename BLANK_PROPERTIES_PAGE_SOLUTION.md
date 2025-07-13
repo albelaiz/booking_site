@@ -1,7 +1,7 @@
 # 🔧 SOLUTION: Properties Page Shows Blank
 
 ## Problem Analysis
-The user reports that when visitors try to access `http://172.233.117.122:5000/properties`, they see a blank page.
+The user reports that when visitors try to access `https://tamudastay.com/properties`, they see a blank page.
 
 ## Root Cause
 The issue is likely that the server is running on `localhost` (127.0.0.1) but users are trying to access it via an external IP address (172.233.117.122). This can cause:
@@ -48,7 +48,7 @@ const API_BASE_URL = getApiBaseUrl();
 ```
 
 ### Solution 3: Debug Network Issues
-1. **Check if server is accessible**: `curl http://172.233.117.122:5000/api/properties/public`
+1. **Check if server is accessible**: `curl https://tamudastay.com/api/properties/public`
 2. **Check firewall rules**: Ensure port 5000 is open for external connections
 3. **Check browser console**: Look for JavaScript errors or network failures
 
@@ -77,15 +77,15 @@ curl http://localhost:5000/properties
 ### Step 2: Test External Access
 ```bash
 # Test API from external IP
-curl http://172.233.117.122:5000/api/properties/public
+curl https://tamudastay.com/api/properties/public
 
 # Test React app from external IP
-curl http://172.233.117.122:5000/properties
+curl https://tamudastay.com/properties
 ```
 
 ### Step 3: Browser Testing
 1. Open browser console (F12)
-2. Navigate to `http://172.233.117.122:5000/properties`
+2. Navigate to `https://tamudastay.com/properties`
 3. Check for network errors or JavaScript errors
 4. Check if API calls are successful
 
