@@ -373,13 +373,28 @@ export class DatabaseStorage implements IStorage {
         throw new Error('Check-in and check-out dates are required');
       }
       
+      // Ensure dates are Date objects
+      const checkInDate = insertBooking.checkIn instanceof Date ? 
+        insertBooking.checkIn : new Date(insertBooking.checkIn);
+      const checkOutDate = insertBooking.checkOut instanceof Date ? 
+        insertBooking.checkOut : new Date(insertBooking.checkOut);
+
+      // Validate dates
+      if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+        throw new Error('Invalid check-in or check-out date format');
+      }
+
+      if (checkInDate >= checkOutDate) {
+        throw new Error('Check-out date must be after check-in date');
+      }
+      
       // Check availability first (skip for blocked dates)
       if (insertBooking.status !== 'blocked') {
         console.log('Storage: Checking availability...');
         const isAvailable = await this.checkBookingAvailability(
           insertBooking.propertyId,
-          new Date(insertBooking.checkIn),
-          new Date(insertBooking.checkOut)
+          checkInDate,
+          checkOutDate
         );
 
         if (!isAvailable) {
@@ -390,6 +405,8 @@ export class DatabaseStorage implements IStorage {
 
       const bookingToInsert = {
         ...insertBooking,
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

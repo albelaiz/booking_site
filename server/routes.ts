@@ -504,9 +504,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Pre-process the data to ensure proper formatting
+      const processedData = {
+        ...req.body,
+        propertyId: parseInt(req.body.propertyId),
+        guests: parseInt(req.body.guests),
+        amount: parseFloat(req.body.amount),
+        // Ensure dates are properly formatted
+        checkIn: req.body.checkIn,
+        checkOut: req.body.checkOut
+      };
+
+      console.log('Pre-processed booking data:', processedData);
+
       // Validate the booking data
       console.log('Validating booking data with schema...');
-      const bookingData = insertBookingSchema.parse(req.body);
+      const bookingData = insertBookingSchema.parse(processedData);
       
       console.log('Validated booking data:', bookingData);
       
@@ -538,14 +551,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error("Booking validation error:", error.errors);
-        return res.status(400).json({ error: "Invalid booking data", details: error.errors });
+        const firstError = error.errors[0];
+        return res.status(400).json({ 
+          error: `Validation error: ${firstError.message}`,
+          field: firstError.path.join('.'),
+          details: error.errors 
+        });
       }
       if (error instanceof Error && error.message.includes('not available')) {
         console.error("Booking availability error:", error.message);
         return res.status(409).json({ error: error.message });
       }
       console.error("Create booking error:", error);
-      res.status(500).json({ error: "Internal server error", details: error.message });
+      res.status(500).json({ 
+        error: "Internal server error", 
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 

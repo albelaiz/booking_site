@@ -149,10 +149,16 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   guestName: z.string().min(1, "Guest name is required"),
   guestEmail: z.string().email("Valid email is required"),
   propertyId: z.number().min(1, "Property ID is required"),
-  checkIn: z.string().min(1, "Check-in date is required"),
-  checkOut: z.string().min(1, "Check-out date is required"),
+  checkIn: z.union([z.string(), z.date()]).transform(val => 
+    typeof val === 'string' ? new Date(val) : val
+  ),
+  checkOut: z.union([z.string(), z.date()]).transform(val => 
+    typeof val === 'string' ? new Date(val) : val
+  ),
   guests: z.number().min(1, "Number of guests is required"),
-  amount: z.union([z.string(), z.number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
+  amount: z.union([z.string(), z.number()]).transform(val => 
+    typeof val === 'string' ? parseFloat(val) : val
+  ),
 });
 
 export const insertMessageSchema = createInsertSchema(messages).omit({
