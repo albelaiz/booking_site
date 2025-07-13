@@ -64,9 +64,7 @@ const SearchBar = () => {
 
   return (
     <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 sm:p-4 max-w-4xl mx-auto">
-      <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4"></form>
-    </div>
-  );
+      <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         {/* Location */}
         <div className="relative p-3 border border-gray-200 rounded-lg sm:border-0 sm:p-4">
           <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
