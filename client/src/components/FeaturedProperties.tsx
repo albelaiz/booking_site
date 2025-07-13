@@ -109,12 +109,12 @@ const FeaturedProperties: React.FC = () => {
             <span className="text-gray-600 text-sm">/{property.priceUnit}</span>
           </div>
           <div className="flex space-x-2">
-            <button 
+            {/* <button 
               onClick={() => handleViewDetails(property.id)}
               className="btn-outline text-sm px-4 py-2"
             >
               View Details
-            </button>
+            </button> */}
             <button 
               onClick={() => handleBookNow(property.id)}
               className="btn-primary text-sm px-4 py-2"
