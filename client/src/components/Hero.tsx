@@ -4,49 +4,29 @@ import { Sun, Waves, Umbrella, Ship, Star, MapPin, Calendar, Crown } from 'lucid
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100">
-      {/* Beautiful Multi-layer Background */}
+    <div className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Elegant Moroccan Background */}
       <div className="absolute inset-0 z-0">
-        {/* Main Background Image with better overlay */}
-        <div className="absolute inset-0">
-          <img 
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2400&q=90" 
-            alt="Martil Beach Paradise" 
-            className="w-full h-full object-cover opacity-30"
-          />
-        </div>
-
-        {/* Professional Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/80 via-blue-50/60 to-blue-200/40"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-transparent to-white/50"></div>
-
-        {/* Animated Background Elements */}
-        <div className="absolute top-20 right-20 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute top-40 -left-10 w-64 h-64 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-20 left-40 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-35 animate-blob animation-delay-4000"></div>
-
-        {/* Beautiful Geometric Pattern */}
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%232563eb' fill-opacity='0.3'%3E%3Cpolygon points='50 0 60 40 100 50 60 60 50 100 40 60 0 50 40 40'/%3E%3C/g%3E%3C/svg%3E")`,
-        }}></div>
+        <img 
+          src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80" 
+          alt="Beautiful Moroccan Coast" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 via-blue-800/60 to-blue-900/70"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
       </div>
 
-      {/* Minimal Floating Elements */}
-      <div className="absolute bottom-20 left-10 text-blue-500/30 animate-float">
-        <Waves size={48} className="drop-shadow-lg" />
+      {/* Floating Elements */}
+      <div className="absolute bottom-20 left-10 text-white/20 animate-pulse">
+        <Waves size={48} />
       </div>
-      <div className="absolute top-20 right-20 text-blue-400/25 animate-pulse">
-        <Sun size={40} className="drop-shadow-lg" />
-      </div>
-      <div className="absolute bottom-32 right-16 text-blue-600/20 animate-bounce">
-        <Ship size={36} className="drop-shadow-lg" />
+      <div className="absolute top-20 right-20 text-yellow-400/30 animate-pulse">
+        <Sun size={40} />
       </div>
 
       {/* Main Content */}
       <div className="relative z-20 container-custom">
-        <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/70 to-blue-900/80"></div>
+        <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8"></div>
 
           <div className="relative z-10 max-w-4xl mx-auto text-center w-full">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
