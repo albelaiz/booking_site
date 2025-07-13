@@ -63,25 +63,25 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-elevated p-1.5">
-      <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-2">
-        <div className="p-3 border-b md:border-b-0 md:border-r border-gray-200">
-          <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
-            <MapPin className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
-            Location
+    <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 sm:p-4 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+        {/* Location */}
+        <div className="relative p-3 border border-gray-200 rounded-lg sm:border-0 sm:p-4">
+          <label className="flex items-center text-xs font-medium text-gray-500 mb-2">
+            <MapPin className="w-4 h-4 mr-1" />
+            Where
           </label>
-          <Select value={location} onValueChange={setLocation}>
-            <SelectTrigger className="w-full text-gray-900 focus:outline-none">
-              <SelectValue placeholder="Select a location" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border shadow-lg">
-              {locationOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <select 
+            value={location} 
+            onChange={(e) => setLocation(e.target.value)}
+            className="w-full text-gray-900 focus:outline-none text-base sm:text-sm min-h-[44px] sm:min-h-auto"
+          >
+            {locationOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="p-3 border-b md:border-b-0 md:border-r border-gray-200">
@@ -151,7 +151,7 @@ const SearchBar = () => {
             <span>Search</span>
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
