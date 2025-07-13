@@ -1,3 +1,4 @@
+
 import React from 'react';
 import SearchBar from './SearchBar';
 import { Sun, Waves, Umbrella, Ship, Star, MapPin, Calendar, Crown } from 'lucide-react';
@@ -26,8 +27,7 @@ const Hero: React.FC = () => {
 
       {/* Main Content */}
       <div className="relative z-20 container-custom">
-        <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8"></div>
-
+        <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
           <div className="relative z-10 max-w-4xl mx-auto text-center w-full">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
               Discover Your Perfect
