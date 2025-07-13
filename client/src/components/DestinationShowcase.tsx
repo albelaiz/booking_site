@@ -7,24 +7,38 @@ const DestinationShowcase: React.FC = () => {
   const destinations = [
     {
       name: 'Cabo Negro',
-      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       description: 'Pristine beaches and luxury coastal resorts with breathtaking Atlantic views',
       properties: 18,
       avgRating: 4.8
     },
     {
       name: 'Tetouan',
-      image: 'https://images.unsplash.com/photo-1539650116574-75c0c6d73999?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       description: 'Rich Andalusian heritage and traditional Moroccan architecture in the heart of the Rif',
       properties: 25,
       avgRating: 4.7
     },
     {
       name: 'Marina Smir',
-      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       description: 'Luxury marina resort with stunning Mediterranean views and world-class amenities',
       properties: 22,
       avgRating: 4.9
+    },
+    {
+      name: "M'diq",
+      image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      description: 'Charming fishing port with beautiful Mediterranean beaches and fresh seafood',
+      properties: 15,
+      avgRating: 4.6
+    },
+    {
+      name: 'Belyounech',
+      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      description: 'Dramatic cliffs and secluded beaches where the Mediterranean meets the Atlantic',
+      properties: 8,
+      avgRating: 4.5
     }
   ];
 
@@ -37,7 +51,7 @@ const DestinationShowcase: React.FC = () => {
           discover authentic Moroccan experiences across the kingdom's most captivating destinations.
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
           {destinations.map((destination, index) => (
             <div key={destination.name} className="group cursor-pointer animate-fade-up" style={{animationDelay: `${index * 100}ms`}}>
               <Link to={`/properties?location=${destination.name}`}>
