@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Property } from '../data/properties';
 import BookingForm from './BookingForm';
 
@@ -8,6 +8,16 @@ interface PropertyDetailsProps {
 }
 
 const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property }) => {
+  const [searchParams] = useSearchParams();
+  const [showBookingForm, setShowBookingForm] = useState(false);
+
+  useEffect(() => {
+    // Check if the action parameter is 'book' to auto-open booking form
+    if (searchParams.get('action') === 'book') {
+      setShowBookingForm(true);
+    }
+  }, [searchParams]);
+
   const [activeImage, setActiveImage] = useState(0);
 
   return (
@@ -16,7 +26,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property }) => {
         {/* Left Column - Property Details */}
         <div className="lg:col-span-2">
           <h1 className="text-3xl font-serif font-medium mb-4">{property.title}</h1>
-          
+
           <div className="flex items-center justify-between mb-6">
             <div className="text-gray-700">
               {property.location}
@@ -28,7 +38,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property }) => {
               <span className="text-gray-700">{property.rating} ({property.reviews} reviews)</span>
             </div>
           </div>
-          
+
           {/* Image Gallery */}
           <div className="mb-8">
             <div className="h-[400px] mb-2 rounded-lg overflow-hidden">
@@ -54,7 +64,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property }) => {
               ))}
             </div>
           </div>
-          
+
           {/* Property Stats */}
           <div className="grid grid-cols-3 md:grid-cols-4 gap-4 bg-gray-50 rounded-lg p-6 mb-8">
             <div className="text-center">
@@ -74,13 +84,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property }) => {
               <div className="font-medium text-moroccan-gold">${property.price}/{property.priceUnit}</div>
             </div>
           </div>
-          
+
           {/* Property Description */}
           <div className="mb-8">
             <h2 className="text-xl font-serif font-medium mb-4">About this property</h2>
             <p className="text-gray-700 leading-relaxed mb-4">{property.description}</p>
           </div>
-          
+
           {/* Amenities */}
           <div className="mb-8">
             <h2 className="text-xl font-serif font-medium mb-4">Amenities</h2>
@@ -95,7 +105,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property }) => {
               ))}
             </div>
           </div>
-          
+
           {/* Location */}
           <div>
             <h2 className="text-xl font-serif font-medium mb-4">Location</h2>
@@ -107,15 +117,17 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property }) => {
             </div>
           </div>
         </div>
-        
+
         {/* Right Column - Booking Form */}
         <div>
-          <BookingForm 
-            propertyId={property.id}
-            propertyTitle={property.title}
-            price={property.price}
-            priceUnit={property.priceUnit}
-          />
+            {showBookingForm ? (
+              <BookingForm
+                propertyId={property.id}
+                propertyTitle={property.title}
+                price={property.price}
+                priceUnit={property.priceUnit}
+              />
+            ) : null}
         </div>
       </div>
     </div>

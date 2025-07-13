@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from "../hooks/use-toast";
 import { useBookings } from "../contexts/BookingsContext";
 import { useNavigate } from 'react-router-dom';
@@ -9,9 +8,16 @@ interface BookingFormProps {
   propertyTitle: string;
   price: number;
   priceUnit: string;
+  autoOpen?: boolean;
 }
 
-const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, price, priceUnit }) => {
+const BookingForm: React.FC<BookingFormProps> = ({ 
+  propertyId, 
+  propertyTitle, 
+  price, 
+  priceUnit,
+  autoOpen = false
+}) => {
   const { toast } = useToast();
   const { addBooking } = useBookings();
   const navigate = useNavigate();
@@ -72,7 +78,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, pr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -124,10 +130,20 @@ const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, pr
     }
   };
 
+  useEffect(() => {
+    // Auto-open logic can be implemented here, e.g., setting a state to control form visibility
+    if (autoOpen) {
+        // You might want to set a state here to control the visibility of the booking form
+        // For example:
+        // setShowBookingForm(true); // Assuming you have a setShowBookingForm state
+        console.log("Auto-open triggered for booking form");
+    }
+  }, [autoOpen]);
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
       <h3 className="text-xl font-serif font-medium mb-6">Book this property</h3>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>

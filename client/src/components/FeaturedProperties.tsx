@@ -15,10 +15,12 @@ const FeaturedProperties: React.FC = () => {
   );
   
   const handleBookNow = (propertyId: number) => {
+    console.log('Navigating to book property:', propertyId);
     navigate(`/property/${propertyId}?action=book`);
   };
 
   const handleViewDetails = (propertyId: number) => {
+    console.log('Navigating to view property:', propertyId);
     navigate(`/property/${propertyId}`);
   };
 

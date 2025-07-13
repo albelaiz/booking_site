@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProperties } from '../contexts/PropertiesContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -10,20 +10,31 @@ import { Property } from '../data/properties';
 
 const PropertyPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { properties } = useProperties();
-  const [property, setProperty] = useState(properties.find(p => p.id === id));
+  const [property, setProperty] = useState<Property | undefined>();
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
 
   useEffect(() => {
-    // Find the current property
-    const currentProperty = properties.find(p => p.id === id);
+    if (!id || !properties.length) return;
+    
+    // Convert id to number for comparison since database IDs are numbers
+    const propertyId = parseInt(id);
+    
+    // Find the current property by comparing numeric IDs
+    const currentProperty = properties.find(p => p.id === propertyId);
+    
+    console.log('Looking for property ID:', propertyId);
+    console.log('Available properties:', properties.map(p => ({ id: p.id, title: p.title })));
+    console.log('Found property:', currentProperty);
+    
     setProperty(currentProperty);
     
     // Find similar properties (same location or similar number of bedrooms)
     if (currentProperty) {
       const similar = properties
         .filter(p => 
-          p.id !== id && 
+          p.id !== propertyId && 
           (p.location === currentProperty.location || 
            Math.abs(p.bedrooms - currentProperty.bedrooms) <= 1)
         )
