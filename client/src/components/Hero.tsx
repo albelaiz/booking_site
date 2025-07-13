@@ -103,24 +103,30 @@ const Hero: React.FC = () => {
             <SearchBar />
           </div>
           
-          {/* Professional Statistics */}
+          {/* Why Choose TamudaStay Features */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
-              <div className="text-4xl font-light text-gray-900 mb-2">150+</div>
-              <div className="text-blue-600 font-medium mb-1">Premium Properties</div>
-              <div className="text-gray-600 text-sm">Carefully curated accommodations</div>
+              <div className="text-blue-600 mb-3">
+                <MapPin className="w-8 h-8" />
+              </div>
+              <div className="text-blue-600 font-medium mb-2">Prime Locations</div>
+              <div className="text-gray-600 text-sm">Beachfront properties in Martil, Tamuda Bay & Tetouan's historic center</div>
             </div>
             
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
-              <div className="text-4xl font-light text-gray-900 mb-2">4.9</div>
-              <div className="text-blue-600 font-medium mb-1">Guest Rating</div>
-              <div className="text-gray-600 text-sm">Exceptional guest experiences</div>
+              <div className="text-blue-600 mb-3">
+                <Star className="w-8 h-8" />
+              </div>
+              <div className="text-blue-600 font-medium mb-2">Instant Booking</div>
+              <div className="text-gray-600 text-sm">Book your Mediterranean getaway in seconds with our seamless platform</div>
             </div>
             
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg">
-              <div className="text-4xl font-light text-gray-900 mb-2">5K+</div>
-              <div className="text-blue-600 font-medium mb-1">Happy Guests</div>
-              <div className="text-gray-600 text-sm">Satisfied travelers served</div>
+              <div className="text-blue-600 mb-3">
+                <Crown className="w-8 h-8" />
+              </div>
+              <div className="text-blue-600 font-medium mb-2">24/7 Support</div>
+              <div className="text-gray-600 text-sm">Local concierge services and multilingual support for your comfort</div>
             </div>
           </div>
         </div>
