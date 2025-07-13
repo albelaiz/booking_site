@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const BASE_URL = 'https://tamudastay.com';
-const EXTERNAL_URL = 'http://172.233.117.122:5000';
+const EXTERNAL_URL = 'https://tamudastay.com';
 
 console.log('🔧 COMPLETE PROPERTIES PAGE VERIFICATION\n');
 
