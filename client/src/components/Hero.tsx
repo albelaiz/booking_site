@@ -5,24 +5,10 @@ import { Sun, Waves, Umbrella, Ship, Star, MapPin, Calendar, Crown } from 'lucid
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Elegant Moroccan Background */}
+    <div className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 to-white">
+      {/* Simple Professional Background */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80" 
-          alt="Beautiful Moroccan Coast" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 via-blue-800/60 to-blue-900/70"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-      </div>
-
-      {/* Floating Elements */}
-      <div className="absolute bottom-20 left-10 text-white/20 animate-pulse">
-        <Waves size={48} />
-      </div>
-      <div className="absolute top-20 right-20 text-yellow-400/30 animate-pulse">
-        <Sun size={40} />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-blue-500/5 to-transparent"></div>
       </div>
 
       {/* Main Content */}
