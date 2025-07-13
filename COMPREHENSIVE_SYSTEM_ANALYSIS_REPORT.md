@@ -421,15 +421,15 @@ SELECT * FROM bookings WHERE property_id NOT IN (SELECT id FROM properties);
 ### **API Health Checks**
 ```bash
 # Test server health
-curl http://localhost:5000/api/health
+curl https://tamudastay.com/api/health
 
 # Test authentication
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST https://tamudastay.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"password123"}'
 
 # Test protected endpoint
-curl http://localhost:5000/api/properties \
+curl https://tamudastay.com/api/properties \
   -H "Authorization: Bearer admin-token"
 ```
 

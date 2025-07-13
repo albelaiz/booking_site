@@ -68,10 +68,10 @@ NODE_ENV=production npm start
 ### Step 1: Test Local Access
 ```bash
 # Test API
-curl http://localhost:5000/api/properties/public
+curl https://tamudastay.com/api/properties/public
 
 # Test React app
-curl http://localhost:5000/properties
+curl https://tamudastay.com/properties
 ```
 
 ### Step 2: Test External Access

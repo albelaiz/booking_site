@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 console.log('🧪 TESTING CURRENT PROPERTY SYSTEM');
 console.log('====================================');

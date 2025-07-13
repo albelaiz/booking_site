@@ -463,13 +463,13 @@ SELECT * FROM bookings WHERE property_id NOT IN (SELECT id FROM properties);
 ### **API Health Checks**
 ```bash
 # Test authentication
-curl -X POST http://localhost:5000/api/auth/login -H "Content-Type: application/json" -d '{"username":"testuser","password":"password"}'
+curl -X POST https://tamudastay.com/api/auth/login -H "Content-Type: application/json" -d '{"username":"testuser","password":"password"}'
 
 # Test property creation
-curl -X POST http://localhost:5000/api/properties -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{...}'
+curl -X POST https://tamudastay.com/api/properties -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{...}'
 
 # Test booking creation
-curl -X POST http://localhost:5000/api/bookings -H "Content-Type: application/json" -d '{...}'
+curl -X POST https://tamudastay.com/api/bookings -H "Content-Type: application/json" -d '{...}'
 ```
 
 ---

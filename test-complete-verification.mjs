@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'https://tamudastay.com';
 const EXTERNAL_URL = 'http://172.233.117.122:5000';
 
 console.log('🔧 COMPLETE PROPERTIES PAGE VERIFICATION\n');

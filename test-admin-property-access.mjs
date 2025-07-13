@@ -6,7 +6,7 @@
  * This script tests if admin users can now access all properties
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function testAdminAccess() {
   console.log('🔧 TESTING: Admin Property Access After Auth Fix\n');

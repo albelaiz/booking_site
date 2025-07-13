@@ -275,7 +275,7 @@ app.use((req, res) => {
 app.listen(PORT, HOST, () => {
     console.log('🚀 Express Server is running!');
     console.log(`📍 Local URL: http://${HOST}:${PORT}`);
-    console.log(`🌍 Network URL: http://localhost:${PORT}`);
+    console.log(`🌍 Network URL: https://tamudastay.com:${PORT}`);
     console.log(`⚡ Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log('📊 Health Check: /api/health');
     console.log('ℹ️  About: /api/about');

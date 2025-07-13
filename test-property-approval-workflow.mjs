@@ -14,7 +14,7 @@
 
 import fetch from 'node-fetch';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 // Test configuration
 const TEST_CONFIG = {

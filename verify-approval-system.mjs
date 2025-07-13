@@ -5,7 +5,7 @@
  * Tests the basic endpoints to ensure the approval workflow is working
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function testEndpoint(url, options = {}) {
   try {

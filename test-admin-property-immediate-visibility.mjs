@@ -1,7 +1,7 @@
 
 #!/usr/bin/env node
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function testAdminPropertyCreationAndVisibility() {
   console.log('🧪 Testing Admin Property Creation and Immediate Visibility\n');
@@ -94,7 +94,7 @@ async function testAdminPropertyCreationAndVisibility() {
 testAdminPropertyCreationAndVisibility();
 #!/usr/bin/env node
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function testAdminPropertyCreationAndVisibility() {
   console.log('🧪 Testing Admin Property Creation and Immediate Visibility\n');

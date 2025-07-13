@@ -15,7 +15,7 @@ async function runVisitorTests() {
     });
     
     const page = await browser.newPage();
-    const baseUrl = 'http://localhost:5000';
+    const baseUrl = 'https://tamudastay.com';
     
     const results = {
         homepage: [],

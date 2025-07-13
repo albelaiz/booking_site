@@ -6,7 +6,7 @@
  * This script investigates why properties aren't showing in admin dashboard
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function debugPropertyVisibility() {
   console.log('🔍 DEBUGGING: Property Visibility Issue\n');

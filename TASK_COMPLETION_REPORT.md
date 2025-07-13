@@ -72,12 +72,12 @@ Success rate: 100%
 ## 🔗 ACCESS POINTS
 
 ### Live Demo
-- **URL:** http://localhost:5173/enhanced-auth-demo
+- **URL:** https://tamudastay.com/enhanced-auth-demo
 - **Features:** Interactive test scenarios for all user types
 
 ### Integration Points
-- **Become Host:** http://localhost:5173/become-host (uses enhanced auth)
-- **API Health:** http://localhost:5000/api/health ✅
+- **Become Host:** https://tamudastay.com/become-host (uses enhanced auth)
+- **API Health:** https://tamudastay.com/api/health ✅
 
 ### Documentation
 - **Technical:** `ENHANCED_AUTH_README.md`
@@ -142,5 +142,5 @@ The enhanced sign-up process successfully addresses the original requirement to 
 ---
 
 **Test Command:** `node test-enhanced-auth-system.js`  
-**Demo URL:** http://localhost:5173/enhanced-auth-demo  
+**Demo URL:** https://tamudastay.com/enhanced-auth-demo  
 **Last Verified:** 2025-06-30 21:42 UTC

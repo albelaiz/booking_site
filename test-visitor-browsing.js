@@ -1,5 +1,5 @@
 // Test script to verify visitor browsing functionality
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function testVisitorExperience() {
   console.log('🧪 Testing Visitor Experience...\n');

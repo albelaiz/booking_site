@@ -7,7 +7,7 @@
 
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'https://tamudastay.com';
 
 async function quickSystemCheck() {
   console.log('🏥 TAMUDASTAY SYSTEM HEALTH CHECK\n');

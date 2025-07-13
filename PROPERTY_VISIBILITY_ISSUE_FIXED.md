@@ -55,7 +55,7 @@ localStorage.setItem('authToken', `Bearer ${response.user.role}-${response.user.
 ## 🎯 **TESTING STEPS FOR ADMIN**
 
 ### Step 1: Login as Admin
-1. Open the website: `http://localhost:5000`
+1. Open the website: `https://tamudastay.com`
 2. Click **Login** button
 3. Use admin credentials:
    - **Username**: `admin` 

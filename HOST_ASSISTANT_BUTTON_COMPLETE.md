@@ -109,7 +109,7 @@ All implementation tests PASS:
 ## Manual Testing Instructions
 
 1. Run development server: `npm run dev`
-2. Navigate to: `http://localhost:5000/owner-dashboard`
+2. Navigate to: `https://tamudastay.com/owner-dashboard`
 3. Look for the green "🤖 Get AI Host Assistant Help" button
 4. Click the button and verify:
    - Page scrolls smoothly to bottom

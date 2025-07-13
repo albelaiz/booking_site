@@ -105,7 +105,7 @@ Public → Home Page → See only approved properties
 ## Manual Testing Instructions
 
 1. **Start the server**: `npm run dev`
-2. **Open browser**: http://localhost:5000
+2. **Open browser**: https://tamudastay.com
 3. **Test as Admin**:
    - Login: username `admin`, password `admin123!`
    - Navigate to Admin > Properties

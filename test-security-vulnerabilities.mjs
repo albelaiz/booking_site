@@ -7,7 +7,7 @@
 
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'https://tamudastay.com';
 const colors = {
   red: '\x1b[31m',
   green: '\x1b[32m',

@@ -21,9 +21,9 @@ npm run watch
 
 ## 📍 Access Your Application
 
-- **🏠 Homepage**: http://localhost:3000
-- **📊 Health Check**: http://localhost:3000/api/health
-- **ℹ️ About**: http://localhost:3000/api/about
+- **🏠 Homepage**: https://tamudastay.com
+- **📊 Health Check**: https://tamudastay.com/api/health
+- **ℹ️ About**: https://tamudastay.com/api/about
 
 ## 🛠️ Available Scripts
 
@@ -87,7 +87,7 @@ Returns server status and information:
   "server": {
     "host": "localhost",
     "port": 3000,
-    "url": "http://localhost:3000"
+    "url": "https://tamudastay.com"
   }
 }
 ```

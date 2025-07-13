@@ -5,7 +5,7 @@
  * Quick verification that the property system is working correctly
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function healthCheck() {
   console.log('🏥 PROPERTY SYSTEM HEALTH CHECK');

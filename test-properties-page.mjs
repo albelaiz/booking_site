@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 console.log('🔧 TESTING: Properties Page Data Loading\n');
 
@@ -35,7 +35,7 @@ async function testPropertiesPageData() {
   console.log('2. Testing React app loading...');
   
   try {
-    const response = await fetch('http://localhost:5000/properties');
+    const response = await fetch('https://tamudastay.com/properties');
     if (response.ok) {
       const html = await response.text();
       if (html.includes('<!DOCTYPE html>')) {

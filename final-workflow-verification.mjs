@@ -4,7 +4,7 @@ console.log('🎯 PROPERTY APPROVAL WORKFLOW - FINAL VERIFICATION');
 console.log('===============================================');
 console.log('');
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function runFinalTests() {
   console.log('1. Testing database state...');
@@ -104,7 +104,7 @@ async function runFinalTests() {
   console.log('');
   console.log('🎯 MANUAL TESTING STEPS:');
   console.log('========================');
-  console.log('1. Open browser to http://localhost:5000');
+  console.log('1. Open browser to https://tamudastay.com');
   console.log('2. Login as admin user (username: admin, password: admin123!)');
   console.log('3. Navigate to Admin > Properties');
   console.log('4. Verify you can see all properties with their statuses');

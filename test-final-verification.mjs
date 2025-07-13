@@ -3,7 +3,7 @@
 console.log('🔍 FINAL PROPERTY SYSTEM VERIFICATION');
 console.log('======================================');
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function createTestProperty() {
   console.log('\n1. 📝 Creating Test Property for Verification');

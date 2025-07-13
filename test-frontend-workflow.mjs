@@ -3,7 +3,7 @@
 console.log('🧪 TESTING FRONTEND PROPERTY WORKFLOW');
 console.log('=====================================');
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://tamudastay.com/api';
 
 async function testCompleteWorkflow() {
   console.log('\n1. 🏠 Simulating Property Form Submission (Frontend Pattern)');

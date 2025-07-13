@@ -87,18 +87,18 @@ DELETE /api/properties/:id (Admin only)
 
 ## 🌐 **How Visitors Can Browse**
 
-### **Homepage** (`http://localhost:5000`)
+### **Homepage** (`https://tamudastay.com`)
 - Featured properties showcase
 - Search functionality
 - No login required
 
-### **Properties Page** (`http://localhost:5000/properties`)
+### **Properties Page** (`https://tamudastay.com/properties`)
 - Grid view of all approved properties
 - Filter by location, guests, dates
 - Map view available
 - Property cards with key details
 
-### **Individual Property** (`http://localhost:5000/properties/:id`)
+### **Individual Property** (`https://tamudastay.com/properties/:id`)
 - Full property details
 - Image gallery
 - Amenities list
@@ -135,10 +135,10 @@ Your visitor browsing feature is **100% complete and functional**. Visitors can 
 npm run dev
 
 # Access the website
-http://localhost:5000
+https://tamudastay.com
 
 # View properties page
-http://localhost:5000/properties
+https://tamudastay.com/properties
 
 # Test visitor browsing
 node test-visitor-browsing.js
