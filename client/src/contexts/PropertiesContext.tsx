@@ -99,6 +99,8 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : (newProperty.status || 'pending')
       };
       
+      console.log(`Creating property with status: ${propertyToCreate.status} for role: ${userRole}`);
+      
       // First try to save to the API
       const savedProperty = await propertiesApi.create(propertyToCreate);
       
@@ -112,15 +114,18 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       // If successful, refresh the properties list to get all properties from the database
       await fetchProperties();
       
+      console.log(`✅ Property created: ${savedProperty.title} (Status: ${savedProperty.status})`);
+      
       return savedProperty;
     } catch (error) {
       console.error('Error adding property:', error);
       
       // Fallback: add to local state only if API fails
+      const userRole = localStorage.getItem('userRole') || '';
       const property: Property = {
         ...newProperty,
         id: `PROP${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
-        status: newProperty.status || 'pending' as 'pending',
+        status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending' as 'pending',
       };
 
       setPropertiesList(prevProperties => [...prevProperties, property]);

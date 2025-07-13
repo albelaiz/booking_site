@@ -70,7 +70,7 @@ const AdminProperties = () => {
       status: 'approved', // Admin-created properties are auto-approved
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      ownerId: 'admin',
+      ownerId: localStorage.getItem('userId') || 'admin',
       rating: 0,
       reviews: 0
     };
@@ -78,8 +78,8 @@ const AdminProperties = () => {
     addProperty(newProperty);
     setIsAddingProperty(false);
     toast({
-      title: "Property added",
-      description: "New property has been created successfully.",
+      title: "Property added and published",
+      description: "New property has been created and is now visible to all visitors.",
     });
   };
 

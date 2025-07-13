@@ -313,14 +313,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.body.ownerId || req.headers['x-user-id'];
       const userRole = req.headers['x-user-role'] || 'user';
       
-      // Force status based on user role
+      // Force status based on user role - admin properties are auto-approved
       const finalPropertyData = {
         ...propertyData,
         ownerId: parseInt(userId),
         status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
       };
       
+      console.log(`Creating property with status: ${finalPropertyData.status} for role: ${userRole}`);
+      
       const property = await storage.createProperty(finalPropertyData);
+      
+      // Log approval for admin properties
+      if (finalPropertyData.status === 'approved') {
+        console.log(`✅ Admin property auto-approved: ${property.title} (ID: ${property.id})`);
+      }
+      
       res.status(201).json(property);
     } catch (error) {
       if (error instanceof z.ZodError) {
