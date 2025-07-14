@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import { seedDatabase } from "./seed";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic, log } from "./vite.js";
+import { seedDatabase } from "./seed.js";
 
 const app = express();
 // Increase payload limit for property images and data
@@ -39,8 +39,14 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Seed the database with initial data
-  await seedDatabase();
+  console.log('🎉 Starting server with PostgreSQL database');
+  
+  // Seed the database with initial data in production
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🌱 Seeding database...');
+    await seedDatabase();
+    console.log('✅ Database seeded successfully');
+  }
 
   const server = await registerRoutes(app);
 
@@ -52,23 +58,21 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Setup Vite in development or serve static files in production
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // Serve the app on port 80 for Replit environment
-  // this serves both the API and the client.
-  const port = process.env.PORT || (app.get("env") === "development" ? 5000 : 80);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  // Railway-compatible server configuration
+  const port = parseInt(process.env.PORT || (app.get("env") === "development" ? "5000" : "3000"));
+  const host = "0.0.0.0";
+  
+  server.listen(port, host, () => {
+    console.log(`🚀 Server running on ${host}:${port}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🗄️  Database: Connected to PostgreSQL`);
     log(`serving on port ${port}`);
   });
 })();

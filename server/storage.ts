@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db } from "./db.js";
 import { users, properties, bookings, messages, auditLogs } from "@shared/schema";
 import { eq, and, desc, or, gte, lte, ne } from "drizzle-orm";
 import type { User, Property, Booking, Message, AuditLog } from "@shared/schema";
@@ -593,7 +593,31 @@ export class DatabaseStorage implements IStorage {
     offset?: number;
   }): Promise<AuditLog[]> {
     try {
-      let query = db.select({
+      const whereConditions: any[] = [];
+      const limit = filters?.limit ?? 100;
+      const offset = filters?.offset ?? 0;
+      
+      if (filters?.userId) {
+        whereConditions.push(eq(auditLogs.userId, filters.userId));
+      }
+      if (filters?.action) {
+        whereConditions.push(eq(auditLogs.action, filters.action));
+      }
+      if (filters?.entity) {
+        whereConditions.push(eq(auditLogs.entity, filters.entity));
+      }
+      if (filters?.severity) {
+        whereConditions.push(eq(auditLogs.severity, filters.severity));
+      }
+      if (filters?.startDate) {
+        whereConditions.push(gte(auditLogs.createdAt, filters.startDate));
+      }
+      if (filters?.endDate) {
+        whereConditions.push(lte(auditLogs.createdAt, filters.endDate));
+      }
+
+      // Build query based on whether we have filters
+      const baseQuery = db.select({
         id: auditLogs.id,
         userId: auditLogs.userId,
         action: auditLogs.action,
@@ -614,45 +638,21 @@ export class DatabaseStorage implements IStorage {
         }
       }).from(auditLogs).leftJoin(users, eq(auditLogs.userId, users.id));
 
-      if (filters) {
-        const {
-          userId,
-          action,
-          entity,
-          severity,
-          startDate,
-          endDate,
-          limit,
-          offset,
-        } = filters;
-
-        if (userId) {
-          query = query.where(eq(auditLogs.userId, userId));
-        }
-        if (action) {
-          query = query.where(eq(auditLogs.action, action));
-        }
-        if (entity) {
-          query = query.where(eq(auditLogs.entity, entity));
-        }
-        if (severity) {
-          query = query.where(eq(auditLogs.severity, severity));
-        }
-        if (startDate) {
-          query = query.where(gte(auditLogs.createdAt, startDate));
-        }
-        if (endDate) {
-          query = query.where(lte(auditLogs.createdAt, endDate));
-        }
-        if (limit) {
-          query = query.limit(limit);
-        }
-        if (offset) {
-          query = query.offset(offset);
-        }
+      let result;
+      if (whereConditions.length > 0) {
+        result = await baseQuery
+          .where(and(...whereConditions))
+          .orderBy(desc(auditLogs.createdAt))
+          .limit(limit)
+          .offset(offset);
+      } else {
+        result = await baseQuery
+          .orderBy(desc(auditLogs.createdAt))
+          .limit(limit)
+          .offset(offset);
       }
 
-      return await query.orderBy(desc(auditLogs.createdAt));
+      return result as AuditLog[];
     } catch (error) {
       console.error('Error fetching audit logs:', error);
       return [];

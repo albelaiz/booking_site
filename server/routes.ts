@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema, insertAuditLogSchema } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
@@ -349,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid property data", details: error.errors });
       }
       console.error("Create property error:", error);
-      res.status(500).json({ error: "Internal server error", details: error.message });
+      res.status(500).json({ error: "Internal server error", details: error instanceof Error ? error.message : String(error) });
     }
   });
 
