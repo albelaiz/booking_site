@@ -4,15 +4,30 @@ import { storage } from "./storage.js";
 import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema, insertAuditLogSchema } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
+import { db } from "./db";
+import { users, properties, bookings, messages, auditLogs, insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema } from "../shared/schema";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { eq, like, and, or, desc, asc } from "drizzle-orm";
+import { z } from "zod";
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { auditLogger } from "./lib/auditLogger";
+
+// Import route modules
+import adminPropertyRoutes from './routes/admin/properties';
+import hostPropertyRoutes from './routes/host/properties';
+import publicPropertyRoutes from './routes/public/properties';
 
 // Simple authentication middleware
 const requireAuth = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  
+
   // In a real app, you'd verify the JWT token here
   // For now, we'll just check if it exists
   next();
@@ -23,11 +38,11 @@ const requireAdminRole = (req: any, res: any, next: any) => {
   // This would typically check the user's role from the JWT token
   // For now, we'll implement basic protection
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: "Admin authentication required" });
   }
-  
+
   next();
 };
 
@@ -41,7 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = req.body;
-      
+
       if (!username || !password) {
         return res.status(400).json({ error: "Username and password are required" });
       }
@@ -69,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Validate the request data against the schema
       const userData = insertUserSchema.parse(req.body);
-      
+
       // Check if user already exists
       const existingUser = await storage.getUserByUsername(userData.username);
       if (existingUser) {
@@ -94,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           field: err.path.join('.'),
           message: err.message
         }));
-        
+
         // Return the first validation error for better UX
         const firstError = validationErrors[0];
         return res.status(400).json({ 
@@ -143,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/users", async (req, res) => {
     try {
       console.log("Creating user with data:", req.body);
-      
+
       // Validate required fields
       if (!req.body.username || !req.body.name || !req.body.email) {
         return res.status(400).json({ error: "Username, name, and email are required" });
@@ -177,10 +192,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       console.log("Validated user data:", userData);
-      
+
       const user = await storage.createUser(userData);
       const { password: _, ...userWithoutPassword } = user;
-      
+
       console.log("User created successfully:", userWithoutPassword);
       res.status(201).json(userWithoutPassword);
     } catch (error) {
@@ -208,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const user = await storage.updateUser(id, updateData);
-      
+
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -311,37 +326,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userRole: req.headers['x-user-role'],
         bodyKeys: Object.keys(req.body)
       });
-      
+
       // Transform rating to string if it exists and is a number
       const bodyData = { ...req.body };
       if (bodyData.rating && typeof bodyData.rating === 'number') {
         bodyData.rating = bodyData.rating.toString();
       }
-      
+
       const propertyData = insertPropertySchema.parse(bodyData);
-      
+
       // Extract user info from token (in a real app, you'd decode the JWT)
       const userId = req.body.ownerId || req.headers['x-user-id'] || '1';
       const userRole = req.headers['x-user-role'] || 'user';
-      
+
       // Force status based on user role - admin properties are auto-approved
       const finalPropertyData = {
         ...propertyData,
         ownerId: parseInt(userId),
         status: (userRole === 'admin' || userRole === 'staff') ? 'approved' : 'pending'
       };
-      
+
       console.log(`Creating property with status: ${finalPropertyData.status} for role: ${userRole}, user: ${userId}`);
-      
+
       const property = await storage.createProperty(finalPropertyData);
-      
+
       // Log approval for admin properties
       if (finalPropertyData.status === 'approved') {
         console.log(`✅ Admin property auto-approved: ${property.title} (ID: ${property.id}) - Now visible to all visitors`);
       } else {
         console.log(`⏳ Property pending approval: ${property.title} (ID: ${property.id})`);
       }
-      
+
       res.status(201).json(property);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -362,7 +377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updateData = req.body;
       const property = await storage.updateProperty(id, updateData);
-      
+
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -421,7 +436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "approved",
         updatedAt: new Date()
       });
-      
+
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -445,7 +460,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "rejected",
         updatedAt: new Date()
       });
-      
+
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -520,9 +535,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate the booking data
       console.log('Validating booking data with schema...');
       const bookingData = insertBookingSchema.parse(processedData);
-      
+
       console.log('Validated booking data:', bookingData);
-      
+
       // Check if this is an authenticated user booking
       if (bookingData.userId) {
         console.log('Processing authenticated user booking');
@@ -542,10 +557,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           amount: booking.amount,
           status: booking.status
         });
-        
+
         // Log this booking for admin notification
         console.log('📧 New booking notification sent to admin dashboard');
-        
+
         res.status(201).json(booking);
       }
     } catch (error) {
@@ -579,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updateData = req.body;
       const booking = await storage.updateBooking(id, updateData);
-      
+
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
       }
@@ -644,7 +659,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updateData = req.body;
       const message = await storage.updateMessage(id, updateData);
-      
+
       if (!message) {
         return res.status(404).json({ error: "Message not found" });
       }
@@ -727,7 +742,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/properties/:id/booked-dates", async (req, res) => {
     try {
       const propertyId = parseInt(req.params.id);
-      
+
       if (isNaN(propertyId)) {
         return res.status(400).json({ error: "Invalid property ID" });
       }
@@ -744,7 +759,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users/:id/bookings", async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      
+
       if (isNaN(userId)) {
         return res.status(400).json({ error: "Invalid user ID" });
       }
@@ -762,7 +777,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const ownerId = parseInt(req.params.ownerId);
       const period = req.query.period || '30';
-      
+
       if (isNaN(ownerId)) {
         return res.status(400).json({ error: "Invalid owner ID" });
       }
@@ -794,7 +809,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalBookings = hostBookings.length;
       const confirmedBookings = hostBookings.filter(b => b.status === 'confirmed').length;
       const pendingBookings = hostBookings.filter(b => b.status === 'pending').length;
-      
+
       const totalRating = hostProperties.reduce((sum, property) => 
         sum + (parseFloat(property.rating?.toString() || '0') * (property.reviewCount || 0)), 0
       );
@@ -828,7 +843,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/hosts/:ownerId/bookings", async (req, res) => {
     try {
       const ownerId = parseInt(req.params.ownerId);
-      
+
       if (isNaN(ownerId)) {
         return res.status(400).json({ error: "Invalid owner ID" });
       }
@@ -884,14 +899,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/hosts/:ownerId/messages", async (req, res) => {
     try {
       const ownerId = parseInt(req.params.ownerId);
-      
+
       if (isNaN(ownerId)) {
         return res.status(400).json({ error: "Invalid owner ID" });
       }
 
       // Get all messages (in a real app, you'd filter by property owner)
       const messages = await storage.getAllMessages();
-      
+
       // Apply status filter
       const { status } = req.query;
       let filteredMessages = messages;
@@ -911,7 +926,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const ownerId = parseInt(req.params.ownerId);
       const period = req.query.period || '30';
-      
+
       if (isNaN(ownerId)) {
         return res.status(400).json({ error: "Invalid owner ID" });
       }
@@ -919,7 +934,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get host properties and bookings
       const hostProperties = await storage.getPropertiesByOwner(ownerId);
       const propertyIds = hostProperties.map(p => p.id);
-      
+
       const allBookings = await storage.getAllBookings();
       const hostBookings = allBookings.filter(booking => 
         propertyIds.includes(booking.propertyId)
@@ -928,11 +943,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate mock analytics data for the period
       const periodDays = parseInt(period as string);
       const analyticsData = [];
-      
+
       for (let i = periodDays - 1; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
-        
+
         const dayBookings = hostBookings.filter(booking => {
           const bookingDate = new Date(booking.createdAt);
           return bookingDate.toDateString() === date.toDateString();
@@ -960,7 +975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const propertyId = parseInt(req.params.id);
       const { start, end } = req.query;
-      
+
       if (isNaN(propertyId)) {
         return res.status(400).json({ error: "Invalid property ID" });
       }
@@ -1000,14 +1015,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } = req.query;
 
       const filters: any = {};
-      
+
       if (userId) filters.userId = parseInt(userId as string);
       if (action) filters.action = action as string;
       if (entity) filters.entity = entity as string;
       if (severity) filters.severity = severity as string;
       if (startDate) filters.startDate = startDate as string;
       if (endDate) filters.endDate = endDate as string;
-      
+
       filters.page = parseInt(page as string);
       filters.limit = parseInt(limit as string);
 
@@ -1131,7 +1146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const messageLC = message.toLowerCase();
         const responses = smartResponses[language as 'en' | 'ar'];
-        
+
         let responseCategory = 'default';
         if (messageLC.includes('beach') || messageLC.includes('شاطئ') || messageLC.includes('ocean')) responseCategory = 'beach';
         else if (messageLC.includes('apartment') || messageLC.includes('شقة') || messageLC.includes('people') || messageLC.includes('أشخاص')) responseCategory = 'apartments';
@@ -1229,7 +1244,7 @@ Be helpful, polite, and enthusiastic. Use appropriate emojis. Provide useful inf
       const errorMessage = req.body.language === 'ar'
         ? "حدث خطأ في معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً."
         : "An error occurred processing your request. Please try again later.";
-      
+
       res.status(500).json({ 
         error: "Internal server error",
         response: errorMessage 
@@ -1297,7 +1312,7 @@ Be helpful, polite, and enthusiastic. Use appropriate emojis. Provide useful inf
 
         const messageLC = message.toLowerCase();
         const responses = hostFallbackResponses[language as 'en' | 'ar'];
-        
+
         let responseCategory = 'default';
         if (messageLC.includes('listing') || messageLC.includes('create') || messageLC.includes('إعلان') || messageLC.includes('قائمة')) responseCategory = 'listing';
         else if (messageLC.includes('pricing') || messageLC.includes('price') || messageLC.includes('تسعير') || messageLC.includes('سعر')) responseCategory = 'pricing';
@@ -1430,7 +1445,7 @@ Your response guidelines:
       const errorMessage = req.body.language === 'ar'
         ? "حدث خطأ في معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً أو الاتصال بدعم المضيفين."
         : "An error occurred processing your request. Please try again later or contact host support.";
-      
+
       res.status(500).json({ 
         error: "Internal server error",
         response: errorMessage 
@@ -1442,7 +1457,7 @@ Your response guidelines:
     try {
       const propertyId = parseInt(req.params.id);
       const { start, end, reason } = req.body;
-      
+
       if (isNaN(propertyId)) {
         return res.status(400).json({ error: "Invalid property ID" });
       }
@@ -1551,7 +1566,7 @@ Your response guidelines:
           3. Areas needing improvement
           4. Pricing and market positioning recommendations
           5. Specific action items for the host
-          
+
           Focus on properties in the Martil/Tamuda Bay area of Morocco.`;
 
           const aiResponse = await openai.chat.completions.create({
@@ -1586,6 +1601,37 @@ Your response guidelines:
       res.status(500).json({ error: "Failed to generate review analysis" });
     }
   });
+
+  // Middleware to log audit events
+  app.use((req, res, next) => {
+    res.on('finish', async () => {
+      if (req.method !== 'GET' && req.headers.authorization) {
+        try {
+          const token = req.headers.authorization.replace('Bearer ', '');
+          const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as any;
+
+          await auditLogger.log({
+            userId: decoded.id,
+            action: `${req.method} ${req.path}`,
+            entity: req.path.split('/')[2] || 'unknown',
+            entityId: req.params.id ? parseInt(req.params.id) : null,
+            ipAddress: req.ip,
+            userAgent: req.headers['user-agent'],
+            description: `${req.method} request to ${req.path}`,
+            severity: res.statusCode >= 400 ? 'error' : 'info'
+          });
+        } catch (error) {
+          // Ignore audit logging errors
+        }
+      }
+    });
+    next();
+  });
+
+  // Property approval workflow routes
+  app.use('/api/admin/properties', adminPropertyRoutes);
+  app.use('/api/host/properties', hostPropertyRoutes);
+  app.use('/api/properties', publicPropertyRoutes);
 
   const httpServer = createServer(app);
   return httpServer;

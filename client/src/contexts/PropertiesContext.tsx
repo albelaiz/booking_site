@@ -42,26 +42,38 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const fetchProperties = async () => {
     try {
-      // Check current user role at fetch time
-      const userRole = localStorage.getItem('userRole') || '';
-      const userId = localStorage.getItem('userId') || '';
-      const isAdminUser = userRole === 'admin' || userRole === 'staff';
-      const isOwner = userRole === 'owner';
+      setLoading(true);
+      const userRole = localStorage.getItem('userRole');
+      const userId = localStorage.getItem('userId');
+      const authToken = localStorage.getItem('authToken');
 
-      let data;
+      let endpoint = '/api/properties/public'; // Default to public properties
+      let headers: HeadersInit = {};
 
-      if (isAdminUser) {
-        // Admin/staff sees all properties
-        data = await propertiesApi.getAllAdmin();
-      } else if (isOwner && userId) {
-        // Owners see only their own properties
-        data = await propertiesApi.getByOwner(userId);
-      } else {
-        // Public sees only approved properties
-        data = await propertiesApi.getAll();
+      // Determine which endpoint to use based on user role
+      if (userRole === 'admin' && authToken) {
+        endpoint = '/api/admin/properties';
+        headers = {
+          'Authorization': authToken,
+          'x-user-id': userId || '',
+          'x-user-role': userRole
+        };
+      } else if ((userRole === 'owner' || userRole === 'host') && authToken && userId) {
+        endpoint = `/api/host/properties/owner/${userId}`;
+        headers = {
+          'Authorization': authToken,
+          'x-user-id': userId,
+          'x-user-role': userRole
+        };
       }
 
-      setPropertiesList(data);
+      const response = await fetch(endpoint, { headers });
+      if (response.ok) {
+        const data = await response.json();
+        setPropertiesList(data);
+      } else {
+        console.error('Failed to fetch properties');
+      }
     } catch (error) {
       console.error('Error fetching properties:', error);
     } finally {

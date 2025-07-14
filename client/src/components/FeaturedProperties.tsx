@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LoadingSpinner } from './EnhancedComponents';
@@ -6,19 +5,36 @@ import { useProperties } from '../contexts/PropertiesContext';
 import { Star, MapPin, Users, Wifi, Car, Waves, Coffee, CheckCircle } from 'lucide-react';
 
 const FeaturedProperties: React.FC = () => {
-  const { properties, loading, forceRefresh } = useProperties();
+  const { properties, loading, forceRefresh, setProperties } = useProperties();
   const navigate = useNavigate();
 
   // Force refresh when component mounts to ensure latest data
   React.useEffect(() => {
     forceRefresh();
   }, [forceRefresh]);
-  
-  // Filter for featured properties that are approved
+
+  useEffect(() => {
+    // Always fetch public properties for the homepage
+    const fetchPublicProperties = async () => {
+      try {
+        const response = await fetch('/api/properties/public');
+        if (response.ok) {
+          const publicProperties = await response.json();
+          // Update the context with public properties only
+          setProperties(publicProperties);
+        }
+      } catch (error) {
+        console.error('Error fetching public properties:', error);
+      }
+    };
+
+    fetchPublicProperties();
+  }, []);
+
   const featuredProperties = properties.filter(property => 
     property.featured && property.status === 'approved'
   );
-  
+
   const handleBookNow = (propertyId: number) => {
     console.log('Navigating to book property:', propertyId);
     navigate(`/property/${propertyId}?action=book`);
@@ -131,7 +147,7 @@ const FeaturedProperties: React.FC = () => {
       </div>
     </div>
   );
-  
+
   if (loading) {
     return (
       <section className="py-16 bg-moroccan-white">
@@ -144,7 +160,7 @@ const FeaturedProperties: React.FC = () => {
       </section>
     );
   }
-  
+
   return (
     <section className="py-16 bg-moroccan-white">
       <div className="container-custom">
@@ -152,7 +168,7 @@ const FeaturedProperties: React.FC = () => {
         <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
           Discover our handpicked selection of the most stunning properties in Morocco, each offering a unique experience of luxury and comfort.
         </p>
-        
+
         {featuredProperties.length > 0 && (
           <>
             <div className="property-grid">
@@ -160,7 +176,7 @@ const FeaturedProperties: React.FC = () => {
                 <PropertyCard key={property.id} property={property} />
               ))}
             </div>
-            
+
             <div className="text-center mt-12">
               <Link to="/properties" className="btn-outline">
                 View All Properties
