@@ -6,8 +6,13 @@ import { useProperties } from '../contexts/PropertiesContext';
 import { Star, MapPin, Users, Wifi, Car, Waves, Coffee, CheckCircle } from 'lucide-react';
 
 const FeaturedProperties: React.FC = () => {
-  const { properties, loading } = useProperties();
+  const { properties, loading, forceRefresh } = useProperties();
   const navigate = useNavigate();
+
+  // Force refresh when component mounts to ensure latest data
+  React.useEffect(() => {
+    forceRefresh();
+  }, [forceRefresh]);
   
   // Filter for featured properties that are approved
   const featuredProperties = properties.filter(property => 

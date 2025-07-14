@@ -11,6 +11,7 @@ interface PropertiesContextType {
   approveProperty: (id: string) => Promise<void>;
   rejectProperty: (id: string) => Promise<void>;
   refreshProperties: () => Promise<void>;
+  forceRefresh: () => Promise<void>;
   loading: boolean;
 }
 
@@ -23,6 +24,7 @@ export const PropertiesContext = createContext<PropertiesContextType>({
   approveProperty: async () => {},
   rejectProperty: async () => {},
   refreshProperties: async () => {},
+  forceRefresh: async () => {},
   loading: false
 });
 
@@ -70,21 +72,28 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     fetchProperties();
 
-    // Set up periodic refresh to sync properties across devices
+    // Set up more frequent refresh to ensure homepage shows latest data
     const interval = setInterval(() => {
       fetchProperties();
-    }, 30000); // Refresh every 30 seconds
+    }, 10000); // Refresh every 10 seconds for better real-time updates
 
     // Listen for storage changes (like logout)
     const handleStorageChange = () => {
       fetchProperties();
     };
 
+    // Listen for focus events to refresh when user returns to tab
+    const handleFocus = () => {
+      fetchProperties();
+    };
+
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleFocus);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleFocus);
     };
   }, []);
 
@@ -111,8 +120,13 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         userId
       );
 
-      // If successful, refresh the properties list to get all properties from the database
+      // IMMEDIATE REFRESH: Get fresh data from database
       await fetchProperties();
+
+      // Additional refresh after a short delay to ensure data consistency
+      setTimeout(() => {
+        fetchProperties();
+      }, 1000);
 
       console.log(`✅ Property created: ${savedProperty.title} (Status: ${savedProperty.status})`);
 
@@ -168,8 +182,15 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         );
       }
 
-      // If successful, refresh the properties list
+      // IMMEDIATE REFRESH: Get fresh data from database
       await fetchProperties();
+
+      // Additional refresh after a short delay to ensure data consistency
+      setTimeout(() => {
+        fetchProperties();
+      }, 1000);
+
+      console.log(`✅ Property updated: ${currentProperty?.title || id}`);
     } catch (error) {
       console.error('Error updating property:', error);
 
@@ -229,8 +250,15 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         );
       }
 
-      // Refresh properties to get updated data
+      // IMMEDIATE REFRESH: Get fresh data from database
       await fetchProperties();
+
+      // Additional refresh to ensure homepage shows the new approved property
+      setTimeout(() => {
+        fetchProperties();
+      }, 1000);
+
+      console.log(`✅ Property approved: ${currentProperty?.title || id}`);
     } catch (error) {
       console.error('Error approving property:', error);
 
@@ -274,6 +302,14 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
+  // Force refresh method for immediate updates
+  const forceRefresh = async () => {
+    console.log('🔄 Force refreshing properties...');
+    setLoading(true);
+    await fetchProperties();
+    setLoading(false);
+  };
+
   const value = {
     properties: propertiesList,
     loading,
@@ -283,6 +319,7 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     approveProperty,
     rejectProperty,
     refreshProperties: fetchProperties,
+    forceRefresh,
   };
 
   return (
