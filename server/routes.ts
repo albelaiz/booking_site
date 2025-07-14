@@ -1,24 +1,22 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage.js";
-import { insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema, insertAuditLogSchema } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
 import { db } from "./db";
-import { users, properties, bookings, messages, auditLogs, insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema } from "../shared/schema";
+import { users, properties, bookings, messages, auditLogs, insertUserSchema, insertPropertySchema, insertBookingSchema, insertMessageSchema, insertAuditLogSchema } from "../shared/schema";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { eq, like, and, or, desc, asc } from "drizzle-orm";
-import { z } from "zod";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { auditLogger } from "./lib/auditLogger";
+import { auditLogger } from "./lib/auditLogger.js";
 
 // Import route modules
-import adminPropertyRoutes from './routes/admin/properties';
-import hostPropertyRoutes from './routes/host/properties';
-import publicPropertyRoutes from './routes/public/properties';
+import adminPropertyRoutes from './routes/admin/properties.js';
+import hostPropertyRoutes from './routes/host/properties.js';
+import publicPropertyRoutes from './routes/public/properties.js';
 
 // Simple authentication middleware
 const requireAuth = (req: any, res: any, next: any) => {
