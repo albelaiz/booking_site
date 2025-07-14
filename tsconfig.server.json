@@ -17,6 +17,7 @@
     "declaration": false,
     "sourceMap": true,
     "resolveJsonModule": true,
+    "types": ["node"],
     "paths": {
       "@shared/*": ["./shared/*"]
     }

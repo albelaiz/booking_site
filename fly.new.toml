@@ -1,0 +1,55 @@
+# fly.toml app configuration file for TamudaStay
+# Full-stack React + Node.js booking application
+
+app = 'tamudastay'
+primary_region = 'dfw'  # Dallas region for optimal US coverage
+kill_signal = 'SIGINT'
+kill_timeout = '10s'
+
+[experimental]
+  auto_rollback = true
+
+[build]
+  # Use the Dockerfile for building (includes devDependencies for vite, tsc)
+
+[deploy]
+  # Run database migrations on deploy if needed
+  # release_command = 'npm run db:migrate'
+
+[env]
+  NODE_ENV = 'production'
+  PORT = '3000'
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+  # Health check configuration
+  [[http_service.checks]]
+    grace_period = '10s'
+    interval = '30s'
+    method = 'GET'
+    timeout = '10s'
+    path = '/'
+    headers = { 'User-Agent' = 'fly-health-check' }
+
+  # API health check
+  [[http_service.checks]]
+    grace_period = '15s'
+    interval = '60s'
+    method = 'GET'
+    timeout = '5s'
+    path = '/api/health'
+
+[processes]
+  app = 'node dist/index.js'
+
+# VM configuration - optimized for booking app
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
