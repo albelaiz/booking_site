@@ -10,6 +10,11 @@ const distDir = path.resolve(__dirname, '../dist');
 
 // Function to recursively find all .js files
 function findJsFiles(dir) {
+  if (!fs.existsSync(dir)) {
+    console.log(`Directory ${dir} does not exist, skipping...`);
+    return [];
+  }
+  
   const files = [];
   const items = fs.readdirSync(dir);
   

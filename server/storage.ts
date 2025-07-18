@@ -2,6 +2,37 @@ import { db } from "./db.js";
 import { users, properties, bookings, messages, auditLogs } from "@shared/schema";
 import { eq, and, desc, or, gte, lte, ne } from "drizzle-orm";
 import type { User, Property, Booking, Message, AuditLog } from "@shared/schema";
+import { FallbackStorage } from "./fallbackStorage.js";
+import { logFallbackMode } from "./devUtils.js";
+
+// Global flag to track if we should use fallback storage
+let useFallbackStorage = false;
+let fallbackStorageInstance: FallbackStorage | null = null;
+
+// Export function to check fallback status
+export function isFallbackStorageActive(): boolean {
+  return useFallbackStorage;
+}
+
+// Function to check if error is due to quota limits
+function isQuotaError(error: any): boolean {
+  const errorMessage = error?.message || '';
+  return errorMessage.includes('exceeded the data transfer quota') ||
+         errorMessage.includes('quota') ||
+         errorMessage.includes('limit exceeded');
+}
+
+// Function to get appropriate storage instance
+function getStorageInstance(): FallbackStorage | null {
+  if (useFallbackStorage) {
+    if (!fallbackStorageInstance) {
+      logFallbackMode();
+      fallbackStorageInstance = new FallbackStorage();
+    }
+    return fallbackStorageInstance;
+  }
+  return null;
+}
 
 export interface IStorage {
   // User methods
@@ -61,31 +92,55 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<User | undefined> {
+    const fallback = getStorageInstance();
+    if (fallback) return fallback.getUser(id);
+    
     try {
       const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
       return result[0] || undefined;
     } catch (error) {
       console.error('Error fetching user:', error);
+      if (isQuotaError(error)) {
+        useFallbackStorage = true;
+        const fallback = getStorageInstance();
+        if (fallback) return fallback.getUser(id);
+      }
       return undefined;
     }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
+    const fallback = getStorageInstance();
+    if (fallback) return fallback.getUserByUsername(username);
+    
     try {
       const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
       return result[0] || undefined;
     } catch (error) {
       console.error('Error fetching user by username:', error);
+      if (isQuotaError(error)) {
+        useFallbackStorage = true;
+        const fallback = getStorageInstance();
+        if (fallback) return fallback.getUserByUsername(username);
+      }
       return undefined;
     }
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
+    const fallback = getStorageInstance();
+    if (fallback) return fallback.getUserByEmail(email);
+    
     try {
       const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
       return result[0] || undefined;
     } catch (error) {
       console.error('Error fetching user by email:', error);
+      if (isQuotaError(error)) {
+        useFallbackStorage = true;
+        const fallback = getStorageInstance();
+        if (fallback) return fallback.getUserByEmail(email);
+      }
       return undefined;
     }
   }
@@ -95,12 +150,20 @@ export class DatabaseStorage implements IStorage {
       const result = await db.insert(users).values({
         ...insertUser,
         updatedAt: new Date(),
-      }).returning();
+      });
       
-      if (!result[0]) {
+      // For MySQL2, the insertId is in the result
+      const insertId = (result as any).insertId;
+      if (!insertId) {
         throw new Error('Failed to create user');
       }
-      return result[0];
+      
+      // Fetch the created user
+      const newUser = await this.getUser(Number(insertId));
+      if (!newUser) {
+        throw new Error('Failed to fetch created user');
+      }
+      return newUser;
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;
@@ -109,15 +172,15 @@ export class DatabaseStorage implements IStorage {
 
   async updateUser(id: number, userUpdate: any): Promise<User | undefined> {
     try {
-      const result = await db.update(users)
+      await db.update(users)
         .set({
           ...userUpdate,
           updatedAt: new Date(),
         })
-        .where(eq(users.id, id))
-        .returning();
+        .where(eq(users.id, id));
       
-      return result[0] || undefined;
+      // Fetch the updated user
+      return await this.getUser(id);
     } catch (error) {
       console.error('Error updating user:', error);
       return undefined;
@@ -135,10 +198,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUsers(): Promise<User[]> {
+    const fallback = getStorageInstance();
+    if (fallback) return fallback.getAllUsers();
+    
     try {
       return await db.select().from(users);
     } catch (error) {
       console.error('Error fetching users:', error);
+      if (isQuotaError(error)) {
+        useFallbackStorage = true;
+        const fallback = getStorageInstance();
+        if (fallback) return fallback.getAllUsers();
+      }
       return [];
     }
   }
@@ -176,10 +247,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getApprovedProperties(): Promise<Property[]> {
+    const fallback = getStorageInstance();
+    if (fallback) return fallback.getApprovedProperties();
+    
     try {
       return await db.select().from(properties).where(eq(properties.status, "approved"));
     } catch (error) {
       console.error('Error fetching approved properties:', error);
+      if (isQuotaError(error)) {
+        useFallbackStorage = true;
+        const fallback = getStorageInstance();
+        if (fallback) return fallback.getApprovedProperties();
+      }
       return [];
     }
   }
@@ -198,12 +277,20 @@ export class DatabaseStorage implements IStorage {
       const result = await db.insert(properties).values({
         ...insertProperty,
         updatedAt: new Date(),
-      }).returning();
+      });
       
-      if (!result[0]) {
+      // For MySQL2, the insertId is in the result
+      const insertId = (result as any).insertId;
+      if (!insertId) {
         throw new Error('Failed to create property');
       }
-      return result[0];
+      
+      // Fetch the created property
+      const newProperty = await this.getProperty(Number(insertId));
+      if (!newProperty) {
+        throw new Error('Failed to fetch created property');
+      }
+      return newProperty;
     } catch (error) {
       console.error('Error creating property:', error);
       throw error;
@@ -212,15 +299,15 @@ export class DatabaseStorage implements IStorage {
 
   async updateProperty(id: number, propertyUpdate: any): Promise<Property | undefined> {
     try {
-      const result = await db.update(properties)
+      await db.update(properties)
         .set({
           ...propertyUpdate,
           updatedAt: new Date(),
         })
-        .where(eq(properties.id, id))
-        .returning();
+        .where(eq(properties.id, id));
       
-      return result[0] || undefined;
+      // Fetch the updated property
+      return await this.getProperty(id);
     } catch (error) {
       console.error('Error updating property:', error);
       return undefined;
@@ -249,10 +336,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllBookings(): Promise<Booking[]> {
+    const fallback = getStorageInstance();
+    if (fallback) return fallback.getAllBookings();
+    
     try {
       return await db.select().from(bookings);
     } catch (error) {
       console.error('Error fetching bookings:', error);
+      if (isQuotaError(error)) {
+        useFallbackStorage = true;
+        const fallback = getStorageInstance();
+        if (fallback) return fallback.getAllBookings();
+      }
       return [];
     }
   }
@@ -411,22 +506,30 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       };
 
-      console.log('Storage: Inserting booking into Neon database:', bookingToInsert);
+      console.log('Storage: Inserting booking into MySQL database:', bookingToInsert);
 
-      const result = await db.insert(bookings).values(bookingToInsert).returning();
+      const result = await db.insert(bookings).values(bookingToInsert);
       
-      if (!result[0]) {
+      // Get the inserted ID
+      const insertId = (result as any).insertId;
+      if (!insertId) {
         throw new Error('Failed to create booking in database');
       }
 
-      console.log('Storage: ✅ Booking successfully saved to Neon database:', {
-        id: result[0].id,
-        guestName: result[0].guestName,
-        propertyId: result[0].propertyId,
-        status: result[0].status
+      // Fetch the created booking
+      const newBooking = await this.getBooking(Number(insertId));
+      if (!newBooking) {
+        throw new Error('Failed to fetch created booking');
+      }
+
+      console.log('Storage: ✅ Booking successfully saved to MySQL database:', {
+        id: newBooking.id,
+        guestName: newBooking.guestName,
+        propertyId: newBooking.propertyId,
+        status: newBooking.status
       });
 
-      return result[0];
+      return newBooking;
     } catch (error) {
       console.error('Storage: Error creating booking:', error);
       throw error;
@@ -457,15 +560,15 @@ export class DatabaseStorage implements IStorage {
         }
       }
 
-      const result = await db.update(bookings)
+      await db.update(bookings)
         .set({
           ...bookingUpdate,
           updatedAt: new Date(),
         })
-        .where(eq(bookings.id, id))
-        .returning();
+        .where(eq(bookings.id, id));
       
-      return result[0] || undefined;
+      // Fetch the updated booking
+      return await this.getBooking(id);
     } catch (error) {
       console.error('Error updating booking:', error);
       throw error;
@@ -511,10 +614,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllMessages(): Promise<Message[]> {
+    const fallback = getStorageInstance();
+    if (fallback) return fallback.getAllMessages();
+    
     try {
       return await db.select().from(messages).orderBy(messages.createdAt);
     } catch (error) {
       console.error('Error fetching messages:', error);
+      if (isQuotaError(error)) {
+        useFallbackStorage = true;
+        const fallback = getStorageInstance();
+        if (fallback) return fallback.getAllMessages();
+      }
       return [];
     }
   }
@@ -525,12 +636,16 @@ export class DatabaseStorage implements IStorage {
         ...insertMessage,
         createdAt: new Date(),
         updatedAt: new Date(),
-      }).returning();
+      });
       
-      if (!result[0]) {
+      // Fetch the created message using insertId
+      const [newMessage] = await db.select().from(messages)
+        .where(eq(messages.id, (result as any).insertId));
+      
+      if (!newMessage) {
         throw new Error('Failed to create message');
       }
-      return result[0];
+      return newMessage;
     } catch (error) {
       console.error('Error creating message:', error);
       throw error;
@@ -539,15 +654,18 @@ export class DatabaseStorage implements IStorage {
 
   async updateMessage(id: number, messageUpdate: any): Promise<Message | undefined> {
     try {
-      const result = await db.update(messages)
+      await db.update(messages)
         .set({
           ...messageUpdate,
           updatedAt: new Date(),
         })
-        .where(eq(messages.id, id))
-        .returning();
+        .where(eq(messages.id, id));
       
-      return result[0] || undefined;
+      // Fetch the updated message
+      const [updatedMessage] = await db.select().from(messages)
+        .where(eq(messages.id, id));
+      
+      return updatedMessage || undefined;
     } catch (error) {
       console.error('Error updating message:', error);
       return undefined;
@@ -570,12 +688,16 @@ export class DatabaseStorage implements IStorage {
       const result = await db.insert(auditLogs).values({
         ...auditLog,
         createdAt: new Date(),
-      }).returning();
+      });
       
-      if (!result[0]) {
+      // Fetch the created audit log using insertId
+      const [newAuditLog] = await db.select().from(auditLogs)
+        .where(eq(auditLogs.id, (result as any).insertId));
+      
+      if (!newAuditLog) {
         throw new Error('Failed to create audit log');
       }
-      return result[0];
+      return newAuditLog;
     } catch (error) {
       console.error('Error creating audit log:', error);
       throw error;

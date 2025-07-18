@@ -7,9 +7,16 @@ export async function seedDatabase() {
     
     // Check if users already exist
     const existingUsers = await storage.getAllUsers();
+    // Temporarily force seeding even if users exist
     if (existingUsers.length > 0) {
-      console.log("Database already seeded, skipping...");
-      return;
+      console.log("Users exist, but checking properties...");
+      const existingProperties = await storage.getAllProperties();
+      if (existingProperties.length > 0) {
+        console.log("Properties already exist, skipping...");
+        return;
+      } else {
+        console.log("No properties found, seeding properties...");
+      }
     }
 
     // Create default users

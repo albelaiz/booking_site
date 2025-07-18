@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage.js";
+import { storage, isFallbackStorageActive } from "./storage.js";
 import { z } from "zod";
 import OpenAI from "openai";
 import { db } from "./db";
@@ -48,6 +48,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Health check route
   app.get("/api/health", async (req, res) => {
     res.json({ status: "healthy", timestamp: new Date().toISOString() });
+  });
+
+  // Development status endpoint
+  app.get("/api/dev/status", async (req, res) => {
+    if (process.env.NODE_ENV !== 'development') {
+      return res.status(404).json({ error: "Not found" });
+    }
+    
+    const isFallbackActive = isFallbackStorageActive();
+    
+    if (isFallbackActive) {
+      res.json({ 
+        mode: "fallback", 
+        status: "Using fallback storage (quota exceeded)",
+        fallback: true 
+      });
+    } else {
+      res.json({ 
+        mode: "database", 
+        status: "Database connection active",
+        fallback: false 
+      });
+    }
   });
 
   // Authentication routes
@@ -260,7 +283,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/properties/public", async (req, res) => {
     try {
       const properties = await storage.getApprovedProperties();
-      res.json(properties);
+      
+      // Transform data to match frontend expectations
+      const transformedProperties = properties.map(property => ({
+        ...property,
+        id: property.id.toString(), // Convert to string
+        price: parseFloat(property.price), // Convert to number
+        rating: parseFloat(property.rating || "0"), // Convert to number
+        reviews: property.reviewCount || 0, // Map reviewCount to reviews
+        priceUnit: property.priceUnit || 'night'
+      }));
+      
+      res.json(transformedProperties);
     } catch (error) {
       console.error("Get public properties error:", error);
       res.status(500).json({ error: "Internal server error" });

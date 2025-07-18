@@ -1,0 +1,8 @@
+{
+  "out": "./migrations",
+  "schema": "./shared/schema.ts",
+  "dialect": "mysql",
+  "dbCredentials": {
+    "url": {"_": "env", "name": "DATABASE_URL"}
+  }
+}

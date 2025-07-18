@@ -1,5 +1,5 @@
-import { Toaster } from "./components/ui/toaster";
 import { Toaster as Sonner } from "./components/ui/sonner";
+import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -38,6 +38,8 @@ import SitemapPage from "./pages/SitemapPage";
 import HelpCenterPage from "./pages/HelpCenterPage";
 import CancellationOptionsPage from "./pages/CancellationOptionsPage";
 import SafetyInformationPage from "./pages/SafetyInformationPage";
+
+// Force rebuild - cache busting comment
 import EnhancedAuthDemo from "./pages/EnhancedAuthDemo";
 import ChatbotDemo from "./pages/ChatbotDemo";
 import HostChatbotDemo from "./pages/HostChatbotDemo";

@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  console.log('🎉 Starting server with PostgreSQL database');
+  console.log('🎉 Starting server with MySQL database');
   
   // Seed the database with initial data in production
   if (process.env.NODE_ENV === 'production') {
@@ -72,7 +72,7 @@ app.use((req, res, next) => {
   server.listen(port, host, () => {
     console.log(`🚀 Server running on ${host}:${port}`);
     console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🗄️  Database: Connected to PostgreSQL`);
+    console.log(`🗄️  Database: Connected to MySQL`);
     log(`serving on port ${port}`);
   });
 })();

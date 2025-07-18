@@ -5,35 +5,25 @@ import { useProperties } from '../contexts/PropertiesContext';
 import { Star, MapPin, Users, Wifi, Car, Waves, Coffee, CheckCircle } from 'lucide-react';
 
 const FeaturedProperties: React.FC = () => {
-  const { properties, loading, forceRefresh, setProperties } = useProperties();
+  const { properties, loading } = useProperties();
   const navigate = useNavigate();
 
-  // Force refresh when component mounts to ensure latest data
-  React.useEffect(() => {
-    forceRefresh();
-  }, [forceRefresh]);
+  // Debug logging
+  console.log('FeaturedProperties Debug:', {
+    properties,
+    loading,
+    propertiesLength: properties?.length || 0
+  });
 
-  useEffect(() => {
-    // Always fetch public properties for the homepage
-    const fetchPublicProperties = async () => {
-      try {
-        const response = await fetch('/api/properties/public');
-        if (response.ok) {
-          const publicProperties = await response.json();
-          // Update the context with public properties only
-          setProperties(publicProperties);
-        }
-      } catch (error) {
-        console.error('Error fetching public properties:', error);
-      }
-    };
-
-    fetchPublicProperties();
-  }, []);
-
+  // Show only featured and approved properties
   const featuredProperties = properties.filter(property => 
     property.featured && property.status === 'approved'
   );
+
+  console.log('Featured Properties Debug:', {
+    featuredProperties,
+    featuredCount: featuredProperties.length
+  });
 
   const handleBookNow = (propertyId: number) => {
     console.log('Navigating to book property:', propertyId);

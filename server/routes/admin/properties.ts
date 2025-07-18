@@ -22,14 +22,19 @@ router.patch('/:id/approve', async (req, res) => {
   try {
     const propertyId = parseInt(req.params.id);
     
-    const [updatedProperty] = await db
+    await db
       .update(properties)
       .set({ 
         status: 'approved',
         updatedAt: new Date()
       })
-      .where(eq(properties.id, propertyId))
-      .returning();
+      .where(eq(properties.id, propertyId));
+
+    // Fetch the updated property
+    const [updatedProperty] = await db
+      .select()
+      .from(properties)
+      .where(eq(properties.id, propertyId));
 
     if (!updatedProperty) {
       return res.status(404).json({ error: 'Property not found' });
@@ -47,14 +52,19 @@ router.patch('/:id/reject', async (req, res) => {
   try {
     const propertyId = parseInt(req.params.id);
     
-    const [updatedProperty] = await db
+    await db
       .update(properties)
       .set({ 
         status: 'rejected',
         updatedAt: new Date()
       })
-      .where(eq(properties.id, propertyId))
-      .returning();
+      .where(eq(properties.id, propertyId));
+
+    // Fetch the updated property
+    const [updatedProperty] = await db
+      .select()
+      .from(properties)
+      .where(eq(properties.id, propertyId));
 
     if (!updatedProperty) {
       return res.status(404).json({ error: 'Property not found' });

@@ -1,81 +1,81 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, varchar } from "drizzle-orm/pg-core";
+import { mysqlTable, text, int, boolean, timestamp, decimal, varchar, json } from "drizzle-orm/mysql-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
+export const users = mysqlTable("users", {
+  id: int("id").primaryKey().autoincrement(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
   password: text("password").notNull(),
-  email: text("email"),
-  name: text("name").notNull(),
-  role: text("role").notNull().default("user"), // admin, staff, owner, user
-  status: text("status").notNull().default("active"), // active, inactive
-  phone: text("phone"),
+  email: varchar("email", { length: 255 }),
+  name: varchar("name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 50 }).notNull().default("user"), // admin, staff, owner, user
+  status: varchar("status", { length: 50 }).notNull().default("active"), // active, inactive
+  phone: varchar("phone", { length: 50 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const properties = pgTable("properties", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
+export const properties = mysqlTable("properties", {
+  id: int("id").primaryKey().autoincrement(),
+  title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  priceUnit: text("price_unit").notNull().default("night"), // night, week, month
-  images: text("images").array(),
-  location: text("location").notNull(),
-  bedrooms: integer("bedrooms").notNull(),
-  bathrooms: integer("bathrooms").notNull(),
-  capacity: integer("capacity").notNull(),
-  amenities: text("amenities").array(),
+  priceUnit: varchar("price_unit", { length: 50 }).notNull().default("night"), // night, week, month
+  images: json("images"),
+  location: varchar("location", { length: 255 }).notNull(),
+  bedrooms: int("bedrooms").notNull(),
+  bathrooms: int("bathrooms").notNull(),
+  capacity: int("capacity").notNull(),
+  amenities: json("amenities"),
   featured: boolean("featured").default(false),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
-  reviewCount: integer("review_count").default(0),
-  ownerId: integer("owner_id").references(() => users.id),
-  status: text("status").notNull().default("pending"), // pending, approved, rejected
+  reviewCount: int("review_count").default(0),
+  ownerId: int("owner_id").references(() => users.id),
+  status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, approved, rejected
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const bookings = pgTable("bookings", {
-  id: serial("id").primaryKey(),
-  propertyId: integer("property_id").references(() => properties.id).notNull(),
-  userId: integer("user_id").references(() => users.id), // null for guest bookings
-  guestName: text("guest_name").notNull(),
-  guestEmail: text("guest_email").notNull(),
-  guestPhone: text("guest_phone"),
+export const bookings = mysqlTable("bookings", {
+  id: int("id").primaryKey().autoincrement(),
+  propertyId: int("property_id").references(() => properties.id).notNull(),
+  userId: int("user_id").references(() => users.id), // null for guest bookings
+  guestName: varchar("guest_name", { length: 255 }).notNull(),
+  guestEmail: varchar("guest_email", { length: 255 }).notNull(),
+  guestPhone: varchar("guest_phone", { length: 50 }),
   checkIn: timestamp("check_in").notNull(),
   checkOut: timestamp("check_out").notNull(),
-  guests: integer("guests").notNull(),
+  guests: int("guests").notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled
+  status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, confirmed, completed, cancelled
   comments: text("comments"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const messages = pgTable("messages", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  subject: text("subject").notNull(),
+export const messages = mysqlTable("messages", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
   message: text("message").notNull(),
-  status: text("status").notNull().default("new"), // new, read, replied
+  status: varchar("status", { length: 50 }).notNull().default("new"), // new, read, replied
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const auditLogs = pgTable("audit_logs", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(), // Who performed the action
-  action: text("action").notNull(), // Type of action performed
-  entity: text("entity").notNull(), // What entity was affected (user, property, booking, etc.)
-  entityId: integer("entity_id"), // ID of the affected entity
+export const auditLogs = mysqlTable("audit_logs", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("user_id").references(() => users.id).notNull(), // Who performed the action
+  action: varchar("action", { length: 255 }).notNull(), // Type of action performed
+  entity: varchar("entity", { length: 255 }).notNull(), // What entity was affected (user, property, booking, etc.)
+  entityId: int("entity_id"), // ID of the affected entity
   oldValues: text("old_values"), // JSON string of old values (for updates)
   newValues: text("new_values"), // JSON string of new values (for updates/creates)
-  ipAddress: text("ip_address"), // IP address of the user
+  ipAddress: varchar("ip_address", { length: 45 }), // IP address of the user (IPv6 max length)
   userAgent: text("user_agent"), // Browser/device information
-  severity: text("severity").notNull().default("info"), // info, warning, error, critical
+  severity: varchar("severity", { length: 50 }).notNull().default("info"), // info, warning, error, critical
   description: text("description"), // Human-readable description of the action
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

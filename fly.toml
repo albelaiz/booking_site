@@ -1,23 +1,12 @@
-# fly.toml app configuration file for booking-site
-# Full-stack Node.js + React + TypeScript app
+# fly.toml app configuration file generated for white-sun-1985 on 2025-07-17T19:08:49+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = 'booking-site'
-primary_region = 'dfw'
-kill_signal = 'SIGINT'
-kill_timeout = '10s'
-
-[experimental]
-  auto_rollback = true
+app = 'white-sun-1985'
+primary_region = 'cdg'
 
 [build]
-
-[deploy]
-  release_command = 'npm run db:migrate'
-  strategy = 'rolling'
-
-[env]
-  NODE_ENV = 'production'
-  PORT = '3000'
 
 [http_service]
   internal_port = 3000
@@ -26,16 +15,6 @@ kill_timeout = '10s'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
-
-  [[http_service.checks]]
-    grace_period = '10s'
-    interval = '30s'
-    method = 'GET'
-    timeout = '5s'
-    path = '/health'
-
-[processes]
-  app = 'node dist/server/index.js'
 
 [[vm]]
   memory = '1gb'

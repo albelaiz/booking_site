@@ -41,10 +41,15 @@ router.post('/', async (req, res) => {
       updatedAt: new Date()
     };
 
-    const [newProperty] = await db
+    const result = await db
       .insert(properties)
-      .values(propertyData)
-      .returning();
+      .values(propertyData);
+
+    // Fetch the created property using insertId
+    const [newProperty] = await db
+      .select()
+      .from(properties)
+      .where(eq(properties.id, (result as any).insertId));
 
     res.status(201).json(newProperty);
   } catch (error) {
@@ -83,11 +88,16 @@ router.put('/:id', async (req, res) => {
       updateData.status = 'pending';
     }
 
-    const [updatedProperty] = await db
+    await db
       .update(properties)
       .set(updateData)
-      .where(eq(properties.id, propertyId))
-      .returning();
+      .where(eq(properties.id, propertyId));
+
+    // Fetch the updated property
+    const [updatedProperty] = await db
+      .select()
+      .from(properties)
+      .where(eq(properties.id, propertyId));
 
     if (!updatedProperty) {
       return res.status(404).json({ error: 'Property not found' });

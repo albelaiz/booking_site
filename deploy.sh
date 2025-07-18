@@ -1,12 +1,74 @@
 #!/bin/bash
 
-# TamudaStay Deployment Script for Fly.io
-# This script builds and deploys your full-stack booking app
+# Production deployment script for Vite + React + Express app
+# This script builds the app and deploys it to Fly.io
 
 set -e  # Exit on any error
 
-echo "🏨 TamudaStay - Fly.io Deployment Script"
-echo "========================================"
+echo "🚀 Starting production deployment..."
+
+# Check if fly CLI is installed
+if ! command -v fly &> /dev/null; then
+    echo "❌ Fly CLI not found. Please install it first:"
+    echo "   curl -L https://fly.io/install.sh | sh"
+    exit 1
+fi
+
+# Clean previous builds
+echo "🧹 Cleaning previous builds..."
+rm -rf dist/
+rm -rf node_modules/.vite/
+
+# Install dependencies
+echo "📦 Installing dependencies..."
+npm ci --no-cache
+
+# Build the application
+echo "🔨 Building application..."
+echo "  - Building server..."
+npm run build:server
+
+echo "  - Building client..."
+npm run build:client
+
+# Verify build output
+echo "📋 Verifying build output..."
+if [ ! -d "dist/public" ]; then
+    echo "❌ dist/public directory not found!"
+    echo "   Make sure 'npm run build:client' completed successfully"
+    exit 1
+fi
+
+if [ ! -f "dist/public/index.html" ]; then
+    echo "❌ dist/public/index.html not found!"
+    echo "   Make sure Vite build completed successfully"
+    exit 1
+fi
+
+# Check for assets
+ASSETS_COUNT=$(find dist/public/assets -name "*.css" -o -name "*.js" 2>/dev/null | wc -l)
+if [ "$ASSETS_COUNT" -eq 0 ]; then
+    echo "❌ No CSS/JS assets found in dist/public/assets/"
+    echo "   Make sure Vite build generated assets correctly"
+    exit 1
+fi
+
+echo "✅ Build verification passed!"
+echo "   - Found index.html"
+echo "   - Found $ASSETS_COUNT asset files"
+
+# Deploy to Fly.io
+echo "🚁 Deploying to Fly.io..."
+fly deploy --no-cache
+
+echo "✅ Deployment completed successfully!"
+echo "🌐 Your app should be available at: https://white-sun-1985.fly.dev"
+echo ""
+echo "🔧 Troubleshooting tips:"
+echo "   - Check logs: fly logs"
+echo "   - Check status: fly status"
+echo "   - Open app: fly open"
+echo "   - SSH into app: fly ssh console"
 
 # Colors for output
 RED='\033[0;31m'
