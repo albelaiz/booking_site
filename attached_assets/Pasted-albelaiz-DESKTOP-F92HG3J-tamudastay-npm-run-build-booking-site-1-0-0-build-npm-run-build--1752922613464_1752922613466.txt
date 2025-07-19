@@ -1,0 +1,86 @@
+albelaiz@DESKTOP-F92HG3J:~/tamudastay$ npm run build
+
+> booking-site@1.0.0 build
+> npm run build:server && npm run build:client
+
+
+> booking-site@1.0.0 build:server
+> tsc -p tsconfig.server.json && tsc-alias -p tsconfig.server.json && node scripts/fix-imports.js
+
+server/index.ts:67:24 - error TS2304: Cannot find name 'authRoutes'.
+
+67   app.use('/api/auth', authRoutes);
+                          ~~~~~~~~~~
+
+server/index.ts:68:25 - error TS2304: Cannot find name 'usersRoutes'.
+
+68   app.use('/api/users', usersRoutes);
+                           ~~~~~~~~~~~
+
+server/index.ts:69:28 - error TS2304: Cannot find name 'bookingsRoutes'.
+
+69   app.use('/api/bookings', bookingsRoutes);
+                              ~~~~~~~~~~~~~~
+
+server/index.ts:70:28 - error TS2304: Cannot find name 'messagesRoutes'.
+
+70   app.use('/api/messages', messagesRoutes);
+                              ~~~~~~~~~~~~~~
+
+server/index.ts:71:30 - error TS2304: Cannot find name 'auditLogRoutes'.
+
+71   app.use('/api/audit-logs', auditLogRoutes);
+                                ~~~~~~~~~~~~~~
+
+server/index.ts:72:32 - error TS2304: Cannot find name 'testimonialsRoutes'.
+
+72   app.use('/api/testimonials', testimonialsRoutes);
+                                  ~~~~~~~~~~~~~~~~~~
+
+server/index.ts:75:19 - error TS2304: Cannot find name 'publicPropertiesRoutes'.
+
+75   app.use('/api', publicPropertiesRoutes);
+                     ~~~~~~~~~~~~~~~~~~~~~~
+
+server/index.ts:76:25 - error TS2304: Cannot find name 'requireAuth'.
+
+76   app.use('/api/admin', requireAuth, requireRole(['admin']), adminPropertiesRoutes);
+                           ~~~~~~~~~~~
+
+server/index.ts:76:38 - error TS2304: Cannot find name 'requireRole'.
+
+76   app.use('/api/admin', requireAuth, requireRole(['admin']), adminPropertiesRoutes);
+                                        ~~~~~~~~~~~
+
+server/index.ts:76:62 - error TS2304: Cannot find name 'adminPropertiesRoutes'.
+
+76   app.use('/api/admin', requireAuth, requireRole(['admin']), adminPropertiesRoutes);
+                                                                ~~~~~~~~~~~~~~~~~~~~~
+
+server/index.ts:77:24 - error TS2304: Cannot find name 'requireAuth'.
+
+77   app.use('/api/host', requireAuth, requireRole(['admin', 'staff', 'owner', 'host']), hostPropertiesRoutes);
+                          ~~~~~~~~~~~
+
+server/index.ts:77:37 - error TS2304: Cannot find name 'requireRole'.
+
+77   app.use('/api/host', requireAuth, requireRole(['admin', 'staff', 'owner', 'host']), hostPropertiesRoutes);
+                                       ~~~~~~~~~~~
+
+server/index.ts:77:87 - error TS2304: Cannot find name 'hostPropertiesRoutes'.
+
+77   app.use('/api/host', requireAuth, requireRole(['admin', 'staff', 'owner', 'host']), hostPropertiesRoutes);
+                                                                                         ~~~~~~~~~~~~~~~~~~~~
+
+server/index.ts:78:30 - error TS2304: Cannot find name 'requireAuth'.
+
+78   app.use('/api/properties', requireAuth, propertiesRoutes);
+                                ~~~~~~~~~~~
+
+server/index.ts:78:43 - error TS2304: Cannot find name 'propertiesRoutes'.
+
+78   app.use('/api/properties', requireAuth, propertiesRoutes);
+                                             ~~~~~~~~~~~~~~~~
+
+
+Found 15 errors in the same file, starting at: server/index.ts:67
