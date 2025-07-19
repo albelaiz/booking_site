@@ -63,20 +63,6 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // API Routes with '/api' prefix
-  app.use('/api/auth', authRoutes);
-  app.use('/api/users', usersRoutes);
-  app.use('/api/bookings', bookingsRoutes);
-  app.use('/api/messages', messagesRoutes);
-  app.use('/api/audit-logs', auditLogRoutes);
-  app.use('/api/testimonials', testimonialsRoutes);
-
-  // Properties routes with different access levels
-  app.use('/api', publicPropertiesRoutes);
-  app.use('/api/admin', requireAuth, requireRole(['admin']), adminPropertiesRoutes);
-  app.use('/api/host', requireAuth, requireRole(['admin', 'staff', 'owner', 'host']), hostPropertiesRoutes);
-  app.use('/api/properties', requireAuth, propertiesRoutes);
-
   // Health check endpoint
   app.get('/api/health', (req, res) => {
     res.json({ 
