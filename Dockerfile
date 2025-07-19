@@ -51,6 +51,8 @@ COPY --from=build --chown=nodejs:nodejs /app/package.json ./package.json
 COPY --from=build --chown=nodejs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=build --chown=nodejs:nodejs /app/migrations ./migrations
 COPY --from=build --chown=nodejs:nodejs /app/shared ./shared
+# Copy built frontend to server's public directory  
+COPY --from=build --chown=nodejs:nodejs /app/dist/public ./public
 
 # Install only production dependencies
 RUN npm install --omit=dev && \
