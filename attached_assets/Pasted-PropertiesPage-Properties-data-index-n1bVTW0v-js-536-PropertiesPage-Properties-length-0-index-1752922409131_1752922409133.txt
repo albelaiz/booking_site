@@ -1,0 +1,83 @@
+PropertiesPage: Properties data: []
+index-n1bVTW0v.js:536 PropertiesPage: Properties length: 0
+index-n1bVTW0v.js:536 PropertiesPage: Search params: {location: 'Belyounech', checkIn: null, checkOut: null, guests: undefined}
+index-n1bVTW0v.js:536 PropertiesPage: Filtered properties: []
+index-n1bVTW0v.js:442  GET https://tamudastay.fly.dev/api/messages 404 (Not Found)
+getAll @ index-n1bVTW0v.js:442
+o @ index-n1bVTW0v.js:442
+(anonymous) @ index-n1bVTW0v.js:442
+Mu @ index-n1bVTW0v.js:40
+$o @ index-n1bVTW0v.js:40
+Uv @ index-n1bVTW0v.js:40
+la @ index-n1bVTW0v.js:38
+lP @ index-n1bVTW0v.js:40
+ga @ index-n1bVTW0v.js:40
+pj @ index-n1bVTW0v.js:40
+N @ index-n1bVTW0v.js:25
+T @ index-n1bVTW0v.js:25Understand this error
+index-n1bVTW0v.js:442 API not available, using fallback data
+getAll @ index-n1bVTW0v.js:442
+await in getAll
+o @ index-n1bVTW0v.js:442
+(anonymous) @ index-n1bVTW0v.js:442
+Mu @ index-n1bVTW0v.js:40
+$o @ index-n1bVTW0v.js:40
+Uv @ index-n1bVTW0v.js:40
+la @ index-n1bVTW0v.js:38
+lP @ index-n1bVTW0v.js:40
+ga @ index-n1bVTW0v.js:40
+pj @ index-n1bVTW0v.js:40
+N @ index-n1bVTW0v.js:25
+T @ index-n1bVTW0v.js:25Understand this warning
+index-n1bVTW0v.js:442  GET https://tamudastay.fly.dev/api/properties/public 404 (Not Found)
+o @ index-n1bVTW0v.js:442
+(anonymous) @ index-n1bVTW0v.js:442
+Mu @ index-n1bVTW0v.js:40
+$o @ index-n1bVTW0v.js:40
+Uv @ index-n1bVTW0v.js:40
+la @ index-n1bVTW0v.js:38
+lP @ index-n1bVTW0v.js:40
+ga @ index-n1bVTW0v.js:40
+pj @ index-n1bVTW0v.js:40
+N @ index-n1bVTW0v.js:25
+T @ index-n1bVTW0v.js:25Understand this error
+index-n1bVTW0v.js:442 Failed to fetch properties
+o @ index-n1bVTW0v.js:442
+await in o
+(anonymous) @ index-n1bVTW0v.js:442
+Mu @ index-n1bVTW0v.js:40
+$o @ index-n1bVTW0v.js:40
+Uv @ index-n1bVTW0v.js:40
+la @ index-n1bVTW0v.js:38
+lP @ index-n1bVTW0v.js:40
+ga @ index-n1bVTW0v.js:40
+pj @ index-n1bVTW0v.js:40
+N @ index-n1bVTW0v.js:25
+T @ index-n1bVTW0v.js:25Understand this error
+index-n1bVTW0v.js:442  GET https://tamudastay.fly.dev/api/bookings 404 (Not Found)
+getAll @ index-n1bVTW0v.js:442
+(anonymous) @ index-n1bVTW0v.js:442
+(anonymous) @ index-n1bVTW0v.js:442
+Mu @ index-n1bVTW0v.js:40
+$o @ index-n1bVTW0v.js:40
+Uv @ index-n1bVTW0v.js:40
+la @ index-n1bVTW0v.js:38
+lP @ index-n1bVTW0v.js:40
+ga @ index-n1bVTW0v.js:40
+pj @ index-n1bVTW0v.js:40
+N @ index-n1bVTW0v.js:25
+T @ index-n1bVTW0v.js:25Understand this error
+index-n1bVTW0v.js:442 API not available, using fallback data
+getAll @ index-n1bVTW0v.js:442
+await in getAll
+(anonymous) @ index-n1bVTW0v.js:442
+(anonymous) @ index-n1bVTW0v.js:442
+Mu @ index-n1bVTW0v.js:40
+$o @ index-n1bVTW0v.js:40
+Uv @ index-n1bVTW0v.js:40
+la @ index-n1bVTW0v.js:38
+lP @ index-n1bVTW0v.js:40
+ga @ index-n1bVTW0v.js:40
+pj @ index-n1bVTW0v.js:40
+N @ index-n1bVTW0v.js:25
+T @ index-n1bVTW0v.js:25Understand this warning
