@@ -78,6 +78,9 @@ app.use((req, res, next) => {
     console.log(`🚀 Server running on ${host}:${port}`);
     console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🗄️  Database: Connected to MySQL`);
+    console.log(`🔗 API available at: http://${host}:${port}/api`);
+    console.log(`📝 Health check: http://${host}:${port}/api/health`);
+    console.log(`🏠 Properties API: http://${host}:${port}/api/properties/public`);
     log(`serving on port ${port}`);
   });
 })();
