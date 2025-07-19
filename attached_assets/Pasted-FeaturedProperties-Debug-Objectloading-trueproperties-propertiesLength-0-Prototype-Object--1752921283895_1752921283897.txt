@@ -1,0 +1,31 @@
+FeaturedProperties Debug: Objectloading: trueproperties: []propertiesLength: 0[[Prototype]]: Object
+index-n1bVTW0v.js:495 Featured Properties Debug: ObjectfeaturedCount: 0featuredProperties: [][[Prototype]]: Object
+/api/messages:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-n1bVTW0v.js:442 API not available, using fallback data
+getAll @ index-n1bVTW0v.js:442Understand this warning
+/api/bookings:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-n1bVTW0v.js:442 API not available, using fallback data
+getAll @ index-n1bVTW0v.js:442Understand this warning
+/api/properties/public:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-n1bVTW0v.js:442 Failed to fetch properties
+o @ index-n1bVTW0v.js:442Understand this error
+index-n1bVTW0v.js:495 FeaturedProperties Debug: Object
+index-n1bVTW0v.js:495 Featured Properties Debug: Object
+index-n1bVTW0v.js:495 FeaturedProperties Debug: Object
+index-n1bVTW0v.js:495 Featured Properties Debug: Object
+/api/properties/public:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-n1bVTW0v.js:442 Failed to fetch properties
+o @ index-n1bVTW0v.js:442Understand this error
+index-n1bVTW0v.js:495 FeaturedProperties Debug: Objectloading: falseproperties: []propertiesLength: 0[[Prototype]]: Object
+index-n1bVTW0v.js:495 Featured Properties Debug: ObjectfeaturedCount: 0featuredProperties: [][[Prototype]]: Object
+index-n1bVTW0v.js:495 FeaturedProperties Debug: Objectloading: trueproperties: []propertiesLength: 0[[Prototype]]: Object
+index-n1bVTW0v.js:495 Featured Properties Debug: ObjectfeaturedCount: 0featuredProperties: [][[Prototype]]: Object
+/api/properties/public:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-n1bVTW0v.js:442 Failed to fetch properties
+o @ index-n1bVTW0v.js:442Understand this error
+index-n1bVTW0v.js:495 FeaturedProperties Debug: Object
+index-n1bVTW0v.js:495 Featured Properties Debug: Object
+index-n1bVTW0v.js:536 PropertiesPage: Properties data: Array(0)
+index-n1bVTW0v.js:536 PropertiesPage: Properties length: 0
+index-n1bVTW0v.js:536 PropertiesPage: Search params: Object
+index-n1bVTW0v.js:536 PropertiesPage: Filtered properties: Array(0)
