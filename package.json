@@ -12,7 +12,7 @@
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc -p tsconfig.server.json && tsc-alias -p tsconfig.server.json && node scripts/fix-imports.js",
     "build:client": "vite build",
-    "start": "node server.js",
+    "start": "NODE_ENV=production node dist/server/index.js",
     "start:legacy": "NODE_ENV=production node dist/server/index.js",
     "railway:install": "npm ci --no-cache --omit=dev --prefer-offline",
     "railway:build": "npm ci --include=dev && npm run build",
