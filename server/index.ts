@@ -70,22 +70,6 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Serve static files (React build) from the correct path
-  const staticPath = path.join(__dirname, '../public');
-  app.use(express.static(staticPath, {
-    maxAge: '1d',
-    etag: false
-  }));
-
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    // Don't serve index.html for API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'API route not found' });
-    }
-    res.sendFile(path.join(staticPath, 'index.html'));
-  });
-
   // Railway-compatible server configuration
   const port = parseInt(process.env.PORT || (app.get("env") === "development" ? "5000" : "3000"));
   const host = "0.0.0.0";
