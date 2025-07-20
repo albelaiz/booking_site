@@ -68,11 +68,11 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // خدمة ملفات الواجهة الأمامية
-app.use(express.static(path.join(__dirname, "../client/dist")));
+app.use(express.static(path.join(__dirname, "../client")));
 
 // SPA fallback - إعادة إرسال index.html لأي طلب غير مسجل
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  res.sendFile(path.join(__dirname, "../client/index.html"));
 });
 
 // إدارة الأخطاء النهائية

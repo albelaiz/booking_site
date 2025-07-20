@@ -3,26 +3,25 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// لتحديد المسار الحالي (ضروري في ESM)
+// تحديد __dirname في نظام ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// تصدير إعداد Vite
 export default defineConfig({
-  base: "/", // ✅ ضروري لتجنب مشاكل تحميل الملفات عبر IP أو مسارات غير صحيحة
+  base: './', // مهم لتفادي مشاكل تحميل الملفات على مسارات غير جذرية (مثلاً عبر IP)
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "client", "src"), // للوصول السريع إلى src
-      "@shared": path.resolve(__dirname, "shared"),   // لمشاركة الملفات بين السيرفر والفرونت
+      "@": path.resolve(__dirname, "client", "src"),  // اختصار للوصول لمجلد src داخل client
+      "@shared": path.resolve(__dirname, "shared"),   // لمشاركة ملفات بين السيرفر والفرونت
     },
   },
-  root: path.resolve(__dirname, "client"), // مجلد المشروع الرئيسي للفرونت
+  root: path.resolve(__dirname, "client"), // مجلد العمل الرئيسي للفرونت إند
   build: {
-    outDir: path.resolve(__dirname, "dist/public"), // مكان إخراج الملفات بعد البناء
-    emptyOutDir: true, // حذف الملفات القديمة قبل البناء
+    outDir: path.resolve(__dirname, "dist/public"), // مجلد إخراج ملفات البناء (واحد مستوى فوق client)
+    emptyOutDir: true, // يمسح محتويات مجلد الإخراج قبل البناء
   },
   server: {
-    host: "0.0.0.0", // يسمح بالوصول من خلال IP
-    port: 8080, // رقم البورت
+    host: "0.0.0.0", // يسمح بالوصول إلى السيرفر من أي IP (مهم في بيئات التطوير الشبكية)
+    port: 8080,       // رقم بورت سيرفر التطوير
   },
 });
