@@ -22,7 +22,7 @@ app.get('/api/test', (req, res) => {
 });
 
 // Serve static files from dist/public (Vite build output)
-const distPath = path.join(__dirname, 'dist', 'public');
+const distPath = path.join(__dirname, "../dist/public");
 app.use(express.static(distPath, {
   maxAge: '1d',
   setHeaders: (res, filePath) => {
